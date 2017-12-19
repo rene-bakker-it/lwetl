@@ -8,6 +8,8 @@ It is intended as a administrative-, or development-tool to script quick modific
 an existing database. It uses python 3 in combination with the
 JayDeBeApi_  module and JDBC jar files.
 
+Detailed documentation may be found on `read the docs`_.
+
 Typical usage
 =============
 - extract data from a database, either through a command-line interface, or through python classes.
@@ -114,3 +116,4 @@ Calculate an md5 checksum of each row of a table
 
 .. _JayDeBeApi: https://pypi.python.org/pypi/JayDeBeApi
 .. _Anaconda: https://www.anaconda.com/download/#windows
+.. _read the docs: http://lwetl.readthedocs.io/en/latest/index.html
