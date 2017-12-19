@@ -113,3 +113,4 @@ Calculate an md5 checksum of each row of a table
         jdbc.commit()
 
 .. _JayDeBeApi: https://pypi.python.org/pypi/JayDeBeApi
+.. _Anaconda: https://www.anaconda.com/download/#windows
