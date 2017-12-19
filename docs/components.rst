@@ -11,4 +11,3 @@ Index
     components/connection
     components/import
     components/export
-    modules
