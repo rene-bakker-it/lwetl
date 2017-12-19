@@ -53,7 +53,7 @@ Transfer a table over an ssh pipe from oracle to mysql from the command prompt.
 
 ::
 
-  sql-query -f sql -2 NEW_TABLE 'scott/tiger@orasrv' "SELECT * FROM THE_TABLE ORDER BY ID" |
+  sql-query -f sql -t mysql?NEW_TABLE 'scott/tiger@orasrv' "SELECT * FROM THE_TABLE ORDER BY ID" |
      ssh other_user@other_machine "cat > sql-query 'scott/tiger@local_mysql'"
 
 Dump a table into a xlsx file.
