@@ -1,0 +1,81 @@
+# user defined environment variables
+env:
+    ORACLE_HOME:   /usr/lib/oracle/12.1/client64
+    TNS:           /usr/lib/oracle/12.1/client64/network/admin/tnsnames.ora
+
+# jdbc drivers identified by a type (used as type in the next section)
+#
+# required parameters:
+# - jar:    url to download the jdbc jar file if not found on the module library
+#           may either be an url or a fixed reference to a file on the file-system
+# - class:  name of the class to use in the jar file
+# - url:    start of the connection url, will be extended with the url defined in the section 'servers'
+#
+# optional parameters:
+# - attr:   additional attributes to add at the end of the generated connection url
+# - escape: boolean - if set to true, all column names will be escaped in the uploader routines. Permits the
+#           use of reserved words as column names.
+#           WARNING: not implemented for postgresql
+#
+# WARNING: the strings used to define the driver types below are also used in the python code and should not be changed.
+drivers:
+    sqlserver:
+        # binary upload for jtds driver not supported
+        jar:   'http://central.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.3.5.jre8-preview/mssql-jdbc-6.3.5.jre8-preview.jar'
+        class: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        url:   'jdbc:sqlserver://'
+
+    mysql:
+        jar:   'http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39.jar'
+        class: 'com.mysql.jdbc.Driver'
+        url:   'jdbc:mysql://'
+        attr:  '?autoReconnect=true&useSSL=false'
+        escape: true
+
+    oracle:
+        jar:   'https://maven.atlassian.com/3rdparty/com/oracle/ojdbc6/12.1.0.1-atlassian-hosted/ojdbc6-12.1.0.1-atlassian-hosted.jar'
+        class: 'oracle.jdbc.OracleDriver'
+        url:   'jdbc:oracle:thin:@'
+
+    postgresql:
+        # jar:   'http://central.maven.org/maven2/org/postgresql/postgresql/42.1.4.jre7/postgresql-42.1.4.jre7.jar'
+        jar:   'https://maven.atlassian.com/3rdparty/postgresql/postgresql/9.4.1208-jdbc42-atlassian-hosted/postgresql-9.4.1208-jdbc42-atlassian-hosted.jar'
+        class: 'org.postgresql.Driver'
+        url:   'jdbc:postgresql://'
+
+    sqlite:
+        jar:    'http://central.maven.org/maven2/org/xerial/sqlite-jdbc/3.21.0/sqlite-jdbc-3.21.0.jar'
+        class:  'org.sqlite.JDBC'
+        url:    'jdbc:sqlite:'
+
+# servers
+# defines database servers on the schema (instance) level
+#
+# required parameters:
+# - type - must be one of the types defined in drivers
+# - url  - connection url. The complete url is <url_driver><url server><attr driver>
+#
+# NOTE: for ORACLE additional server names may be obtained from the file tnsnames.ora
+servers:
+    scott_mysql:
+        type: mysql
+        url:  "localhost:3306/scott"
+    scott_postgresql:
+        type: postgresql
+        url:  "172.22.11.41:5432/scott"
+    scott_sqlserver:
+        type: sqlserver
+        url:  '172.22.11.41:1534;databaseName=scott'
+    scott_sqlite:
+        type: sqlite
+        url:  'tests/output/scott.db'
+        # use ':memory:' for in-memory db
+
+# alias for connections, in ORACLE credentials format
+# <username>/<password>@<servername>
+alias:
+    scott_mysql:      "scott/tiger@scott_mysql"
+    scott_postgresql: "scott/tiger@scott_postgresql"
+    scott_sqlserver:  "scott/tiger@scott_sqlserver"
+    scott_oracle:     "scott/tiger@scott_oracle"
+    scot:             "scot/xxxxxxxx@tns_entry"

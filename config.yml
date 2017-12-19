@@ -1,0 +1,29 @@
+# Minimum installation
+# see config-example.yml for documentation
+drivers:
+    mysql:
+        jar:   'http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39.jar'
+        class: 'com.mysql.jdbc.Driver'
+        url:   'jdbc:mysql://'
+        attr:  '?autoReconnect=true&useSSL=false'
+        escape: true
+
+    oracle:
+        jar:   'https://maven.atlassian.com/3rdparty/com/oracle/ojdbc6/12.1.0.1-atlassian-hosted/ojdbc6-12.1.0.1-atlassian-hosted.jar'
+        class: 'oracle.jdbc.OracleDriver'
+        url:   'jdbc:oracle:thin:@'
+
+    postgresql:
+        jar:   'https://maven.atlassian.com/3rdparty/postgresql/postgresql/9.4.1208-jdbc42-atlassian-hosted/postgresql-9.4.1208-jdbc42-atlassian-hosted.jar'
+        class: 'org.postgresql.Driver'
+        url:   'jdbc:postgresql://'
+
+    sqlserver:
+        jar:   'http://central.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.3.5.jre8-preview/mssql-jdbc-6.3.5.jre8-preview.jar'
+        class: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        url:   'jdbc:sqlserver://'
+
+    sqlite:
+        jar:    'http://central.maven.org/maven2/org/xerial/sqlite-jdbc/3.21.0/sqlite-jdbc-3.21.0.jar'
+        class:  'org.sqlite.JDBC'
+        url:    'jdbc:sqlite:'

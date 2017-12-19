@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+pytest -q --html=report.html --show-progress tests/test.py "$@"
