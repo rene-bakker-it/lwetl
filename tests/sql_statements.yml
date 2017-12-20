@@ -49,6 +49,14 @@ oracle:
                 REMOTEUSER	VARCHAR2(128),
                 PRIMARY KEY(ID)
             );
+        t4: |
+            CREATE TABLE LWETL_ENC (
+                ID INT NOT NULL,
+                LANG1 VARCHAR2(256) NOT NULL,
+                LANG2 VARCHAR2(256),
+                VAL   VARCHAR2(1024 CHAR) NOT NULL,
+                PRIMARY KEY(ID)
+            );
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
@@ -58,6 +66,7 @@ oracle:
         t1: "DROP TABLE LWETL_LOG CASCADE CONSTRAINTS;"
         t2: "DROP TABLE LWETL_ORDER CASCADE CONSTRAINTS;"
         t3: "DROP TABLE LWETL_PRODUCT CASCADE CONSTRAINTS;"
+        t4: "DROP TABLE LWETL_ENC CASCADE CONSTRAINTS;"
     insert:
         s1:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (1,'BIKE',   99.95);"
         s2:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (2,'CAR', 10000.00);"
@@ -79,6 +88,10 @@ oracle:
     csv:
         file: "price_list.csv"
         table: LWETL_PRODUCT
+    ldif:
+        file: "ldif.txt"
+        table: LWETL_PRODUCT
+    enc: true
 
 mysql:
     disabled: false
@@ -122,12 +135,20 @@ mysql:
                 REMOTEHOST	VARCHAR(128),
                 REMOTEUSER	VARCHAR(128)
             );
+        t4: |
+            CREATE TABLE LWETL_ENC (
+                ID INT NOT NULL PRIMARY KEY,
+                LANG1 VARCHAR(256) NOT NULL,
+                LANG2 VARCHAR(256),
+                VAL   VARCHAR(1024) NOT NULL
+            );
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
         t1: "DROP TABLE LWETL_LOG;"
         t2: "DROP TABLE LWETL_ORDER;"
         t3: "DROP TABLE LWETL_PRODUCT;"
+        t4: "DROP TABLE LWETL_ENC;"
     insert:
         s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
         s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
@@ -146,6 +167,9 @@ mysql:
         table: LWETL_PRODUCT
     csv:
         file: "price_list.csv"
+        table: LWETL_PRODUCT
+    ldif:
+        file: "ldif.txt"
         table: LWETL_PRODUCT
 
 sqlserver:
@@ -192,12 +216,20 @@ sqlserver:
                 REMOTEHOST	NVARCHAR(128),
                 REMOTEUSER	NVARCHAR(128)
             );
+        t4: |
+            CREATE TABLE LWETL_ENC (
+                ID INT NOT NULL PRIMARY KEY,
+                LANG1 NVARCHAR(256) NOT NULL,
+                LANG2 NVARCHAR(256),
+                VAL   NVARCHAR(1024) NOT NULL
+            );
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
         t1: "DROP TABLE LWETL_LOG;"
         t2: "DROP TABLE LWETL_ORDER;"
         t3: "DROP TABLE LWETL_PRODUCT;"
+        t4: "DROP TABLE LWETL_ENC;"
     insert:
         s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
         s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
@@ -217,6 +249,9 @@ sqlserver:
         table: LWETL_PRODUCT
     csv:
         file: "price_list.csv"
+        table: LWETL_PRODUCT
+    ldif:
+        file: "ldif.txt"
         table: LWETL_PRODUCT
 
 postgresql:
@@ -261,12 +296,20 @@ postgresql:
                 REMOTEHOST	VARCHAR(128),
                 REMOTEUSER	VARCHAR(128)
             );
+        t4: |
+            CREATE TABLE LWETL_ENC (
+                ID INT NOT NULL PRIMARY KEY,
+                LANG1 VARCHAR(256) NOT NULL,
+                LANG2 VARCHAR(256),
+                VAL   VARCHAR(1024) NOT NULL
+            );
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
         t1: "DROP TABLE LWETL_LOG;"
         t2: "DROP TABLE LWETL_ORDER;"
         t3: "DROP TABLE LWETL_PRODUCT;"
+        t4: "DROP TABLE LWETL_ENC;"
     insert:
         s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
         s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
@@ -287,6 +330,9 @@ postgresql:
         table: LWETL_PRODUCT
     csv:
         file: "price_list.csv"
+        table: LWETL_PRODUCT
+    ldif:
+        file: "ldif.txt"
         table: LWETL_PRODUCT
 
 sqlite:
@@ -311,11 +357,19 @@ sqlite:
                 ID_PRODUCT INTEGER,
                 FOREIGN KEY(ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID)
             );
+        t3: |
+            CREATE TABLE LWETL_ENC (
+                ID INTEGER PRIMARY KEY,
+                LANG1 TEXT NOT NULL,
+                LANG2 TEXT,
+                VAL   TEXT NULL
+            );
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
         t1: "DROP TABLE LWETL_ORDER;"
         t2: "DROP TABLE LWETL_PRODUCT;"
+        t3: "DROP TABLE LWETL_ENC;"
     insert:
         s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
         s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
@@ -336,4 +390,7 @@ sqlite:
         table: LWETL_PRODUCT
     csv:
         file: "price_list.csv"
+        table: LWETL_PRODUCT
+    ldif:
+        file: "ldif.txt"
         table: LWETL_PRODUCT

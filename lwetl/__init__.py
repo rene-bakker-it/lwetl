@@ -14,6 +14,7 @@ from .version import __version__
 # defined exceptions
 from .exceptions import SQLExcecuteException, ServiceNotFoundException, DriverNotFoundException, CommitException
 
+
 # Main classes
 from .jdbc import Jdbc
 from .jdbc_info import JdbcInfo
@@ -28,7 +29,7 @@ from .uploader import UPLOAD_MODE_DRYRUN, UPLOAD_MODE_ROLLBACK, UPLOAD_MODE_COMM
     NativeUploader, ParameterUploader, MultiParameterUploader
 
 # table imports
-from .table_import import CsvImport, XlsxImport
+from .table_import import CsvImport, LdifImport, XlsxImport
 
 # runtime statistics
 from .runtime_statistics import get_execution_statistics, tag_connection

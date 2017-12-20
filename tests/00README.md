@@ -14,7 +14,7 @@ types, which are defined in this file, are tested unless the parameter `disabled
 
 #### MySQL
 
-        create database scott;
+        create database scott character set utf8;
         create user scott;
         grant select, insert, delete, update, create, drop, alter, references
             on scott.* to 'scott'@'localhost' identified by 'tiger'; 

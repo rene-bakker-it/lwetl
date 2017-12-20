@@ -253,7 +253,7 @@ class Uploader:
                     self.jdbc.commit(self.cursor)
                 else:
                     self.jdbc.rollback(self.cursor)
-            except (SQLExcecuteException, LookupError) as commit_exception:
+            except (SQLExcecuteException, LookupError, CommitException) as commit_exception:
                 error = commit_exception
         elif (self.commit_mode == UPLOAD_MODE_DRYRUN) and (self.fstream is not None):
             print('DRY-RUN COMMIT %s %d rows.' % (self.table, self.row_count), file=self.fstream)

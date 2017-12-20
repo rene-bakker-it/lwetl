@@ -1,3 +1,5 @@
+import jaydebeapi
+
 class ServiceNotFoundException(RuntimeError):
     """
     Thrown when the configured database server cannot be configured.
@@ -17,6 +19,9 @@ class SQLExcecuteException(Exception):
     """
     Thrown when the SQL cannot be parsed
     """
+    pass
+
+class DatabaseError(jaydebeapi.DatabaseError):
     pass
 
 class CommitException(Exception):

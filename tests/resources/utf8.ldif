@@ -1,0 +1,908 @@
+dn: sn=albanian
+sn: albanian
+indx: 1000
+value:: VW7DqyBtdW5kIHTDqyBoYSBxZWxxIGRoZSBudWsgbcOrIGdqZW4gZ2rDqy4=
+
+dn: sn=arabic
+sn: arabic
+indx: 2000
+value:: 2KPZhtinINmC2KfYr9ixINi52YTZiSDYo9mD2YQg2KfZhNiy2KzYp9isINmIINmH
+ 2LDYpyDZhNinINmK2KTZhNmF2YbZii4=
+
+dn: sn=armenian
+sn: armenian
+indx: 3000
+value:: 1L/WgNW21aHVtCDVodW61aHVr9WrINW41oLVv9Wl1awg1ocg1avVttWu1asg1aHV
+ ttWw1aHVttWj1avVvdW/INW51ajVttWl1oDWiQ==
+
+dn: sn=bangla
+sn: bangla
+indx: 4000
+value:: 4KaG4Kau4Ka/IOCmleCmvuCmgeCmmiDgppbgp4fgpqTgp4cg4Kaq4Ka+4Kaw4Ka/
+ LCDgpqTgpr7gpqTgp4cg4KaG4Kau4Ka+4KawIOCmleCni+CmqOCniyDgppXgp43g
+ prfgpqTgpr8g4Ka54KefIOCmqOCmvuClpA==
+
+dn: sn=belarusian, cn=cyrillic
+sn: belarusian
+cn: cyrillic
+indx: 5001
+value:: 0K8g0LzQsNCz0YMg0LXRgdGG0ZYg0YjQutC70L4sINGP0L3QviDQvNC90LUg0L3Q
+ tSDRiNC60L7QtNC30ZbRhtGMLg==
+
+dn: sn=belarusian, cn=lacinka
+sn: belarusian
+cn: lacinka
+indx: 5002
+value:: SmEgbWFodSBqZcWbY2kgxaFrxYJvLCBqYW5vIG1uZSBuZSDFoWtvZHppxIcu
+
+dn: sn=bislama
+sn: bislama
+indx: 6000
+value: Mi save kakae glas, hemi no save katem mi.
+
+dn: sn=bosnian, cn=cyrillic
+sn: bosnian
+cn: cyrillic
+indx: 7001
+value:: 0IjQsCDQvNC+0LPRgyDRmNC10YHRgtC4INGB0YLQsNC60LvQviwg0Lgg0YLQviDQ
+ vNC4INC90LUg0YjRgtC10YLQuC4=
+
+dn: sn=bosnian, cn=latin
+sn: bosnian
+cn: latin
+indx: 7002
+value:: SmEgbW9ndSBqZXN0aSBzdGFrbG8sIGkgdG8gbWkgbmUgxaF0ZXRpLg==
+
+dn: sn=bulgarian
+sn: bulgarian
+indx: 8000
+value:: 0JzQvtCz0LAg0LTQsCDRj9C8INGB0YLRitC60LvQviwg0YLQviDQvdC1INC80Lgg
+ 0LLRgNC10LTQuC4=
+
+dn: sn=burmese
+sn: burmese
+indx: 9000
+value:: 4YCA4YC54YCa4YC54YCd4YCU4YC54oCM4YCQ4YCx4YCs4YC54oCM4YGK4YCA4YC5
+ 4YCa4YC54YCd4YCU4YC54oCM4YCZIOGAmeGAueGAmuGAgOGAueKAjOGAheGArOGA
+ uOGAlOGAr+GAreGAhOGAueKAjOGAnuGAiuGAueKAjOGBiyDhgY7hgIDhgLnhgJvh
+ gLHhgKzhgIThgLnigIzhgLcg4YCR4YCt4YCB4YCv4YCt4YCA4YC54oCM4YCZ4YC5
+ 4YCf4YCvIOGAmeGAm+GAueGAn+GAreGAleGArOGBiyAoOSk=
+
+dn: sn=chamorro
+sn: chamorro
+indx: 10000
+value:: U2nDsWEgeW8nIGNodW1vY2hvIGtyZXN0YXQsIHRpIGhhIG5hJ2xhbGFtZW4geW8n
+ Lg==
+
+dn: sn=chinese, cn=simplified
+sn: chinese
+cn: simplified
+indx: 11001
+value:: 5oiR6IO95ZCe5LiL546755KD6ICM5LiN5Lyk6Lqr5L2T44CC
+
+dn: sn=chinese, cn=traditional
+sn: chinese
+cn: traditional
+indx: 11002
+value:: 5oiR6IO95ZCe5LiL546755KD6ICM5LiN5YK36Lqr6auU44CC
+
+dn: sn=chinook_jargon
+sn: chinook_jargon
+indx: 12000
+value:: TmFpa2EgbcmZa23JmWsga2Frc2jJmXQgbGFidXRheSwgcGkgd2V5ayB1a3VrIG11
+ bmstc2lrIG5heS4=
+
+dn: sn=czech
+sn: czech
+indx: 13000
+value:: TW9odSBqw61zdCBza2xvLCBuZXVibMOtxb7DrSBtaS4=
+
+dn: sn=english, cn=anglo_saxon
+sn: english
+cn: anglo_saxon
+indx: 14001
+value:: SWMgbcOmZyBnbMOmcyBlb3RhbiBvbmQgaGl0IG5lIGhlYXJtaWHDsCBtZS4=
+
+dn: sn=english, cn=braille
+sn: english
+cn: braille
+indx: 14002
+value:: 4qCK4qCA4qCJ4qCB4qCd4qCA4qCR4qCB4qCe4qCA4qCb4qCH4qCB4qCO4qCO4qCA
+ 4qCB4qCd4qCZ4qCA4qCK4qCe4qCA4qCZ4qCV4qCR4qCO4qCd4qCe4qCA4qCT4qCl
+ 4qCX4qCe4qCA4qCN4qCR
+
+dn: sn=english, cn=cornish
+sn: english
+cn: cornish
+indx: 14003
+value:: TcO9IGEgeWwgZHlicnkgZ3fDqWRlciBoYWcgw6lmIG55IHdyYSBvdyBhbmtlbnlh
+ Lg==
+
+dn: sn=english, cn=gaelic
+sn: english
+cn: gaelic
+indx: 14004
+value: Foddym gee glonney agh cha jean eh gortaghey mee.
+
+dn: sn=english, cn=ipa
+sn: english
+cn: ipa
+indx: 14005
+value:: W2HJqiBrw6ZuIGnLkHQgZ2zJkcuQcyDDpm5kIMmqdCBkyZB6IG7JknQgaMmcy5B0
+ IG1py5BdIChSZWNlaXZlZCBQcm9udW5jaWF0aW9uKQ==
+
+dn: sn=english, cn=irish
+sn: english
+cn: irish
+indx: 14006
+value:: SXMgZsOpaWRpciBsaW9tIGdsb2lubmUgYSBpdGhlLiBOw60gZGjDqWFuYW5uIHPD
+ rSBkb2NoYXIgYXIgYml0aCBkb20u
+
+dn: sn=english, cn=jamaican
+sn: english
+cn: jamaican
+indx: 14007
+value: Mi kian niam glas han i neba hot mi.
+
+dn: sn=english, cn=lalland_scots
+sn: english
+cn: lalland_scots
+indx: 14008
+value: Ah can eat gless, it disnae hurt us.
+
+dn: sn=english, cn=middle
+sn: english
+cn: middle
+indx: 14009
+value:: SWNoIGNhbm5lIGdsYXMgZXRlbiBhbmQgaGl0IGhpcnRpw74gbWUgbm91yJ10Lg==
+
+dn: sn=english, cn=old_irish_latin
+sn: english
+cn: old_irish_latin
+indx: 14010
+value:: Q29uwrdpY2NpbSBpdGhpIG5nbGFuby4gTsOtbcK3Z8OpbmEu
+
+dn: sn=english, cn=old_irish_ogham
+sn: english
+cn: old_irish_ogham
+indx: 14011
+value:: 4Zqb4Zqb4ZqJ4ZqR4ZqF4ZqU4ZqJ4ZqJ4ZqU4ZqL4ZqA4ZqU4ZqI4ZqU4ZqA4ZqN
+ 4ZqC4ZqQ4ZqF4ZqR4ZqA4ZqF4ZqU4ZqL4ZqM4ZqT4ZqF4ZqQ4Zqc
+
+dn: sn=english, cn=runes
+sn: english
+cn: runes
+indx: 14012
+value:: 4ZuB4Zqz4Zur4ZuX4Zqo4Zq34Zur4Zq34Zua4Zqo4ZuL4Zur4ZuW4Zqp4ZuP4Zqq
+ 4Zq+4Zur4Zqp4Zq+4Zue4Zur4Zq74ZuB4ZuP4Zur4Zq+4ZuW4Zur4Zq74ZuW4Zqq
+ 4Zqx4ZuX4ZuB4Zqq4Zqn4Zur4ZuX4ZuW4Zus
+
+dn: sn=english, cn=scottish_gaelic
+sn: english
+cn: scottish_gaelic
+indx: 14013
+value: S urrainn dhomh gloinne ithe; cha ghoirtich i mi.
+
+dn: sn=english, cn=standard
+sn: english
+cn: standard
+indx: 14014
+value: I can eat glass and it doesn't hurt me.
+
+dn: sn=english, cn=ulster_gaelic
+sn: english
+cn: ulster_gaelic
+indx: 14015
+value:: SXRoaW0tc2EgZ2xvaW5lIGFndXMgbsOtIG1pc3RlIGRhbWggw6ku
+
+dn: sn=english, cn=welsh
+sn: english
+cn: welsh
+indx: 14016
+value: Dw i'n gallu bwyta gwydr, 'dyw e ddim yn gwneud dolur i mi.
+
+dn: sn=erzian
+sn: erzian
+indx: 15000
+value:: 0JzQvtC9INGP0YDRgdCw0L0g0YHRg9C70LjQutCw0LTQviwg0LTRiyDQt9GL0Y/Q
+ vSDRjdC50YHRgtGN0L3Qt9GNINCwINGD0LvQuC4=
+
+dn: sn=esperanto
+sn: esperanto
+indx: 16000
+value:: TWkgcG92YXMgbWFuxJ1pIHZpdHJvbiwgxJ1pIG5lIGRhbWHEnWFzIG1pbi4=
+
+dn: sn=estonian
+sn: estonian
+indx: 17000
+value:: TWEgdsO1aW4ga2xhYXNpIHPDvMO8YSwgc2VlIGVpIHRlZSBtdWxsZSBtaWRhZ2ku
+
+dn: sn=farsi
+sn: farsi
+indx: 18000
+value:: LtmF2YYg2YXbjCDYqtmI2KfZhtmFINio2K/ZiNmG2ZAg2KfYrdiz2KfYsyDYr9ix
+ 2K8g2LTZiti02Ycg2KjYrtmI2LHZhQ==
+
+dn: sn=fijian
+sn: fijian
+indx: 19000
+value: Au rawa ni kana iloilo, ia au sega ni vakacacani kina.
+
+dn: sn=french, cn=occitan
+sn: french
+cn: occitan
+indx: 20001
+value:: UMOyZGkgbWFuamFyIGRlIHZlaXJlLCBtZSBuYWZyYXJpw6EgcGFzLg==
+
+dn: sn=french, cn=old
+sn: french
+cn: old
+indx: 20002
+value: Je puis mangier del voirre. Ne me nuit.
+
+dn: sn=french, cn=picard
+sn: french
+cn: picard
+indx: 20003
+value:: Q2gncGV1eCBtaW5naSBkdSB2ZXJyZSwgY2hhIG0nZm/DqSBtaWUgbidtYS4=
+
+dn: sn=french, cn=quebec
+sn: french
+cn: quebec
+indx: 20004
+value:: SidwZXV4IG1hbmdlciBkJ2xhIHZpdHJlLCDDp2EgbSdmYSBwYXMgbWFsLg==
+
+dn: sn=french, cn=standard
+sn: french
+cn: standard
+indx: 20005
+value:: SmUgcGV1eCBtYW5nZXIgZHUgdmVycmUsIMOnYSBuZSBtZSBmYWl0IHBhcyBtYWwu
+
+dn: sn=french, cn=walloon
+sn: french
+cn: walloon
+indx: 20006
+value:: RGppIHBvdSBtYWduw64gZG8gdsOqcmUsIMOnb3VsYSBtJyBmcmV1dCBuw6luIG3D
+ pS4=
+
+dn: sn=georgian
+sn: georgian
+indx: 21000
+value:: 4YOb4YOY4YOc4YOQ4YOhIOGDleGDreGDkOGDmyDhg5Phg5Ag4YOQ4YOg4YOQIOGD
+ m+GDouGDmeGDmOGDleGDkC4=
+
+dn: sn=german, cn=afrikaans
+sn: german
+cn: afrikaans
+indx: 22001
+value: Ek kan glas eet, maar dit doen my nie skade nie.
+
+dn: sn=german, cn=allemannisch
+sn: german
+cn: allemannisch
+indx: 22002
+value: I kaun Gloos essen, es tuat ma ned weh.
+
+dn: sn=german, cn=bayrisch
+sn: german
+cn: bayrisch
+indx: 22003
+value: I koh Glos esa, und es duard ma ned wei.
+
+dn: sn=german, cn=frysk
+sn: german
+cn: frysk
+indx: 22004
+value:: SWsga2luIGdsw6pzIGl0ZSwgaXQgZG9jaHQgbWUgbmV0IHNlYXIu
+
+dn: sn=german, cn=langenfelder_platt
+sn: german
+cn: langenfelder_platt
+indx: 22005
+value:: SXNjaCBrYW5uIEpsYWFzIGtpbW1lbG4sIHV1aG5lIGRhdHQgbWljaCBkYXR0IHdl
+ aCBkw6TDpGQu
+
+dn: sn=german, cn=lusatian
+sn: german
+cn: lusatian
+indx: 22006
+value: Ich koann Gloos assn und doas dudd merr ni wii.
+
+dn: sn=german, cn=luxemburgish
+sn: german
+cn: luxemburgish
+indx: 22007
+value:: RWNoIGthbiBHbGFzIGllc3NlbiwgZGFhdCBkZWV0IG1pciBuw6t0IHdlaS4=
+
+dn: sn=german, cn=luzern
+sn: german
+cn: luzern
+indx: 22008
+value:: RWNoIGNoYSBHbMOicyDDpHNzZSwgZGFzIHNjaGFkdCBtZXIgbmVkLg==
+
+dn: sn=german, cn=nederlands
+sn: german
+cn: nederlands
+indx: 22009
+value:: SWsga2FuIGdsYXMgZXRlbiwgaGV0IGRvZXQgbcSzIGdlZW4ga3dhYWQu
+
+dn: sn=german, cn=odenwalderisch
+sn: german
+cn: odenwalderisch
+indx: 22010
+value: Iech konn glaasch voschbachteln ohne dass es mir ebbs daun doun 
+ dud.
+
+dn: sn=german, cn=pfalzisch
+sn: german
+cn: pfalzisch
+indx: 22011
+value: Isch konn Glass fresse ohne dasses mer ebbes ausmache dud.
+
+dn: sn=german, cn=plat
+sn: german
+cn: plat
+indx: 22012
+value:: SWVjaCBrZW4gZ2xhYXMgw6jDqHNlLCBtZXIgJ3QgZGVldCBtaWVjaCBqaW5nIHBp
+ ZW5nLg==
+
+dn: sn=german, cn=ruhrdeutsch
+sn: german
+cn: ruhrdeutsch
+indx: 22013
+value: Ich kann Glas verkasematuckeln, ohne dattet mich wat jucken tut.
+
+dn: sn=german, cn=sachsisch
+sn: german
+cn: sachsisch
+indx: 22014
+value: 'sch kann Glos essn, ohne dass'sch mer wehtue.
+
+dn: sn=german, cn=schwabisch
+sn: german
+cn: schwabisch
+indx: 22015
+value:: SSBrw6UgR2xhcyBmcsOkc3NhLCBvbmQgZGVzIG1hY2h0IG1yIG5peCE=
+
+dn: sn=german, cn=standard
+sn: german
+cn: standard
+indx: 22016
+value: Ich kann Glas essen, ohne mir zu schaden.
+
+dn: sn=german, cn=voralberg
+sn: german
+cn: voralberg
+indx: 22017
+value: I ka glas eassa, ohne dass mar weh tuat.
+
+dn: sn=german, cn=zurich
+sn: german
+cn: zurich
+indx: 22018
+value:: SWNoIGNoYW4gR2xhYXMgw6Rzc2UsIGRhcyBzY2hhZHQgbWlyIG7DtmQu
+
+dn: sn=gothic
+sn: gothic
+indx: 23000
+value:: 0IzQjNCMINCM0IzQjNCNINCMzIjQjdCM0IwsINCM0Iwg0IzQjNCNINCN0Iwg0IzQ
+ jNCM0Iwg0IzQjdCM0IzQjNCM0Iwu
+
+dn: sn=greek, cn=classic
+sn: greek
+cn: classic
+indx: 24001
+value:: 4b2VzrHOu86/zr0gz5XOsc6zzrXhv5bOvSDOtOG9u869zrHOvM6xzrnOhyDPhM6/
+ 4b+mz4TOvyDOv+G9lCDOvM61IM6yzrvhvbHPgM+EzrXOuS4=
+
+dn: sn=greek, cn=monotonic
+sn: greek
+cn: monotonic
+indx: 24002
+value:: zpzPgM6/z4HPjiDOvc6xIM+GzqzPiSDPg8+AzrHPg868zq3Ovc6xIM6zz4XOsc67
+ zrnOrCDPh8+Jz4HOr8+CIM69zrEgz4DOrM64z4kgz4TOr8+Azr/PhM6xLg==
+
+dn: sn=greek, cn=polytonic
+sn: greek
+cn: polytonic
+indx: 24003
+value:: zpzPgM6/z4Hhv7Ygzr3hvbAgz4bOrM+JIM+Dz4DOsc+DzrzOrc69zrEgzrPPhc6x
+ zrvOueG9sCDPh8+Jz4HhvbbPgiDOveG9sCDPgM6szrjPiSDPhM6vz4DOv8+EzrEu
+
+dn: sn=haitï
+sn: haitï
+indx: 25000
+value:: TXdlbiBrYXAgbWFuamUgdsOoLCBsaSBwYSBibGVzZSdtLg==
+
+dn: sn=hausa, cn=ajami
+sn: hausa
+cn: ajami
+indx: 26001
+value:: 2KXZkNmG2Kcg2KXZkNmJ2Y4g2KrZjtmI2YbZjtixINi62ZDZhNmO2KfYtNmQINmD
+ 2Y/ZhdmOINil2ZDZhiDYutmO2YXZjtinINmE2Y7Yp9mB2ZDZidmO2Kc=
+
+dn: sn=hausa, cn=latin
+sn: hausa
+cn: latin
+indx: 26002
+value:: SW5hzIQgaXlhIHRhdW5hciBnaWxhzIRzaGkga3VtYSBpbiBnYW1hzIQgbGHMhGZp
+ eWHMhC4=
+
+dn: sn=hawaiian
+sn: hawaiian
+indx: 27000
+value:: SGlraSBpYcq7dSBrZSDKu2FpIGkga2UgYW5pYW5pOyDKu2HKu29sZSBuxY0gbMSB
+ IGF1IGUgyrtlaGEu
+
+dn: sn=hebrew
+sn: hebrew
+indx: 28000
+value:: 15DXoNeZINeZ15vXldecINec15DXm9eV15wg15bXm9eV15vXmdeqINeV15bXlCDX
+ nNeQINee15bXmdenINec15ku
+
+dn: sn=hindi
+sn: hindi
+indx: 29000
+value:: 4KSu4KWI4KSCIOCkleCkvuCkgeCkmiDgpJbgpL4g4KS44KSV4KSk4KS+IOCkueCl
+ guCkgSDgpJTgpLAg4KSu4KWB4KSd4KWHIOCkieCkuOCkuOClhyDgpJXgpYvgpIgg
+ 4KSa4KWL4KSfIOCkqOCkueClgOCkgiDgpKrgpLngpYHgpILgpJrgpKTgpYAu
+
+dn: sn=hungarian
+sn: hungarian
+indx: 30000
+value:: TWVnIHR1ZG9tIGVubmkgYXogw7x2ZWdldCwgbmVtIGxlc3ogdMWRbGUgYmFqb20u
+
+dn: sn=inuktitut
+sn: inuktitut
+indx: 31000
+value:: 4ZCK4ZOV4ZKN4ZaFIOGTguGVhuGUreGVjOGWk+GSg+GRryDhk7HhlYvhmbHhkabh
+ kZDhk5Dhk4fhloXhkZDhlpM=
+
+dn: sn=italian, cn=genovese
+sn: italian
+cn: genovese
+indx: 32001
+value:: UMOyc3NvIG1hbmdpw6IgbyB2ZWRkcm8gZSBvIG5vIG1lIGbDoCBtw6Iu
+
+dn: sn=italian, cn=milanese
+sn: italian
+cn: milanese
+indx: 32002
+value:: U8O0biBiw7RuIGRlIG1hZ27DoCBlbCB2w6lkZXIsIGVsIG1lIGZhIG1pbmdhIG1h
+ bC4=
+
+dn: sn=italian, cn=napoletano
+sn: italian
+cn: napoletano
+indx: 32003
+value: M' pozz magna' o'vetr, e nun m' fa mal.
+
+dn: sn=italian, cn=roman
+sn: italian
+cn: roman
+indx: 32004
+value: Me posso magna' er vetro, e nun me fa male.
+
+dn: sn=italian, cn=romansch
+sn: italian
+cn: romansch
+indx: 32005
+value: Jau sai mangiar vaider, senza che quai fa donn a mai.
+
+dn: sn=italian, cn=sicilian
+sn: italian
+cn: sicilian
+indx: 32006
+value: Puotsu mangiari u vitru, nun mi fa mali.
+
+dn: sn=italian, cn=standard
+sn: italian
+cn: standard
+indx: 32007
+value: Posso mangiare il vetro e non mi fa male.
+
+dn: sn=italian, cn=venetian
+sn: italian
+cn: venetian
+indx: 32008
+value: Mi posso magnare el vetro, no'l me fa mae.
+
+dn: sn=japanese
+sn: japanese
+indx: 33000
+value:: 56eB44Gv44Ks44Op44K544KS6aOf44G544KJ44KM44G+44GZ44CC44Gd44KM44Gv
+ 56eB44KS5YK344Gk44GR44G+44Gb44KT44CC
+
+dn: sn=javanese
+sn: javanese
+indx: 34000
+value: Aku isa mangan beling tanpa lara.
+
+dn: sn=kannada
+sn: kannada
+indx: 35000
+value:: 4LKo4LKo4LKX4LOGIOCyueCyvuCyqOCyvyDgsobgspfgsqbgs4YsIOCyqOCyvuCy
+ qOCzgSDgspfgspzgsqjgs43gsqjgs4Eg4LKk4LK/4LKo4LKs4LK54LOB4LKm4LOB
+
+dn: sn=karelian, cn=north
+sn: karelian
+cn: north
+indx: 36001
+value:: TWllIHZvaW4gc3l2dsOkIGxhc2llIHRhIG1pbmxhIGVpIG9sZSBraXBpZS4=
+
+dn: sn=karelian, cn=south
+sn: karelian
+cn: south
+indx: 36002
+value:: TWluw6Qgdm9pbiBzeXZ2w6Qgc3Qnb2tsdWEgZGFpIG1pbnVsZSBlaSBvbGUga2li
+ aWUu
+
+dn: sn=khmer
+sn: khmer
+indx: 37000
+value:: 4Z6B4Z+S4Z6J4Z674Z+G4Z6i4Z624Z6F4Z6J4Z674Z+G4Z6A4Z6J4Z+S4Z6F4Z6A
+ 4Z+L4Z6U4Z624Z6TIOGeiuGfhOGemeGeguGfkuGemOGetuGek+GelOGeieGfkuGe
+ oOGetuGemg==
+
+dn: sn=korean
+sn: korean
+indx: 38000
+value:: 64KY64qUIOycoOumrOulvCDrqLnsnYQg7IiYIOyeiOyWtOyalC4g6re4656Y64+E
+ IOyVhO2UhOyngCDslYrslYTsmpQ=
+
+dn: sn=lao
+sn: lao
+indx: 39000
+value:: 4LqC4Lqt4LuJ4LqN4LqB4Lq04LqZ4LuB4LqB4LuJ4Lqn4LuE4LqU4LuJ4LuC4LqU
+ 4LqN4LqX4Lq14LuI4Lqh4Lqx4LqZ4Lqa4LuN4LuI4LuE4LqU4LuJ4LuA4Lqu4Lqx
+ 4LqU4LuD4Lqr4LuJ4LqC4Lqt4LuJ4LqN4LuA4LqI4Lqx4LqaLg==
+
+dn: sn=latin
+sn: latin
+indx: 40000
+value: Vitrum edere possum; mihi non nocet.
+
+dn: sn=latvian
+sn: latvian
+indx: 41000
+value:: RXMgdmFydSDEk3N0IHN0aWtsdSwgdGFzIG1hbiBuZWthaXTEky4=
+
+dn: sn=lingala
+sn: lingala
+indx: 42000
+value:: TmFrb2tpzIEga29sacyBeWEgYml0ZcyBbmkgYnlhIG1pbHVuZ2ksIGVrb3NhzIFs
+ YSBuZ2HMgWnMgSBtYWJlzIEgdMmbzIEu
+
+dn: sn=lithuanian
+sn: lithuanian
+indx: 43000
+value:: QcWhIGdhbGl1IHZhbGd5dGkgc3Rpa2zEhSBpciBqaXMgbWFuxJlzIG5lxb5laWTF
+ vmlh
+
+dn: sn=lojban
+sn: lojban
+indx: 44000
+value: mi kakne le nu citka le blaci .iku'i le se go'i na xrani mi
+
+dn: sn=macedonian
+sn: macedonian
+indx: 45000
+value:: 0JzQvtC20LDQvCDQtNCwINGY0LDQtNCw0Lwg0YHRgtCw0LrQu9C+LCDQsCDQvdC1
+ INC80LUg0YjRgtC10YLQsC4=
+
+dn: sn=malay
+sn: malay
+indx: 46000
+value: Saya boleh makan kaca dan ia tidak mencederakan saya.
+
+dn: sn=maltese
+sn: maltese
+indx: 47000
+value:: TmlzdGEnIG5pZWtvbCBpbC3Ep8ShaWXEoSB1IG1hIGphZ8SnbWlsbGkgeGVqbi4=
+
+dn: sn=marathi
+sn: marathi
+indx: 48000
+value:: 4KSu4KWAIOCkleCkvuCkmiDgpJbgpL7gpIog4KS24KSV4KSk4KWLLCDgpK7gpLLg
+ pL4g4KSk4KWHIOCkpuClgeCkluCkpCDgpKjgpL7gpLngpYAu
+
+dn: sn=marquesan
+sn: marquesan
+indx: 49000
+value:: RSBrb8q7YW5hIGUga2FpIGkgdGUga2FyYWhpLCBtZWEgyrvEgSwgyrthyrtlIGhh
+ dWhhdS4=
+
+dn: sn=mongolian, cn=classic
+sn: mongolian
+cn: classic
+indx: 50001
+value:: 4aCq4aCiIOGgsOGgouGgr+GgoiDhoKLhoLPhoKHhoLbhoKYg4aC04aCi4aCz4aCg
+ 4aCo4aCgIOGggiDhoKjhoKDhoLPhoKThoLcg4aCs4aCj4aCk4aC34aCg4aCz4aCg
+ 4aCiIOGgquGgouGgsOGgog==
+
+dn: sn=mongolian, cn=cyrillic
+sn: mongolian
+cn: cyrillic
+indx: 50002
+value:: 0JHQuCDRiNC40Lsg0LjQtNGN0Lkg0YfQsNC00L3QsCwg0L3QsNC00LDQtCDRhdC+
+ 0YDRgtC+0Lkg0LHQuNGI
+
+dn: sn=navajo
+sn: navajo
+indx: 51000
+value:: VHPDqXPHq8q8IHlpc2jEhcyBxIVnbyBiw63DrW7DrXNoZ2hhaCBkw7PDsyBkb28g
+ c2hpxYIgbmVlemdhaSBkYS4=
+
+dn: sn=nepali
+sn: nepali
+indx: 52000
+value:: 77u/4KSuIOCkleCkvuCkgeCkmiDgpJbgpL7gpKgg4KS44KSV4KWN4KSb4KWCIOCk
+ sCDgpK7gpLLgpL7gpIgg4KSV4KWH4KS54KS/IOCkqOClgCDgpLngpYHgpKjgpY3i
+ gI3gpKjgpY0g4KWk
+
+dn: sn=norse, cn=Sonderjysk
+sn: norse
+cn: Sonderjysk
+indx: 53001
+value:: w4Yga2Egw6ZlIGdsYXNzIHVoZW4gYXQgZGV0IGdvIG3DpiBuYXVlLg==
+
+dn: sn=norse, cn=bokmal
+sn: norse
+cn: bokmal
+indx: 53002
+value:: SmVnIGthbiBzcGlzZSBnbGFzcyB1dGVuIMOlIHNrYWRlIG1lZy4=
+
+dn: sn=norse, cn=dansk
+sn: norse
+cn: dansk
+indx: 53003
+value:: SmVnIGthbiBzcGlzZSBnbGFzLCBkZXQgZ8O4ciBpa2tlIG9uZHQgcMOlIG1pZy4=
+
+dn: sn=norse, cn=faroese
+sn: norse
+cn: faroese
+indx: 53004
+value:: RWcga2FubiBldGEgZ2xhcywgc2thw7BhbGV5c3VyLg==
+
+dn: sn=norse, cn=icelandic
+sn: norse
+cn: icelandic
+indx: 53005
+value:: w4lnIGdldCBldGnDsCBnbGVyIMOhbiDDvmVzcyBhw7AgbWVpw7BhIG1pZy4=
+
+dn: sn=norse, cn=old_latin
+sn: norse
+cn: old_latin
+indx: 53006
+value:: RWsgZ2V0IGV0acOwIGdsZXIgw6FuIMO+ZXNzIGHDsCB2ZXLDsGEgc8Ohci4=
+
+dn: sn=norse, cn=runes
+sn: norse
+cn: runes
+indx: 53007
+value:: 4ZuW4Zq0IOGat+GbluGbjyDhm5bhm4/hm4Eg4ZqnIOGat+GbmuGbluGasSDhm5jh
+ mr4g4Zqm4ZuW4ZuL4ZuLIOGaqOGapyDhmqHhm5Yg4Zqx4Zqn4ZqoIOGbi+GaqOGa
+ sQ==
+
+dn: sn=norse, cn=standard
+sn: norse
+cn: standard
+indx: 53008
+value:: RWcga2FuIGV0YSBnbGFzIHV0YW4gw6Ugc2thZGEgbWVnLg==
+
+dn: sn=norse, cn=svenska
+sn: norse
+cn: svenska
+indx: 53009
+value:: SmFnIGthbiDDpHRhIGdsYXMgdXRhbiBhdHQgc2thZGEgbWlnLg==
+
+dn: sn=pashto
+sn: pashto
+indx: 54000
+value:: 2LLZhyDYtNmK2LTZhyDYrtmI2pPZhNuQINi02YXYjCDZh9i62Ycg2YXYpyDZhtmH
+ INiu2YjaltmI2Yo=
+
+dn: sn=polska
+sn: polska
+indx: 55000
+value:: TW9nxJkgamXFm8SHIHN6a8WCbyBpIG1pIG5pZSBzemtvZHppLg==
+
+dn: sn=portuguese, cn=brazilian
+sn: portuguese
+cn: brazilian
+indx: 56001
+value:: UG9zc28gY29tZXIgdmlkcm8sIG7Do28gbWUgbWFjaHVjYS4=
+
+dn: sn=portuguese, cn=caboverdiano
+sn: portuguese
+cn: caboverdiano
+indx: 56002
+value:: TScgcG9kw6ogY3Vtw6ogdmlkcnUsIGNhIHRhIG1hZ3XDoi1tJy4=
+
+dn: sn=portuguese, cn=papiamentu
+sn: portuguese
+cn: papiamentu
+indx: 56003
+value:: QW1pIHBvciBrb21lIGdsYXMgYW50byBlIG5vIHRhIGhhc2ltaSBkYcOxby4=
+
+dn: sn=portuguese, cn=standard
+sn: portuguese
+cn: standard
+indx: 56004
+value:: UG9zc28gY29tZXIgdmlkcm8sIG7Do28gbWUgZmF6IG1hbC4=
+
+dn: sn=romanian
+sn: romanian
+indx: 57000
+value:: UG90IHPEgyBtxINuw6JuYyBzdGljbMSDIMiZaSBlYSBudSBtxIMgcsSDbmXImXRl
+ Lg==
+
+dn: sn=russian
+sn: russian
+indx: 58000
+value:: 0K8g0LzQvtCz0YMg0LXRgdGC0Ywg0YHRgtC10LrQu9C+LCDQvtC90L4g0LzQvdC1
+ INC90LUg0LLRgNC10LTQuNGCLg==
+
+dn: sn=sanskrit
+sn: sanskrit
+indx: 59000
+value:: 4KSV4KS+4KSa4KSCIOCktuCkleCljeCkqOCli+CkruCljeCkr+CkpOCljeCkpOCl
+ geCkruCljSDgpaQg4KSo4KWL4KSq4KS54KS/4KSo4KS44KWN4KSk4KS/IOCkruCk
+ vuCkruCljSDgpaU=
+
+dn: sn=sanskrit_standard
+sn: sanskrit_standard
+indx: 60000
+value:: a8SBY2HhuYMgxZtha25vbXlhdHR1bTsgbm9wYWhpbmFzdGkgbcSBbS4=
+
+dn: sn=sinhalese
+sn: sinhalese
+indx: 61000
+value:: 4La44LanIOC3gOC3k+C2r+C3lOC2u+C3lCDgtprgt5Hgtrjgtqcg4LeE4LeQ4Laa
+ 4LeS4La64LeSLiDgtpHgtrrgt5LgtrHgt4og4La44LanIOC2muC3kuC3g+C3kiDg
+ t4Tgt4/gtrHgt5Lgtrrgtprgt4og4LeD4LeS4Lav4LeUIOC2seC3nOC3gOC3mi4=
+
+dn: sn=slovak
+sn: slovak
+indx: 62000
+value:: TcO0xb5lbSBqZXPFpSBza2xvLiBOZXpyYW7DrSBtYS4=
+
+dn: sn=slovenian
+sn: slovenian
+indx: 63000
+value:: TGFoa28gamVtIHN0ZWtsbywgbmUgZGEgYmkgbWkgxaFrb2RvdmFsby4=
+
+dn: sn=spanish, cn=aragones
+sn: spanish
+cn: aragones
+indx: 64001
+value: Puedo minchar beire, no me'n fa mal .
+
+dn: sn=spanish, cn=basque
+sn: spanish
+cn: basque
+indx: 64002
+value: Kristala jan dezaket, ez dit minik ematen.
+
+dn: sn=spanish, cn=castiliano
+sn: spanish
+cn: castiliano
+indx: 64003
+value:: UHVlZG8gY29tZXIgdmlkcmlvLCBubyBtZSBoYWNlIGRhw7FvLg==
+
+dn: sn=spanish, cn=catalan
+sn: spanish
+cn: catalan
+indx: 64004
+value: Puc menjar vidre, que no em fa mal.
+
+dn: sn=spanish, cn=galician
+sn: spanish
+cn: galician
+indx: 64005
+value: Eu podo xantar cristais e non cortarme.
+
+dn: sn=suomi
+sn: suomi
+indx: 65000
+value:: Vm9pbiBzecO2ZMOkIGxhc2lhLCBzZSBlaSB2YWhpbmdvaXRhIG1pbnVhLg==
+
+dn: sn=swahili
+sn: swahili
+indx: 66000
+value: Naweza kula bilauri na sikunyui.
+
+dn: sn=tagalog
+sn: tagalog
+indx: 67000
+value: Kaya kong kumain nang bubog at hindi ako masaktan.
+
+dn: sn=taiwanese
+sn: taiwanese
+indx: 68000
+value:: R8OzYSDEky10w6BuZyBjaGlhzI1oIHBvLWzDqiwgbcSBIGLEkyB0aW/MjWgtc2lv
+ bmcu
+
+dn: sn=tamil
+sn: tamil
+indx: 69000
+value:: 4K6o4K6+4K6p4K+NIOCuleCuo+CvjeCuo+CuvuCun+CuvyDgrprgrr7grqrgr43g
+ rqrgrr/grp/gr4HgrrXgr4fgrqngr40sIOCuheCupOCuqeCuvuCusuCvjSDgro7g
+ rqngrpXgr43grpXgr4Eg4K6S4K6w4K+BIOCuleCvh+Cun+CvgeCuruCvjSDgrrXg
+ rrDgrr7grqTgr4Eu
+
+dn: sn=telugu
+sn: telugu
+indx: 70000
+value:: 4LCo4LGH4LCo4LGBIOCwl+CwvuCwnOCxgSDgsKTgsL/gsKjgsJfgsLLgsKjgsYEg
+ 4LCu4LCw4LC/4LCv4LGBIOCwheCwsuCwviDgsJrgsYfgsLjgsL/gsKjgsL4g4LCo
+ 4LC+4LCV4LGBIOCwj+CwruCwvyDgsIfgsKzgsY3gsKzgsILgsKbgsL8g4LCy4LGH
+ 4LCm4LGB
+
+dn: sn=thai
+sn: thai
+indx: 71000
+value:: 4LiJ4Lix4LiZ4LiB4Li04LiZ4LiB4Lij4Liw4LiI4LiB4LmE4LiU4LmJIOC5geC4
+ leC5iOC4oeC4seC4meC5hOC4oeC5iOC4l+C4s+C5g+C4q+C5ieC4ieC4seC4meC5
+ gOC4iOC5h+C4mg==
+
+dn: sn=tibetan
+sn: tibetan
+indx: 72000
+value:: 4L2k4L264L2j4LyL4L2m4L6S4L284LyL4L2f4LyL4L2T4L2m4LyL4L2E4LyL4L2T
+ 4LyL4L2C4L2y4LyL4L2Y4LyL4L2i4L264L2R4LyN
+
+dn: sn=turkish, cn=latin
+sn: turkish
+cn: latin
+indx: 73001
+value:: Q2FtIHlpeWViaWxpcmltLCBiYW5hIHphcmFyxLEgZG9rdW5tYXou
+
+dn: sn=turkish, cn=ottoman
+sn: turkish
+cn: ottoman
+indx: 73002
+value:: 2KzYp9mFINmK2YrZhyDYqNmE2YjYsdmFINio2q3YpyDYttix2LHZiSDYt9mI2YLZ
+ iNmG2YXYsg==
+
+dn: sn=twi
+sn: twi
+indx: 74000
+value:: TWV0dW1pIGF3ZSB0dW1wYW4sIMmcbnnJnCBtZSBod2VlLg==
+
+dn: sn=ukrainian
+sn: ukrainian
+indx: 75000
+value:: 0K8g0LzQvtC20YMg0ZfRgdGC0Lgg0YHQutC70L4sINGWINCy0L7QvdC+INC80LXQ
+ vdGWINC90LUg0LfQsNGI0LrQvtC00LjRgtGMLg==
+
+dn: sn=urdu
+sn: urdu
+indx: 76000
+value:: 2YXbjNq6INqp2KfZhtqGINqp2r7YpyDYs9qp2KrYpyDbgdmI2rog2KfZiNixINmF
+ 2KzavtuSINiq2qnZhNuM2YEg2YbbgduM2rog24HZiNiq24wg25Q=
+
+dn: sn=vietnamese, cn=classic
+sn: vietnamese
+cn: classic
+indx: 77001
+value:: 5LqbIOCjjiDkuJYg5ZK5IOawtCDmmbYg4KaTIOepuiDgo44g5a6zIOWSpg==
+
+dn: sn=vietnamese, cn=latin
+sn: vietnamese
+cn: latin
+indx: 77002
+value:: VMO0aSBjw7MgdGjhu4MgxINuIHRo4buneSB0aW5oIG3DoCBraMO0bmcgaOG6oWkg
+ Z8OsLg==
+
+dn: sn=yiddish
+sn: yiddish
+indx: 78000
+value:: 15DXmdeaINen16LXnyDXoteh158g15LXnNeQ1rjXliDXkNeV158g16LXoSDXmNeV
+ 15gg157XmdeoINeg15nXqdeYINew17Iu
+
+dn: sn=yoruba
+sn: yoruba
+indx: 79000
+value:: TW8gbMOoIGplzKkgZMOtZ8OtLCBrw7IgbsOtIHBhIG3DrSBsw6FyYS4=
+

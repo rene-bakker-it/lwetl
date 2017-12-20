@@ -61,7 +61,7 @@ SQL Import
 Data Readers
 ============
 
-.. class:: CsvImport(filename_or_stream=None, delimiter: str = "\t")
+.. class:: CsvImport(filename_or_stream=None, delimiter="\t", encoding='utf-8')
 
     Open a CSV file and extract data by row in the form of a dictionary
     Expects the first row if the dictionary to contain the column names.
@@ -73,8 +73,11 @@ Data Readers
     :arg str delimiter:
         specifies the column delimiter of the CSV file. Defaulst to the TAB character.
 
+    :arg str encoding:
+        character encoding to use for the input file. Defaults to utf-8
 
-    .. function:: open(filename_or_stream=None, delimiter: str = None)
+
+    .. function:: open(filename_or_stream=None, delimiter=None, encoding=None)
 
 
         :arg filename_or_stream:
@@ -86,6 +89,10 @@ Data Readers
             specifies the column deliter. If not specified, it takes the delimiter specified when the object was
             created.
 
+        :arg str encoding:
+            specifies the character encoding. If not specified, it takes the encoding specified when the object
+            was created.
+
     .. function:: close():
 
             closes the input stream. Only has an effect, if the input was specified as a filename.
@@ -95,6 +102,58 @@ Data Readers
         :arg int max_rows:
 
             retrieve the data as an generator/iterator. The parameter specifies the buffer size.
+
+
+.. class:: LdifImport(filename_or_stream=None, separator=None, encoding='utf-8')
+
+    Open a LDIF_ file and extract data as a dictionary with the attribute names as keys.
+
+    :arg filename_or_stream:
+
+        if the argument is a string, the program will try to open the file with this name. For streams, it will
+        use the stream as-is. Defaults to the stdin.
+
+
+    :arg str separator:
+
+        in an ldif file, an attibure may occur multiple times in the same record. In such cases the value of the
+        dictionary becomes a list. In the case the separator is specified, this list is transformed into a string,
+        separating the elements with the specified separator.
+
+
+    :arg str encoding:
+
+        character encoding to use for the input file. Defaults to utf-8
+
+
+    .. function:: open(filename_or_stream=None, separator=None, encoding=None)
+
+        opens the file or stream of input.
+
+
+        :arg filename_or_stream:
+
+            specifies the input. If not specified, it takes the specifier when the class object was created.
+
+        :arg str separator:
+
+            in an ldif file, an attibure may occur multiple times in the same record. In such cases the value of the
+            dictionary becomes a list. In the case the separator is specified, this list is transformed into a string,
+            separating the elements with the specified separator.
+
+        :arg str encoding:
+            specifies the character encoding. If not specified, it takes the encoding specified when the object
+            was created.
+
+
+    .. function:: close():
+
+        closes the input stream. Only has an effect, if the input was specified as a filename.
+
+
+    .. function:: get_data()->iterator
+
+        retrieve the data as an generator/iterator. The parameter specifies the buffer size.
 
 
 .. class:: XlsxImport(self, file_name: str, sheet_name: str = None)
@@ -337,4 +396,4 @@ Classes
         Queries the maximum number of each column and then adds the next value (+1) in the column on each insert.
         See the NativeUploader_ for details
 
-
+.. _LDIF: https://www.ibm.com/support/knowledgecenter/en/SSVJJU_6.2.0/com.ibm.IBMDS.doc_6.2/admin_gd34.htm

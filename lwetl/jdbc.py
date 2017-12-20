@@ -7,10 +7,10 @@ import sys
 from collections import OrderedDict
 from decimal import Decimal
 
-from jaydebeapi import Cursor, Error, connect
+from jaydebeapi import Cursor, Error, DatabaseError, connect
 
 from .config_parser import JDBC_DRIVERS, JAR_FILES, parse_login, parse_dummy_login
-from .exceptions import DriverNotFoundException, SQLExcecuteException
+from .exceptions import DriverNotFoundException, SQLExcecuteException, CommitException
 from .runtime_statistics import RuntimeStatistics
 from .utils import *
 
@@ -371,7 +371,7 @@ class Jdbc:
         error_message = None
         with self.statistics as stt:
             try:
-                if (parameters is not None) and (len(parameters) > 0) and (
+                if isinstance(parameters,(list,tuple)) and (len(parameters) > 0) and (
                         isinstance(parameters[0], (list, tuple, dict))):
                     stt.add_exec_count(len(parameters))
                     cursor.executemany(sql, parameters)
@@ -386,7 +386,7 @@ class Jdbc:
                         error_message = error_message[len(prefix):]
             if error_message is not None:
                 print(sql, file=sys.stderr)
-                if parameters is not None:
+                if isinstance(parameters,(list,tuple)):
                     print(parameters, file=sys.stderr)
                 raise SQLExcecuteException(error_message)
 
@@ -465,12 +465,18 @@ class Jdbc:
 
     @default_cursor([])
     def commit(self, cursor=None):
+        commit_error = None
         with self.statistics as stt:
             for c in [cc for cc in self.cursors if cc.rowcount > 0]:
                 stt.add_row_count(c.rowcount)
             if not self.auto_commit:
-                self.connection.commit()
+                try:
+                    self.connection.commit()
+                except DatabaseError as dbe:
+                    commit_error = dbe
             self.close(cursor)
+        if commit_error is not None:
+            raise CommitException(str(commit_error))
 
     @default_cursor([])
     def rollback(self, cursor=None):
