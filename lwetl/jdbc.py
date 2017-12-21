@@ -7,6 +7,7 @@ import sys
 from collections import OrderedDict
 from decimal import Decimal
 
+from jpype import JPackage
 from jaydebeapi import Cursor, Error, DatabaseError, connect
 
 from .config_parser import JDBC_DRIVERS, JAR_FILES, parse_login, parse_dummy_login
@@ -25,6 +26,7 @@ COLUMN_TYPE_BINARY = "byte"
 
 DEC_ZERO = Decimal(0.0)
 
+JAVA_STRING = None
 
 def default_cursor(default_result):
     """
@@ -161,6 +163,17 @@ class DataTransformer:
     def byte_array_to_bytes(array):
         return bytes([(lambda i: (256 + i) if i < 0 else i)(b) for b in array])
 
+    @staticmethod
+    def default_transformer(v):
+        if isinstance(v, str):
+            # Bugfix: jpype for some multi-byte characters parses the surrogate unicode escape string
+            #         most notably 4-byte utf-8 for emoji
+            return v.encode('utf-16',errors='surrogatepass').decode('utf-16')
+        if type(v) == 'java.lang.String':
+            return v.getBytes().decode()
+        else:
+            return v
+
     def oracle_lob_to_bytes(self, lob):
         print(type(lob).__name__)
         return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
@@ -216,7 +229,8 @@ class DataTransformer:
                 elif func == COLUMN_TYPE_NUMBER:
                     self.transformer[x] = self.parse_number
                 else:
-                    self.transformer[x] = (lambda v: v)
+                    self.transformer[x] = self.default_transformer
+                    #(lambda v: v)
                 func = self.transformer[x]
             values.append(func(value))
         if self.return_type == list:
@@ -353,6 +367,27 @@ class Jdbc:
         @raise SQLExecutionError on an execution exception
         """
 
+        def string2java_string(sql_or_list):
+            # Bugfix: 4-byte UTF-8 is not parsed correctly into jpype
+
+            global JAVA_STRING
+            if JAVA_STRING is None:
+                # JVM must have started for this
+                JAVA_STRING = JPackage('java').lang.String
+
+            if sql_or_list is None:
+                return None
+            elif isinstance(sql_or_list,str):
+                return JAVA_STRING(sql_or_list.encode(), 'UTF8')
+            elif isinstance(sql_or_list,(list,tuple)):
+                parms = []
+                for p in sql_or_list:
+                    if isinstance(p, str):
+                        parms.append(JAVA_STRING(p.encode(), 'UTF8'))
+                    else:
+                        parms.append(p)
+                return parms
+
         if is_empty(sql):
             raise ValueError('Query string (sql) may not be empty.')
         elif not isinstance(sql, str):
@@ -374,10 +409,13 @@ class Jdbc:
                 if isinstance(parameters,(list,tuple)) and (len(parameters) > 0) and (
                         isinstance(parameters[0], (list, tuple, dict))):
                     stt.add_exec_count(len(parameters))
-                    cursor.executemany(sql, parameters)
+                    cursor.executemany(sql,[string2java_string(p) for p in parameters])
                 else:
                     stt.add_exec_count()
-                    cursor.execute(sql, parameters)
+                    if parameters is None:
+                        cursor.execute(string2java_string(sql),None)
+                    else:
+                        cursor.execute(sql,string2java_string(parameters))
             except Exception as execute_exception:
                 self.close(cursor)
                 error_message = str(execute_exception)

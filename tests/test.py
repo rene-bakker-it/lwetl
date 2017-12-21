@@ -4,7 +4,7 @@ import os
 import pytest
 import sys
 
-from tests import TEST_CONFIGURATION, OUTPUT_DIR, TEST_DIR
+from tests import TEST_CONFIGURATION, OUTPUT_DIR, TEST_DIR, I_CAN_EAT_GLASS
 
 from contextlib import redirect_stdout
 from decimal import Decimal
@@ -198,9 +198,11 @@ def test_table_import(jdbc: lwetl.Jdbc):
 def test_encoding(jdbc: lwetl.Jdbc):
     print('\nRunning ldif insert encoding test: (%s,%s)' % (jdbc.login, jdbc.type))
     table = 'LWETL_ENC'
+
+    # read ldif and dump in table
     fn = os.path.join(os.path.dirname(__file__), 'resources', 'utf8.ldif')
     cnt = 0
-    with lwetl.ParameterUploader(jdbc, table, commit_mode=lwetl.UPLOAD_MODE_COMMIT, fstream=sys.stdout) as upl:
+    with lwetl.ParameterUploader(jdbc, table, commit_mode=lwetl.UPLOAD_MODE_COMMIT) as upl:
         with lwetl.LdifImport(fn) as ldif:
             for rec in ldif.get_data():
                 dd = {
@@ -213,9 +215,31 @@ def test_encoding(jdbc: lwetl.Jdbc):
                 upl.insert(dd)
                 cnt += 1
         upl.commit()
+
+    # check if the number of rows is currect
     cnt2 = jdbc.get_int("SELECT COUNT(1) FROM {0}".format(table))
     print('Inserted %d of %d values' % (cnt2,cnt))
     assert cnt == cnt2
+
+    # reread the table and verify with origininal
+    cnt_ok = 0
+    cnt_fail = 0
+    for lg1, lg2, val in jdbc.query("SELECT LANG1, LANG2, VAL FROM {0} ORDER BY LANG1, LANG2".format(table)):
+        if lg2:
+            r = '%s.%s' % (lg1,lg2)
+            s = I_CAN_EAT_GLASS.get(lg1,dict()).get(lg2,'NN')
+        else:
+            r = lg1
+            s = I_CAN_EAT_GLASS.get(lg1,'NN')
+
+        if val == s:
+            cnt_ok += 1
+        else:
+            cnt_fail += 1
+            print('FAILED %s s=(%s) db=(%s)' % (r,s,val))
+    assert cnt_fail == 0
+
+
 
 @pytest.mark.slow
 def test_binary_io(jdbc: lwetl.Jdbc):

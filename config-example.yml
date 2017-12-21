@@ -29,8 +29,14 @@ drivers:
         jar:   'http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39.jar'
         class: 'com.mysql.jdbc.Driver'
         url:   'jdbc:mysql://'
-        # last attributes assume a database with charset utf-8 and collate utf8_general_ci
-        attr:  '?autoReconnect=true&useSSL=false&useJvmCharsetConverters=false&useDynamicCharsetInfo=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useEncoding=true'
+        # last attribute assumes a database with charset utf-8 and collate utf8_general_ci
+        # [mysqld]
+        # character-set-client-handshake = FALSE
+        # character-set-server = utf8mb4
+        # collation-server = utf8mb4_unicode_ci
+        #
+        # use sql-query <mysql login> jdbc_info for a full list of the options
+        attr:  '?autoReconnect=true&useSSL=false&useUnicode=false'
         escape: true
 
     oracle:

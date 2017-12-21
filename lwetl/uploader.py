@@ -4,12 +4,13 @@
 """
 import copy
 import time
+import sys
 
 from collections import OrderedDict
 from decimal import Decimal
 
 from jaydebeapi import DatabaseError
-from jpype import *
+from jpype import JPackage
 
 from .exceptions import SQLExcecuteException, CommitException
 from .jdbc import Jdbc, DummyJdbc, COLUMN_TYPE_DATE, COLUMN_TYPE_FLOAT, COLUMN_TYPE_NUMBER

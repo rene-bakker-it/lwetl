@@ -10,6 +10,8 @@ import pytest
 
 from yaml import load as yaml_load
 
+from .generate_complex_utf8 import I_CAN_EAT_GLASS
+
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 OUTPUT_DIR = os.path.join(TEST_DIR, 'output')
 

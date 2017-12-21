@@ -142,6 +142,7 @@ mysql:
                 LANG2 VARCHAR(256),
                 VAL   VARCHAR(1024) NOT NULL
             );
+        t4a: "ALTER TABLE LWETL_ENC DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
     drop:
         # tables an/or sequences are dropped in alphabetic order of key
         # non-existing elements are ignored.
