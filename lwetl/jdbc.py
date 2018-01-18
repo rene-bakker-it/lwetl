@@ -45,13 +45,19 @@ def default_cursor(default_result):
                 raise LookupError('Illegal function for default_cursor decorator')
             self = args[0]
             argl = list(args)
-            if (len(argl) < 2) or (argl[1] is None):
-                cursor = self.current
-            elif isinstance(argl[1], Cursor):
-                cursor = argl[1]
+            cursor = kwargs.get('cursor',None)
+            if isinstance(cursor,Cursor):
+                del kwargs['cursor']
+            else:
+                if (len(argl) < 2) or (argl[1] is None):
+                    cursor = self.current
+                elif isinstance(argl[1], Cursor):
+                    cursor = argl[1]
+
+            if isinstance(cursor,Cursor):
                 if cursor not in self.cursors:
                     raise LookupError('Specified cursor not found in this instance.')
-            else:
+            elif cursor is not None:
                 raise ValueError('Illegal cursor specifier.')
 
             if cursor is None:
@@ -60,6 +66,7 @@ def default_cursor(default_result):
                 argl.append(cursor)
             else:
                 argl[1] = cursor
+
             return func(*tuple(argl), **kwargs)
 
         return func_wrapper
@@ -175,8 +182,11 @@ class DataTransformer:
             return v
 
     def oracle_lob_to_bytes(self, lob):
-        print(type(lob).__name__)
+        # print(type(lob).__name__)
         return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
+
+    def oracle_clob(self, clob):
+        return clob.stringValue()
 
     @staticmethod
     def parse_number(number):
@@ -220,6 +230,8 @@ class DataTransformer:
                 vtype = type(value).__name__
                 if vtype == 'oracle.sql.BLOB':
                     self.transformer[x] = self.oracle_lob_to_bytes
+                elif vtype == 'oracle.sql.CLOB':
+                    self.transformer[x] = self.oracle_clob
                 elif vtype.startswith('java') or vtype.startswith('oracle'):
                     self.transformer[x] = (lambda v: v.toString())
                 elif vtype == 'byte[]':
@@ -232,7 +244,15 @@ class DataTransformer:
                     self.transformer[x] = self.default_transformer
                     #(lambda v: v)
                 func = self.transformer[x]
-            values.append(func(value))
+
+            parse_exception = None
+            try:
+                values.append(func(value))
+            except Exception as e:
+                print('ERROR - cannot parse {}: {}'.format(value,str(e)))
+                parse_exception = e
+            if parse_exception is not None:
+                raise parse_exception
         if self.return_type == list:
             return values
         elif self.return_type == tuple:
@@ -353,6 +373,11 @@ class Jdbc:
                     self.current = self.cursors[-1]
                 else:
                     self.current = None
+            try:
+                # for garbage collection
+                del cursor
+            except Exception:
+                pass
         return close_ok
 
     def execute(self, sql: str, parameters: (list, tuple) = None, cursor: object = None) -> Cursor:

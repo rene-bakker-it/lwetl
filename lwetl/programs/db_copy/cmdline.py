@@ -60,9 +60,10 @@ parser.add_argument(
     '-f', '--fail', action='store', type=int,
     dest='max_fail',
     default=0,
-    help='''Specify the number of fails allowed on insert or update before the progream exits.
+    help='''Specify the number of fails on insert allowed on insert or update before the progream exits.
 Useful for copying live databases where reference tables are updated during the copy process of multiple tables.
-A negative number implies no fail limit. Defaults to 0 (no failure allowed).''')
+A negative number implies no fail limit. Defaults to 0 (no failure allowed).
+For ignoring commit errors, also add the --ignore flag. This may result in undesired behaviour.''')
 
 parser.add_argument(
     '-l', '--list', action='store_true',
@@ -101,6 +102,11 @@ parser.add_argument(
 - native: use native SQL (does not permit transfer of binary data)
 - single: parse single parameterized sqls to the target server (DEFAULT).
 - multi:  parse an sql with multiple parameter rows in a single commit (not compatible with update mode 'update' and 'sync').''')
+
+parser.add_argument(
+    '--ignore', action='store_true',
+    dest='ignore_commit_errors',
+    help='Also ignore commit errors upt to the specified fail-count.')
 
 # Not implemented
 # parser.add_argument(

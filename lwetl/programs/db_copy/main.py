@@ -248,8 +248,9 @@ def main():
             counters[CNT_COPIED_TABLES], len(copy_list), t, n, pk_info[SRC][t]))
 
         existing_records = []
+        # target primary key
+        pk_trg = pk_info[TRG][t]
         if (n2 > 0) and (args.mode != COPY_EMPTY):
-            pk_trg = pk_info[TRG][t]
             for r in jdbc[TRG].query("SELECT {0} FROM {1} ORDER BY {0}".format(pk_trg, t)):
                 existing_records.append(r[0])
             print('Found %d existing records from %s to %s' % (
@@ -257,11 +258,11 @@ def main():
         existing_records = set(existing_records)
 
         try:
-            c = jdbc[SRC].execute('SELECT * FROM {0} ORDER BY {1}'.format(t, pk_info[SRC][t]))
+            cursor = jdbc[SRC].execute('SELECT * FROM {0} ORDER BY {1}'.format(t, pk_info[SRC][t]),cursor=None)
         except lwetl.SQLExcecuteException as exec_error:
             print('ERROR: table %s skipped on SQL retrieve error: ' + str(exec_error))
             too_many_errors = True
-            c = None
+            cursor = None
         if too_many_errors:
             break
 
@@ -273,7 +274,7 @@ def main():
         t0_table = datetime.now()
         try:
             with UPLOADERS[args.driver](jdbc[TRG], t.lower(), commit_mode=commit_mode) as uploader:
-                for d in jdbc[SRC].get_data(cursor=c, return_type=dict, include_none=is_update):
+                for d in jdbc[SRC].get_data(cursor=cursor, return_type=dict, include_none=is_update):
                     row_count += 1
 
                     pk = d[pk_trg]
@@ -362,15 +363,21 @@ def main():
                     else:
                         jdbc[TRG].rollback()
 
-        except (lwetl.CommitException, TooMayErrorsException) as ce:
-            print('Upload encountered in arror on row %d. Further processing ignored.' % row_count)
-            print(ce)
+        except lwetl.CommitException as ce:
+            counters[CNT_FAIL] += 1
+            if not (args.ignore_commit_errors and (args.max_fail > 0) and (counters[CNT_FAIL] <= args.max_fail)):
+                print('Upload encountered a commit exception row {}. Further processing ignored: {}'.format(row_count, str(ce)),
+                      file=sys.stderr)
+                too_many_errors = True
+        except TooMayErrorsException as tee:
+            print('Upload encountered on row {}. Further processing ignored: {}'.format(row_count,str(tee)),
+                  file=sys.stderr)
             too_many_errors = True
         if too_many_errors:
             break
 
     if counters[CNT_FAIL] > 0:
-        print('WARNING: not all data has been transfered.')
+        print('WARNING: not all data has been transfered. Errors = %d' % counters[CNT_FAIL])
     rc = 1 if too_many_errors else 0
     clean_exit(jdbc, args, rc)
 

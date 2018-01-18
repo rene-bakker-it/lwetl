@@ -214,9 +214,6 @@ def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
                     rc = cursor.rowcount
                     row_count += rc
                     tot_count += rc
-                    if args.verbose > 0:
-                        print('%d rows updated. Pending row_count: %4d of %6d.' %
-                              (cursor.rowcount, row_count, tot_count))
                     if row_count >= args.commit_nr:
                         tot_rollb += commit(jdbc, cursor, args.commit_mode, row_count, tot_count)
                         row_count = 0
