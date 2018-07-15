@@ -16,8 +16,8 @@ The module may in installed in a python virtual environment, for example like:
 
 ::
 
-        virtualenv --no-site-packages /usr/bin/python3 $HOME/my_virtual_envs/jdbc
-        source activate $HOME/my_virtual_envs/jdbc/bin/activate
+        virtualenv --no-site-packages -p /usr/bin/python3 $HOME/my_virtual_envs/jdbc
+        source $HOME/my_virtual_envs/jdbc/bin/activate
 
 The module can be installed with ``pip`` from github_:
 

@@ -2,96 +2,96 @@
 #
 # Organized according to driver-type
 # Add disabled: true to disable testing for a section
-oracle:
-    disabled: false
-    create:
-        # tables, sequences, and constraints are created in alphabetic order of key
-        t1: |
-            CREATE TABLE LWETL_PRODUCT (
-                ID NUMBER(10) NOT NULL,
-                NAME VARCHAR2(255),
-                DATE_CREATED TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                DATE_UPDATED TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                PRICE DECIMAL(9,2) DEFAULT 0.0 NOT NULL,
-                ORDERS NUMBER(10) DEFAULT 0 NOT NULL,
-                PHOTO BLOB,
-                FILE_NAME VARCHAR2(255),
-                PRIMARY KEY(ID)
-            );
-        t1s: "CREATE SEQUENCE LWETL_PRODUCT_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;"
-        t2: |
-            CREATE TABLE LWETL_ORDER (
-                ID NUMBER(10) NOT NULL,
-                DESTINATION VARCHAR2(255),
-                ID_PRODUCT NUMBER(10),
-                PRIMARY KEY(ID)
-            );
-        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
-        t2s: "CREATE SEQUENCE LWETL_ORDER_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;"
-        t3: |
-            CREATE TABLE LWETL_LOG (
-                ID NUMBER(10) NOT NULL,
-                HOSTNAME	VARCHAR2(128),
-                CLIENTIP	VARCHAR2(60),
-                USERAGENT	VARCHAR2(1020),
-                REFERER	    VARCHAR2(4000),
-                URI      	VARCHAR2(4000),
-                METHOD	    VARCHAR2(16),
-                TIME	    TIMESTAMP(0),
-                ROUTENAME	VARCHAR2(256),
-                ROUTEPARAMS	VARCHAR2(1020),
-                CONTROLLER	VARCHAR2(1020),
-                REALUSERNAME      VARCHAR2(1020),
-                EFFECTIVEUSERNAME VARCHAR2(1020),
-                STATUSCODE	NUMBER(10),
-                STACKTRACE  CLOB,
-                REMOTEHOST	VARCHAR2(128),
-                REMOTEUSER	VARCHAR2(128),
-                PRIMARY KEY(ID)
-            );
-        t4: |
-            CREATE TABLE LWETL_ENC (
-                ID INT NOT NULL,
-                LANG1 VARCHAR2(256) NOT NULL,
-                LANG2 VARCHAR2(256),
-                VAL   VARCHAR2(1024 CHAR) NOT NULL,
-                PRIMARY KEY(ID)
-            );
-    drop:
-        # tables an/or sequences are dropped in alphabetic order of key
-        # non-existing elements are ignored.
-        s1: "DROP SEQUENCE LWETL_LOG_id_seq;"
-        s2: "DROP SEQUENCE LWETL_ORDER_id_seq;"
-        s3: "DROP SEQUENCE LWETL_PRODUCT_id_seq;"
-        t1: "DROP TABLE LWETL_LOG CASCADE CONSTRAINTS;"
-        t2: "DROP TABLE LWETL_ORDER CASCADE CONSTRAINTS;"
-        t3: "DROP TABLE LWETL_PRODUCT CASCADE CONSTRAINTS;"
-        t4: "DROP TABLE LWETL_ENC CASCADE CONSTRAINTS;"
-    insert:
-        s1:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (1,'BIKE',   99.95);"
-        s2:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (2,'CAR', 10000.00);"
-        s3:  "SELECT R2_LWETL_PRODUCT_id_seq.NEXTVAL FROM DUAL;"
-        s4:  "SELECT R2_LWETL_PRODUCT_id_seq.NEXTVAL FROM DUAL;"
-        s5:  "INSERT INTO LWETL_ORDER (ID,DESTINATION,ID_PRODUCT) VALUES (R2_LWETL_ORDER_id_seq.NEXTVAL,'HOLLAND',1);"
-        s6:  "INSERT INTO LWETL_ORDER (ID,DESTINATION,ID_PRODUCT) VALUES (R2_LWETL_ORDER_id_seq.NEXTVAL,'USA', 2);"
-    check:
-        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
-        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
-    binary:
-        file:   jdbc.jpg
-        table:  LWETL_PRODUCT
-        column: PHOTO
-        id:     1
-    xls:
-        file: "price_list.xlsx"
-        table: LWETL_PRODUCT
-    csv:
-        file: "price_list.csv"
-        table: LWETL_PRODUCT
-    ldif:
-        file: "ldif.txt"
-        table: LWETL_PRODUCT
-    enc: true
+#oracle:
+#    disabled: false
+#    create:
+#        # tables, sequences, and constraints are created in alphabetic order of key
+#        t1: |
+#            CREATE TABLE LWETL_PRODUCT (
+#                ID NUMBER(10) NOT NULL,
+#                NAME VARCHAR2(255),
+#                DATE_CREATED TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+#                DATE_UPDATED TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+#                PRICE DECIMAL(9,2) DEFAULT 0.0 NOT NULL,
+#                ORDERS NUMBER(10) DEFAULT 0 NOT NULL,
+#                PHOTO BLOB,
+#                FILE_NAME VARCHAR2(255),
+#                PRIMARY KEY(ID)
+#            );
+#        t1s: "CREATE SEQUENCE LWETL_PRODUCT_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;"
+#        t2: |
+#            CREATE TABLE LWETL_ORDER (
+#                ID NUMBER(10) NOT NULL,
+#                DESTINATION VARCHAR2(255),
+#                ID_PRODUCT NUMBER(10),
+#                PRIMARY KEY(ID)
+#            );
+#        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
+#        t2s: "CREATE SEQUENCE LWETL_ORDER_id_seq START WITH 1 MINVALUE 1 INCREMENT BY 1;"
+#        t3: |
+#            CREATE TABLE LWETL_LOG (
+#                ID NUMBER(10) NOT NULL,
+#                HOSTNAME	VARCHAR2(128),
+#                CLIENTIP	VARCHAR2(60),
+#                USERAGENT	VARCHAR2(1020),
+#                REFERER	    VARCHAR2(4000),
+#                URI      	VARCHAR2(4000),
+#                METHOD	    VARCHAR2(16),
+#                TIME	    TIMESTAMP(0),
+#                ROUTENAME	VARCHAR2(256),
+#                ROUTEPARAMS	VARCHAR2(1020),
+#                CONTROLLER	VARCHAR2(1020),
+#                REALUSERNAME      VARCHAR2(1020),
+#                EFFECTIVEUSERNAME VARCHAR2(1020),
+#                STATUSCODE	NUMBER(10),
+#                STACKTRACE  CLOB,
+#                REMOTEHOST	VARCHAR2(128),
+#                REMOTEUSER	VARCHAR2(128),
+#                PRIMARY KEY(ID)
+#            );
+#        t4: |
+#            CREATE TABLE LWETL_ENC (
+#                ID INT NOT NULL,
+#                LANG1 VARCHAR2(256) NOT NULL,
+#                LANG2 VARCHAR2(256),
+#                VAL   VARCHAR2(1024 CHAR) NOT NULL,
+#                PRIMARY KEY(ID)
+#            );
+#    drop:
+#        # tables an/or sequences are dropped in alphabetic order of key
+#        # non-existing elements are ignored.
+#        s1: "DROP SEQUENCE LWETL_LOG_id_seq;"
+#        s2: "DROP SEQUENCE LWETL_ORDER_id_seq;"
+#        s3: "DROP SEQUENCE LWETL_PRODUCT_id_seq;"
+#        t1: "DROP TABLE LWETL_LOG CASCADE CONSTRAINTS;"
+#        t2: "DROP TABLE LWETL_ORDER CASCADE CONSTRAINTS;"
+#        t3: "DROP TABLE LWETL_PRODUCT CASCADE CONSTRAINTS;"
+#        t4: "DROP TABLE LWETL_ENC CASCADE CONSTRAINTS;"
+#    insert:
+#        s1:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (1,'BIKE',   99.95);"
+#        s2:  "INSERT INTO LWETL_PRODUCT (ID,NAME,PRICE) VALUES (2,'CAR', 10000.00);"
+#        s3:  "SELECT R2_LWETL_PRODUCT_id_seq.NEXTVAL FROM DUAL;"
+#        s4:  "SELECT R2_LWETL_PRODUCT_id_seq.NEXTVAL FROM DUAL;"
+#        s5:  "INSERT INTO LWETL_ORDER (ID,DESTINATION,ID_PRODUCT) VALUES (R2_LWETL_ORDER_id_seq.NEXTVAL,'HOLLAND',1);"
+#        s6:  "INSERT INTO LWETL_ORDER (ID,DESTINATION,ID_PRODUCT) VALUES (R2_LWETL_ORDER_id_seq.NEXTVAL,'USA', 2);"
+#    check:
+#        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
+#        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
+#    binary:
+#        file:   jdbc.jpg
+#        table:  LWETL_PRODUCT
+#        column: PHOTO
+#        id:     1
+#    xls:
+#        file: "price_list.xlsx"
+#        table: LWETL_PRODUCT
+#    csv:
+#        file: "price_list.csv"
+#        table: LWETL_PRODUCT
+#    ldif:
+#        file: "ldif.txt"
+#        table: LWETL_PRODUCT
+#    enc: true
 
 mysql:
     disabled: false
@@ -173,225 +173,225 @@ mysql:
         file: "ldif.txt"
         table: LWETL_PRODUCT
 
-sqlserver:
-    disabled: false
-    create:
-        # tables, sequences, and constraints are created in alphabetic order of key
-        t1: |
-            CREATE TABLE LWETL_PRODUCT (
-                ID INT IDENTITY(1,1) NOT NULL,
-                NAME NVARCHAR(255),
-                DATE_CREATED DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                DATE_UPDATED DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRICE DECIMAL(9,2) NOT NULL DEFAULT 0.0,
-                ORDERS INT  NOT NULL DEFAULT 0,
-                PHOTO IMAGE,
-                FILE_NAME NVARCHAR(255),
-                CONSTRAINT PK_LWETL_PRODUCT PRIMARY KEY CLUSTERED (ID ASC)
-            );
-        t2: |
-            CREATE TABLE LWETL_ORDER (
-                ID INT IDENTITY(1,1) NOT NULL,
-                DESTINATION NVARCHAR(255),
-                ID_PRODUCT INT,
-                CONSTRAINT PK_LWETL_ORDER PRIMARY KEY CLUSTERED (ID ASC)
-            );
-        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
-        t3: |
-            CREATE TABLE LWETL_LOG (
-                ID INT IDENTITY(1,1) NOT NULL,
-                HOSTNAME	NVARCHAR(128),
-                CLIENTIP	NVARCHAR(60),
-                USERAGENT	NVARCHAR(1020),
-                REFERER	    NVARCHAR(4000),
-                URI      	NVARCHAR(4000),
-                METHOD	    NVARCHAR(16),
-                TIME	    DATETIME,
-                ROUTENAME	NVARCHAR(256),
-                ROUTEPARAMS	NVARCHAR(1020),
-                CONTROLLER	NVARCHAR(1020),
-                REALUSERNAME      NVARCHAR(1020),
-                EFFECTIVEUSERNAME NVARCHAR(1020),
-                STATUSCODE	INT,
-                STACKTRACE  TEXT,
-                REMOTEHOST	NVARCHAR(128),
-                REMOTEUSER	NVARCHAR(128)
-            );
-        t4: |
-            CREATE TABLE LWETL_ENC (
-                ID INT NOT NULL PRIMARY KEY,
-                LANG1 NVARCHAR(256) NOT NULL,
-                LANG2 NVARCHAR(256),
-                VAL   NVARCHAR(1024) NOT NULL
-            );
-    drop:
-        # tables an/or sequences are dropped in alphabetic order of key
-        # non-existing elements are ignored.
-        t1: "DROP TABLE LWETL_LOG;"
-        t2: "DROP TABLE LWETL_ORDER;"
-        t3: "DROP TABLE LWETL_PRODUCT;"
-        t4: "DROP TABLE LWETL_ENC;"
-    insert:
-        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
-        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
-        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
-        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
-    check:
-        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
-        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
-    # binary needs further testing
-    binary:
-        file:   jdbc.jpg
-        table:  LWETL_PRODUCT
-        column: PHOTO
-        id:     1
-    xls:
-        file: "price_list.xlsx"
-        table: LWETL_PRODUCT
-    csv:
-        file: "price_list.csv"
-        table: LWETL_PRODUCT
-    ldif:
-        file: "ldif.txt"
-        table: LWETL_PRODUCT
-
-postgresql:
-    disabled: false
-    create:
-        # tables, sequences, and constraints are created in alphabetic order of key
-        t1: |
-            CREATE TABLE LWETL_PRODUCT (
-                ID SERIAL NOT NULL PRIMARY KEY,
-                NAME VARCHAR(255),
-                DATE_CREATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                DATE_UPDATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRICE DECIMAL(9,2) NOT NULL DEFAULT 0.0,
-                ORDERS INT NOT NULL DEFAULT 0,
-                PHOTO BYTEA,
-                FILE_NAME VARCHAR(255)
-            );
-        t2: |
-            CREATE TABLE LWETL_ORDER (
-                ID SERIAL NOT NULL PRIMARY KEY,
-                DESTINATION VARCHAR(255),
-                ID_PRODUCT INT
-            );
-        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
-        t3: |
-            CREATE TABLE LWETL_LOG (
-                ID SERIAL NOT NULL PRIMARY KEY,
-                HOSTNAME	VARCHAR(128),
-                CLIENTIP	VARCHAR(60),
-                USERAGENT	VARCHAR(1020),
-                REFERER	    VARCHAR(4000),
-                URI      	VARCHAR(4000),
-                METHOD	    VARCHAR(16),
-                TIME	    TIMESTAMP,
-                ROUTENAME	VARCHAR(256),
-                ROUTEPARAMS	VARCHAR(1020),
-                CONTROLLER	VARCHAR(1020),
-                REALUSERNAME      VARCHAR(1020),
-                EFFECTIVEUSERNAME VARCHAR(1020),
-                STATUSCODE	INT,
-                STACKTRACE  TEXT,
-                REMOTEHOST	VARCHAR(128),
-                REMOTEUSER	VARCHAR(128)
-            );
-        t4: |
-            CREATE TABLE LWETL_ENC (
-                ID INT NOT NULL PRIMARY KEY,
-                LANG1 VARCHAR(256) NOT NULL,
-                LANG2 VARCHAR(256),
-                VAL   VARCHAR(1024) NOT NULL
-            );
-    drop:
-        # tables an/or sequences are dropped in alphabetic order of key
-        # non-existing elements are ignored.
-        t1: "DROP TABLE LWETL_LOG;"
-        t2: "DROP TABLE LWETL_ORDER;"
-        t3: "DROP TABLE LWETL_PRODUCT;"
-        t4: "DROP TABLE LWETL_ENC;"
-    insert:
-        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
-        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
-        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
-        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
-    check:
-        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
-        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
-    # postgresql jdbc driver does not support blob create
-    # java.sql.SQLFeatureNotSupportedException: Method org.postgresql.jdbc.PgConnection.createBlob() is not yet implemented.
-    binary:
-        file:   jdbc.jpg
-        table:  LWETL_PRODUCT
-        column: PHOTO
-        id:     1
-    xls:
-        file: "price_list.xlsx"
-        table: LWETL_PRODUCT
-    csv:
-        file: "price_list.csv"
-        table: LWETL_PRODUCT
-    ldif:
-        file: "ldif.txt"
-        table: LWETL_PRODUCT
-
-sqlite:
-    disabled: false
-    create:
-        # tables, sequences, and constraints are created in alphabetic order of key
-        t1: |
-            CREATE TABLE LWETL_PRODUCT (
-                ID INTEGER PRIMARY KEY,
-                NAME TEXT,
-                DATE_CREATED TEXT,
-                DATE_UPDATED TEXT,
-                PRICE REAL DEFAULT 0.0,
-                ORDERS INTEGER NOT NULL DEFAULT 0,
-                PHOTO BLOB,
-                FILE_TEXT
-            );
-        t2: |
-            CREATE TABLE LWETL_ORDER (
-                ID INTEGER PRIMARY KEY,
-                DESTINATION TEXT,
-                ID_PRODUCT INTEGER,
-                FOREIGN KEY(ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID)
-            );
-        t3: |
-            CREATE TABLE LWETL_ENC (
-                ID INTEGER PRIMARY KEY,
-                LANG1 TEXT NOT NULL,
-                LANG2 TEXT,
-                VAL   TEXT NULL
-            );
-    drop:
-        # tables an/or sequences are dropped in alphabetic order of key
-        # non-existing elements are ignored.
-        t1: "DROP TABLE LWETL_ORDER;"
-        t2: "DROP TABLE LWETL_PRODUCT;"
-        t3: "DROP TABLE LWETL_ENC;"
-    insert:
-        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
-        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
-        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
-        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
-    check:
-        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
-        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
-    # postgresql jdbc driver does not support blob create
-    # java.sql.SQLFeatureNotSupportedException: Method org.postgresql.jdbc.PgConnection.createBlob() is not yet implemented.
-    binary:
-        file:   jdbc.jpg
-        table:  LWETL_PRODUCT
-        column: PHOTO
-        id:     1
-    xls:
-        file: "price_list.xlsx"
-        table: LWETL_PRODUCT
-    csv:
-        file: "price_list.csv"
-        table: LWETL_PRODUCT
-    ldif:
-        file: "ldif.txt"
-        table: LWETL_PRODUCT
+#sqlserver:
+#    disabled: false
+#    create:
+#        # tables, sequences, and constraints are created in alphabetic order of key
+#        t1: |
+#            CREATE TABLE LWETL_PRODUCT (
+#                ID INT IDENTITY(1,1) NOT NULL,
+#                NAME NVARCHAR(255),
+#                DATE_CREATED DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                DATE_UPDATED DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                PRICE DECIMAL(9,2) NOT NULL DEFAULT 0.0,
+#                ORDERS INT  NOT NULL DEFAULT 0,
+#                PHOTO IMAGE,
+#                FILE_NAME NVARCHAR(255),
+#                CONSTRAINT PK_LWETL_PRODUCT PRIMARY KEY CLUSTERED (ID ASC)
+#            );
+#        t2: |
+#            CREATE TABLE LWETL_ORDER (
+#                ID INT IDENTITY(1,1) NOT NULL,
+#                DESTINATION NVARCHAR(255),
+#                ID_PRODUCT INT,
+#                CONSTRAINT PK_LWETL_ORDER PRIMARY KEY CLUSTERED (ID ASC)
+#            );
+#        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
+#        t3: |
+#            CREATE TABLE LWETL_LOG (
+#                ID INT IDENTITY(1,1) NOT NULL,
+#                HOSTNAME	NVARCHAR(128),
+#                CLIENTIP	NVARCHAR(60),
+#                USERAGENT	NVARCHAR(1020),
+#                REFERER	    NVARCHAR(4000),
+#                URI      	NVARCHAR(4000),
+#                METHOD	    NVARCHAR(16),
+#                TIME	    DATETIME,
+#                ROUTENAME	NVARCHAR(256),
+#                ROUTEPARAMS	NVARCHAR(1020),
+#                CONTROLLER	NVARCHAR(1020),
+#                REALUSERNAME      NVARCHAR(1020),
+#                EFFECTIVEUSERNAME NVARCHAR(1020),
+#                STATUSCODE	INT,
+#                STACKTRACE  TEXT,
+#                REMOTEHOST	NVARCHAR(128),
+#                REMOTEUSER	NVARCHAR(128)
+#            );
+#        t4: |
+#            CREATE TABLE LWETL_ENC (
+#                ID INT NOT NULL PRIMARY KEY,
+#                LANG1 NVARCHAR(256) NOT NULL,
+#                LANG2 NVARCHAR(256),
+#                VAL   NVARCHAR(1024) NOT NULL
+#            );
+#    drop:
+#        # tables an/or sequences are dropped in alphabetic order of key
+#        # non-existing elements are ignored.
+#        t1: "DROP TABLE LWETL_LOG;"
+#        t2: "DROP TABLE LWETL_ORDER;"
+#        t3: "DROP TABLE LWETL_PRODUCT;"
+#        t4: "DROP TABLE LWETL_ENC;"
+#    insert:
+#        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
+#        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
+#        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
+#        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
+#    check:
+#        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
+#        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
+#    # binary needs further testing
+#    binary:
+#        file:   jdbc.jpg
+#        table:  LWETL_PRODUCT
+#        column: PHOTO
+#        id:     1
+#    xls:
+#        file: "price_list.xlsx"
+#        table: LWETL_PRODUCT
+#    csv:
+#        file: "price_list.csv"
+#        table: LWETL_PRODUCT
+#    ldif:
+#        file: "ldif.txt"
+#        table: LWETL_PRODUCT
+#
+#postgresql:
+#    disabled: false
+#    create:
+#        # tables, sequences, and constraints are created in alphabetic order of key
+#        t1: |
+#            CREATE TABLE LWETL_PRODUCT (
+#                ID SERIAL NOT NULL PRIMARY KEY,
+#                NAME VARCHAR(255),
+#                DATE_CREATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                DATE_UPDATED TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                PRICE DECIMAL(9,2) NOT NULL DEFAULT 0.0,
+#                ORDERS INT NOT NULL DEFAULT 0,
+#                PHOTO BYTEA,
+#                FILE_NAME VARCHAR(255)
+#            );
+#        t2: |
+#            CREATE TABLE LWETL_ORDER (
+#                ID SERIAL NOT NULL PRIMARY KEY,
+#                DESTINATION VARCHAR(255),
+#                ID_PRODUCT INT
+#            );
+#        t2a: "ALTER TABLE LWETL_ORDER ADD CONSTRAINT FK_LWETL_ORDER_PRODUCT FOREIGN KEY (ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID);"
+#        t3: |
+#            CREATE TABLE LWETL_LOG (
+#                ID SERIAL NOT NULL PRIMARY KEY,
+#                HOSTNAME	VARCHAR(128),
+#                CLIENTIP	VARCHAR(60),
+#                USERAGENT	VARCHAR(1020),
+#                REFERER	    VARCHAR(4000),
+#                URI      	VARCHAR(4000),
+#                METHOD	    VARCHAR(16),
+#                TIME	    TIMESTAMP,
+#                ROUTENAME	VARCHAR(256),
+#                ROUTEPARAMS	VARCHAR(1020),
+#                CONTROLLER	VARCHAR(1020),
+#                REALUSERNAME      VARCHAR(1020),
+#                EFFECTIVEUSERNAME VARCHAR(1020),
+#                STATUSCODE	INT,
+#                STACKTRACE  TEXT,
+#                REMOTEHOST	VARCHAR(128),
+#                REMOTEUSER	VARCHAR(128)
+#            );
+#        t4: |
+#            CREATE TABLE LWETL_ENC (
+#                ID INT NOT NULL PRIMARY KEY,
+#                LANG1 VARCHAR(256) NOT NULL,
+#                LANG2 VARCHAR(256),
+#                VAL   VARCHAR(1024) NOT NULL
+#            );
+#    drop:
+#        # tables an/or sequences are dropped in alphabetic order of key
+#        # non-existing elements are ignored.
+#        t1: "DROP TABLE LWETL_LOG;"
+#        t2: "DROP TABLE LWETL_ORDER;"
+#        t3: "DROP TABLE LWETL_PRODUCT;"
+#        t4: "DROP TABLE LWETL_ENC;"
+#    insert:
+#        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
+#        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
+#        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
+#        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
+#    check:
+#        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
+#        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
+#    # postgresql jdbc driver does not support blob create
+#    # java.sql.SQLFeatureNotSupportedException: Method org.postgresql.jdbc.PgConnection.createBlob() is not yet implemented.
+#    binary:
+#        file:   jdbc.jpg
+#        table:  LWETL_PRODUCT
+#        column: PHOTO
+#        id:     1
+#    xls:
+#        file: "price_list.xlsx"
+#        table: LWETL_PRODUCT
+#    csv:
+#        file: "price_list.csv"
+#        table: LWETL_PRODUCT
+#    ldif:
+#        file: "ldif.txt"
+#        table: LWETL_PRODUCT
+#
+#sqlite:
+#    disabled: false
+#    create:
+#        # tables, sequences, and constraints are created in alphabetic order of key
+#        t1: |
+#            CREATE TABLE LWETL_PRODUCT (
+#                ID INTEGER PRIMARY KEY,
+#                NAME TEXT,
+#                DATE_CREATED TEXT,
+#                DATE_UPDATED TEXT,
+#                PRICE REAL DEFAULT 0.0,
+#                ORDERS INTEGER NOT NULL DEFAULT 0,
+#                PHOTO BLOB,
+#                FILE_TEXT
+#            );
+#        t2: |
+#            CREATE TABLE LWETL_ORDER (
+#                ID INTEGER PRIMARY KEY,
+#                DESTINATION TEXT,
+#                ID_PRODUCT INTEGER,
+#                FOREIGN KEY(ID_PRODUCT) REFERENCES LWETL_PRODUCT(ID)
+#            );
+#        t3: |
+#            CREATE TABLE LWETL_ENC (
+#                ID INTEGER PRIMARY KEY,
+#                LANG1 TEXT NOT NULL,
+#                LANG2 TEXT,
+#                VAL   TEXT NULL
+#            );
+#    drop:
+#        # tables an/or sequences are dropped in alphabetic order of key
+#        # non-existing elements are ignored.
+#        t1: "DROP TABLE LWETL_ORDER;"
+#        t2: "DROP TABLE LWETL_PRODUCT;"
+#        t3: "DROP TABLE LWETL_ENC;"
+#    insert:
+#        s1:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('BIKE',   99.95);"
+#        s2:  "INSERT INTO LWETL_PRODUCT (NAME,PRICE) VALUES ('CAR', 10000.00);"
+#        s3:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('HOLLAND',1);"
+#        s4:  "INSERT INTO LWETL_ORDER (DESTINATION,ID_PRODUCT) VALUES ('USA', 2);"
+#    check:
+#        sql_1: "SELECT SUM(PRICE) AS PRICE FROM LWETL_PRODUCT;"
+#        sql_n: "SELECT PRICE FROM LWETL_PRODUCT;"
+#    # postgresql jdbc driver does not support blob create
+#    # java.sql.SQLFeatureNotSupportedException: Method org.postgresql.jdbc.PgConnection.createBlob() is not yet implemented.
+#    binary:
+#        file:   jdbc.jpg
+#        table:  LWETL_PRODUCT
+#        column: PHOTO
+#        id:     1
+#    xls:
+#        file: "price_list.xlsx"
+#        table: LWETL_PRODUCT
+#    csv:
+#        file: "price_list.csv"
+#        table: LWETL_PRODUCT
+#    ldif:
+#        file: "ldif.txt"
+#        table: LWETL_PRODUCT

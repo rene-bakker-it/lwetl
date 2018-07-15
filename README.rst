@@ -44,7 +44,7 @@ Status
 This project is in a pre-alpha stage. It has been tested with drivers for mysql, sqlserver,
 oracle, postgresql, and sqlite:
 
-- Linux Mint (Ubuntu, Debian) with python 3.5.
+- Linux Mint (Ubuntu, Debian) with python 3.5 and 3.6.
 - CentOS Linux (Redhat, Fedora) with python 3.4.
 - Windows 10 Home with Anaconda_ python 3.6.
 

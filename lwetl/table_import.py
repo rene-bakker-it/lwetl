@@ -411,7 +411,7 @@ class XlsxImport:
 
         self.work_book = load_workbook(file_name, read_only=True, data_only=True)
 
-        sheet_names = self.work_book.get_sheet_names()
+        sheet_names = self.work_book.sheetnames
         if len(sheet_names) == 0:
             raise EmptyFileError("Workbook '%s' has no data." % file_name)
 
@@ -422,7 +422,7 @@ class XlsxImport:
             sheet_name = None
 
         if sheet_name is None:
-            self.work_sheet = self.work_book.get_sheet_by_name(sheet_names[0])
+            self.work_sheet = self.work_book[sheet_names[0]]
         elif isinstance(sheet_name, str):
             valid_sheets = [n for n in sheet_names if n.upper() == sheet_name.upper()]
             if len(valid_sheets) > 0:

@@ -2,7 +2,7 @@
 # see config-example.yml for documentation
 drivers:
     mysql:
-        jar:   'http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39.jar'
+        jar:   'http://central.maven.org/maven2/mysql/mysql-connector-java/6.0.6/mysql-connector-java-6.0.6.jar'
         class: 'com.mysql.jdbc.Driver'
         url:   'jdbc:mysql://'
         attr:  '?autoReconnect=true&useSSL=false'
