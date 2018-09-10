@@ -199,9 +199,12 @@ class DataTransformer:
             x = 1
             s = ''
             while (n-x) > 0:
-                d = 2000 if (n-x) > 2000 else (n-x)
-                #print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
-                s += clob.getSubString(x, d)
+                d = 2000 if (n-x) > 2000 else (n-x-1)
+                try:
+                    s += clob.getSubString(x, d)
+                except Exception as e:
+                    print('ERROR: ' + str(e))
+                    print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
                 x += 2000
             return s
 
