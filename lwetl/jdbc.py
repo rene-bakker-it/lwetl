@@ -193,20 +193,14 @@ class DataTransformer:
 
     def oracle_clob(self, clob):
         n = int(clob.length())
-        if n < 4000:
-            return clob.stringValue()
-        else:
-            x = 1
-            s = ''
-            while (n-x) > 0:
-                d = 2000 if (n-x) > 2000 else (n-x-1)
-                try:
-                    s += clob.getSubString(x, d)
-                except Exception as e:
-                    print('ERROR: ' + str(e))
-                    print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
-                x += 2000
-            return s
+        s = ''
+        x = 1
+        while (n-x) > 0:
+            d = 2000 if (n-x) > 2000 else (n-x-1)
+            # print('{:4d} {:4d} {:4d} {}'.format(n,x,x+d,s))
+            s += clob.getSubString(x,d)
+            x += 2000
+        return s
 
     @staticmethod
     def parse_number(number):
