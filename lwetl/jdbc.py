@@ -186,7 +186,12 @@ class DataTransformer:
         return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
 
     def oracle_clob(self, clob):
-        return clob.stringValue()
+        try:
+            s = clob.stringValue()
+        except Exception as e:
+            print('ERROR in clob.stringValue: {}'.format(type(clob).__name__, str(e)))
+            s = ''
+        return s
 
     @staticmethod
     def parse_number(number):
@@ -249,8 +254,6 @@ class DataTransformer:
             try:
                 values.append(func(value))
             except Exception as e:
-                if type(value).__name__ == 'oracle.sql.CLOB':
-                    value = 'oracle.sql.CLOB: ' + value.stringValue()
                 print('ERROR - cannot parse {}: {}'.format(value,str(e)))
                 parse_exception = e
             if parse_exception is not None:
