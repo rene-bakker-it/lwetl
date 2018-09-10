@@ -200,7 +200,7 @@ class DataTransformer:
             s = ''
             while (n-x) > 0:
                 d = 2000 if (n-x) > 2000 else (n-x)
-                print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
+                #print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
                 s += clob.getSubString(x, d)
                 x += 2000
             return s
