@@ -106,7 +106,7 @@ parser.add_argument(
 parser.add_argument(
     '--ignore', action='store_true',
     dest='ignore_commit_errors',
-    help='Also ignore commit errors upt to the specified fail-count.')
+    help='Also ignore commit errors to the specified fail-count.')
 
 # Not implemented
 # parser.add_argument(

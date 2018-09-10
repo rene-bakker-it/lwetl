@@ -249,6 +249,8 @@ class DataTransformer:
             try:
                 values.append(func(value))
             except Exception as e:
+                if type(value).__name__ == 'oracle.sql.CLOB':
+                    value = 'oracle.sql.CLOB: ' + value.stringValue()
                 print('ERROR - cannot parse {}: {}'.format(value,str(e)))
                 parse_exception = e
             if parse_exception is not None:
