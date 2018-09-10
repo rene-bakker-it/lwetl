@@ -129,6 +129,8 @@ class DataTransformer:
         @raise ValueError if the cursor has no data
         @raise TypeError on a wrong cursor type, or wrong return type
         """
+        global JAVA_STRING
+
         if not isinstance(cursor, Cursor):
             raise TypeError('Variable for the DataTransformer must be a Cursor. Found: ' + type(cursor).__name__)
         elif cursor.description is None:
@@ -166,6 +168,10 @@ class DataTransformer:
         self.transformer = column_types
         self.nr_of_columns = len(columns)
 
+        if JAVA_STRING is None:
+            # JVM must have started for this
+            JAVA_STRING = JPackage('java').lang.String
+
     @staticmethod
     def byte_array_to_bytes(array):
         return bytes([(lambda i: (256 + i) if i < 0 else i)(b) for b in array])
@@ -186,12 +192,18 @@ class DataTransformer:
         return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
 
     def oracle_clob(self, clob):
-        try:
-            s = clob.stringValue()
-        except Exception as e:
-            print('ERROR in clob.stringValue: {}'.format(type(clob).__name__, str(e)))
+        n = int(clob.length())
+        if n < 4000:
+            return clob.stringValue()
+        else:
+            x = 1
             s = ''
-        return s
+            while (n-x) > 0:
+                d = 2000 if (n-x) > 2000 else (n-x)
+                print('CLOB {:4d} {:4d} {:4d} {}'.format(n,x,d,s))
+                s += clob.getSubString(x, d)
+                x += 2000
+            return s
 
     @staticmethod
     def parse_number(number):
@@ -351,11 +363,11 @@ class Jdbc:
             for cursor in self.cursors:
                 try:
                     cursor.close()
-                except Error:
+                except Exception:
                     pass
             try:
                 self.connection.close()
-            except Error:
+            except Exception:
                 pass
 
     @default_cursor(False)
