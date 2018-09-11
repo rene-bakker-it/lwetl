@@ -192,15 +192,7 @@ class DataTransformer:
         return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
 
     def oracle_clob(self, clob):
-        n = int(clob.length())
-        s = ''
-        x = 1
-        while (n-x) > 0:
-            d = 2000 if (n-x) > 2000 else (n-x-1)
-            # print('{:4d} {:4d} {:4d} {}'.format(n,x,x+d,s))
-            s += clob.getSubString(x,d)
-            x += 2000
-        return s
+        return clob.stringValue()
 
     @staticmethod
     def parse_number(number):
