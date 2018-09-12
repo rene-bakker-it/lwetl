@@ -336,6 +336,12 @@ def main():
                         break
                 if uploader.row_count > 0:
                     uploader.commit()
+                    print(
+                        '%8d. %5.1f %% of %d records, new: %8d, upd: %8d, ign: %8d. %s. finished' %
+                        (row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t))
+                else:
+                    print('Update of %s finished, No further commits. rc = %d' % (t,row_count))
+
                 if (new_count + upd_count) > 0:
                     dt = datetime.now() - t0_table
                     dt_sec = dt.total_seconds()
