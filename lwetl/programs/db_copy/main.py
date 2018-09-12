@@ -225,6 +225,7 @@ def main():
     if n_excluded > 0:
         print_list('Skipped tables', copy_list[:n_excluded], table_count)
         copy_list = copy_list[n_excluded:]
+    copy_list = [t for t in copy_list if t not in table_admin[IGNORED]]
     print_list('Copy process will use the following order', copy_list, table_count)
 
     if args.list:
@@ -249,7 +250,7 @@ def main():
 
     too_many_errors = False
     is_update = args.mode in [COPY_AND_UPDATE, COPY_AND_SYNC]
-    for t in [tt for tt in copy_list if tt not in table_admin[IGNORED]] :
+    for t in copy_list:
         counters[CNT_COPIED_TABLES] += 1
         n, n2 = table_count[t]
         print("CC %3d. of %d: copy %-30s n = %6d values (PK = %s) ......." % (
