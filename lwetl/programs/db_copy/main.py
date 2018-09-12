@@ -68,10 +68,10 @@ def print_list(label, table_list, tc=None):
         if isinstance(tc, dict) and table in tc:
             if tc[table][0] == tc[table][1]:
                 marker = ''
-            elif tc[table][0] < tc[table][1]:
-                marker = '+'
             else:
-                marker = '-'
+                marker = '%8d %5.1f %%' % (
+                    (tc[table][1]-tc[table][0]),
+                    abs(200.0*(tc[table][1]-tc[table][0])/(tc[table][1]+tc[table][0])))
             print('%3d. %-35s n(src) = %8d, n(trg) = %8d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
         else:
             print('%3d. %-35s' % (x + 1, table))
