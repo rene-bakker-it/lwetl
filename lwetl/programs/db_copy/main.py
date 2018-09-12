@@ -70,11 +70,11 @@ def print_list(label, table_list, tc=None):
                 marker = ''
             else:
                 n = tc[table][0] if tc[table][0] > 0 else 1
-                marker = '%8d' % (tc[table][1]-tc[table][0])
+                marker = '%15d' % (tc[table][1]-tc[table][0])
                 f = abs(100.0*(tc[table][1]-tc[table][0])/n)
                 if f <= 999.0:
                     marker += ' %5.1f %%' % f
-            print('%3d. %-35s n(src) = %15d, n(trg) = %8d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
+            print('%3d. %-35s n(src) = %9d, n(trg) = %9d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
         else:
             print('%3d. %-35s' % (x + 1, table))
 
