@@ -74,7 +74,7 @@ def print_list(label, table_list, tc=None):
                 f = abs(100.0*(tc[table][1]-tc[table][0])/n)
                 if f <= 999.0:
                     marker += ' %5.1f %%' % f
-            print('%3d. %-35s n(src) = %8d, n(trg) = %8d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
+            print('%3d. %-35s n(src) = %15d, n(trg) = %8d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
         else:
             print('%3d. %-35s' % (x + 1, table))
 
