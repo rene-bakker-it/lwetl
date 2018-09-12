@@ -249,7 +249,7 @@ def main():
 
     too_many_errors = False
     is_update = args.mode in [COPY_AND_UPDATE, COPY_AND_SYNC]
-    for t in copy_list:
+    for t in [tt for tt in copy_list if tt not in table_admin[IGNORED]] :
         counters[CNT_COPIED_TABLES] += 1
         n, n2 = table_count[t]
         print("CC %3d. of %d: copy %-30s n = %6d values (PK = %s) ......." % (
