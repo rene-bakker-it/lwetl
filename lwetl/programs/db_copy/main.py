@@ -266,7 +266,7 @@ def main():
         existing_records = set(existing_records)
 
         try:
-            if args.reverse_insert:
+            if args.reverse_insert or args.update_fast:
                 pk_order = 'DESC'
             else:
                 pk_order = 'ASC'
@@ -296,6 +296,9 @@ def main():
                     record_exists = (pk in existing_records)
                     if record_exists and (not is_update):
                         skp_count += 1
+                        if args.update_fast:
+                            print('Huristic fast update of %s. Skipping at rowcount %d' % (t, row_count))
+                            break
                     else:
                         try:
                             if record_exists:

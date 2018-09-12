@@ -113,6 +113,11 @@ parser.add_argument(
     dest='reverse_insert',
     help='Insert in reverse order')
 
+parser.add_argument(
+    '--fast', action='store_true',
+    dest='update_fast',
+    help='Huristic fast update with reverse insert')
+
 # Not implemented
 # parser.add_argument(
 #     '--map', action='store', type=str,
