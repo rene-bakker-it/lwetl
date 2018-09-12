@@ -266,7 +266,12 @@ def main():
         existing_records = set(existing_records)
 
         try:
-            cursor = jdbc[SRC].execute('SELECT * FROM {0} ORDER BY {1}'.format(t, pk_info[SRC][t]),cursor=None)
+            if args.reverse_insert:
+                pk_order = 'DESC'
+            else:
+                pk_order = 'ASC'
+            cursor = jdbc[SRC].execute('SELECT * FROM {} ORDER BY {} {}'.format(
+                t, pk_info[SRC][t], pk_order),cursor=None)
         except lwetl.SQLExcecuteException as exec_error:
             print('ERROR: table %s skipped on SQL retrieve error: ' + str(exec_error))
             too_many_errors = True

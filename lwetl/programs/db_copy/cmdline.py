@@ -108,6 +108,11 @@ parser.add_argument(
     dest='ignore_commit_errors',
     help='Also ignore commit errors to the specified fail-count.')
 
+parser.add_argument(
+    '--reverse', action='store_true',
+    dest='reverse_insert',
+    help='Insert in reverse order')
+
 # Not implemented
 # parser.add_argument(
 #     '--map', action='store', type=str,
