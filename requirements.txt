@@ -1,9 +1,9 @@
 JayDeBeApi==1.1.1
-PyYAML==3.12
-Sphinx==1.6.5
-sphinx-autobuild==0.7.1
-sphinx-rtd-theme==0.2.4
-sphinxcontrib-websupport==1.0.1
-openpyxl==2.4.9
-psutil==5.4.1
-regex==2017.9.23
+PyYAML==3.13
+Sphinx==1.8.3
+sphinxcontrib-websupport==1.1.0
+openpyxl==2.5.12
+psutil==5.4.8
+regex==2018.11.22
+requests==2.21.0
+urllib3==1.24.1
