@@ -31,9 +31,7 @@ and scanned in 3 locations (exist and readable) in the following order:
 
 import os
 import sys
-
-from yaml import load as yaml_load
-from yaml.parser import ParserError, ScannerError
+import yaml
 
 from urllib.request import urlretrieve
 from urllib.error import HTTPError
@@ -166,12 +164,12 @@ count_cfg_files = 0
 for fn in [f for f in CFG_FILES if os.path.isfile(f)]:
     try:
         with open(fn) as fh:
-            cfg = yaml_load(fh)
+            cfg = yaml.load(fh, Loader=yaml.FullLoader)
             configuration = merge(cfg, configuration)
             count_cfg_files += 1
     except PermissionError:
         pass
-    except (ParserError, ScannerError) as pe:
+    except yaml.YAMLError as pe:
         print('ERROR: cannot parse the configuration file %s' % fn, file=sys.stderr)
         print(pe, file=sys.stderr)
         sys.exit(1)

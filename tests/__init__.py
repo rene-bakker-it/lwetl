@@ -7,8 +7,7 @@
 
 import os
 import pytest
-
-from yaml import load as yaml_load
+import yaml
 
 from .generate_complex_utf8 import I_CAN_EAT_GLASS
 
@@ -26,7 +25,7 @@ cfg_error = None
 try:
     cfg_file = os.path.join(TEST_DIR, 'sql_statements.yml')
     with open(cfg_file, 'r') as f:
-        TEST_CONFIGURATION = yaml_load(f)
+        TEST_CONFIGURATION = yaml.load(f, Loader=yaml.FullLoader)
 except Exception as e:
     cfg_error = e
 else:
