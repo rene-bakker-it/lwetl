@@ -444,7 +444,7 @@ class XlsxFormatter(Formatter):
         r = super(XlsxFormatter, self).format(row)
         x = 0
         for column_type in self.columns.values():
-            if column_type == COLUMN_TYPE_DATE:
+            if isinstance(r[x], str) and (column_type == COLUMN_TYPE_DATE):
                 r[x] = string2date(r[x])
             x += 1
         self.sheet.append(r)
