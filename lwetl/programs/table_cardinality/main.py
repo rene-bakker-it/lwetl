@@ -9,6 +9,7 @@ import os
 import sys
 
 from lwetl.version import __version__
+from lwetl.exceptions import SQLExcecuteException
 
 def count(login, table, filename, max_rows):
     error = None
@@ -42,21 +43,25 @@ def count(login, table, filename, max_rows):
         sheet1.append(['COLUMN NAME', 'DISTINCT', 'TOTAL', 'TOTAL NON DISTINCT'])
         for column_name in columns.keys():
             tot = jdbc.get_int(sql_count.format(column_name, table))
-            cur = jdbc.execute(sql_base.format(column_name, table))
-            tds = 0
-            cnt = 0
-            new_table = True
-            for row in jdbc.get_data(cur):
-                cnt += 1
-                tds += int(row[1])
-                if (max_rows <= 0) or (cnt <= max_rows):
-                    if new_table:
-                        xls.next_sheet(cur, column_name)
-                        xls.header()
-                        new_table = False
-                    xls.write(row)
+            try:
+                cur = jdbc.execute(sql_base.format(column_name, table))
+                tds = 0
+                cnt = 0
+                new_table = True
+                for row in jdbc.get_data(cur):
+                    cnt += 1
+                    tds += int(row[1])
+                    if (max_rows <= 0) or (cnt <= max_rows):
+                        if new_table:
+                            xls.next_sheet(cur, column_name)
+                            xls.header()
+                            new_table = False
+                        xls.write(row)
+                print('Parsed: %-30s d = %6d, t = %6d, s = %6d' % (column_name, cnt, tot, tds))
+            except SQLExcecuteException:
+                cnt = None
+                tds = None
             sheet1.append([column_name, cnt, tot, tds])
-            print('Parsed: %-30s d = %6d, t = %6d, s = %6d' % (column_name, cnt, tot, tds))
     print('Done.')
     return 0
 

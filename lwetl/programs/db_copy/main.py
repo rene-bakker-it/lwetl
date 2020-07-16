@@ -8,7 +8,7 @@ import sys
 from collections import OrderedDict
 from datetime import datetime
 
-from .cmdline import \
+from lwetl.programs.db_copy.cmdline import \
     DRIVER_SINGLE, DRIVER_MULTI, UPLOADERS, \
     COPY_EMPTY, COPY_AND_UPDATE, COPY_AND_SYNC, parser
 

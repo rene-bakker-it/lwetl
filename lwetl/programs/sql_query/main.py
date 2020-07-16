@@ -8,7 +8,7 @@ from lwetl.version import __version__
 from lwetl.queries import content_queries
 from lwetl.utils import is_empty
 from lwetl.config_parser import JDBC_DRIVERS
-from .cmdline import FORMATTERS, parser
+from lwetl.programs.sql_query.cmdline import FORMATTERS, parser
 
 
 def show_version():
