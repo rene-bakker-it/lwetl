@@ -1,3 +1,5 @@
+import sys
+
 from jpype import *
 from io import StringIO
 from lwetl.config_parser import parse_login, JDBC_DRIVERS, JAR_FILES
