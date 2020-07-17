@@ -189,7 +189,7 @@ class DataTransformer:
 
     def oracle_lob_to_bytes(self, lob):
         # print(type(lob).__name__)
-        return self.byte_array_to_bytes(lob.getBytes(1, lob.length()))
+        return self.byte_array_to_bytes(lob.getBytes(1, int(lob.length())))
 
     def oracle_clob(self, clob):
         return clob.stringValue()
