@@ -34,7 +34,7 @@ import sys
 import yaml
 
 from urllib.request import urlretrieve
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 from .exceptions import ServiceNotFoundException
 from .utils import verified_boolean
@@ -254,7 +254,7 @@ for jdbc_type, cfg in configuration.get('drivers', {}).items():
                     try:
                         urlretrieve(cfg['jar'], dst_file)
                         print('INFO: %s downloaded to: %s' % (jar_file, lib_dir))
-                    except HTTPError as http_error:
+                    except (HTTPError, URLError) as http_error:
                         print('ERROR - failed to retrieve: ' + cfg['jar'])
                         print(http_error)
                     if os.path.isfile(dst_file):
