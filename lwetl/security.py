@@ -7,11 +7,16 @@ import os
 import random
 import sys
 
-from Crypto.Cipher import AES
+from cryptography.fernet import Fernet
 
 KEY = None
 
 def init_key(key: str)->bytes:
+    """
+    Generate a 32-byte key from the imput string
+    @param key:
+    @return: 32-byte key
+    """
     global KEY
     k = key
     if len(k) != 32:
@@ -23,7 +28,7 @@ def init_key(key: str)->bytes:
         k = bytes(k)
     if KEY is None:
         KEY = k
-    return k
+    return base64.urlsafe_b64encode(k)
 
 
 def get_key(k):
@@ -44,29 +49,22 @@ def get_key(k):
     return init_key(key)
 
 def encrypt(s: str, key=None):
-    iv = bytearray()
-    while len(iv) < AES.block_size:
-        iv.append(random.randint(0, 255))
-    iv = bytes(iv)
-    cphr = AES.new(get_key(key), AES.MODE_CFB, iv)
     if len(s) > 127:
         raise RuntimeError('String too long for encryption.')
     s2 = '{:02x}{}'.format(128+len(s),s)
     while len(s2) < 132:
         s2 += chr(random.randint(33,126))
-    mesg = iv + cphr.encrypt(s2.encode())
-    return base64.urlsafe_b64encode(mesg).decode()
+
+    fernet = Fernet(get_key(key))
+    return base64.urlsafe_b64encode(fernet.encrypt(bytes(s2.encode()))).decode()
 
 def decrypt(s: str, key=None):
+    fernet = Fernet(get_key(key))
     try:
-        mesg = base64.urlsafe_b64decode(s)
-        iv = mesg[0:AES.block_size]
-        cphr = AES.new(get_key(key), AES.MODE_CFB, iv)
-        s2 = cphr.decrypt(mesg[AES.block_size:]).decode()
-    except Exception:
-        print('Password decryption error. Wrong password?', file=sys.stderr)
+        s2 = fernet.decrypt(base64.urlsafe_b64decode(s.encode())).decode()
+    except Exception as e:
+        print('Password decryption error. Wrong password? {}'.format(e), file=sys.stderr)
         sys.exit(1)
-
     return s2[2:2+int(s2[0:2], 16)-128]
 
 
