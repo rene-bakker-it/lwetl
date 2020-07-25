@@ -21,7 +21,8 @@ Key features
     - choice of the JDBC driver.
     - definitions of the JDBC connection URLs.
     - optionally parsing of ORACLE's `tnsnames.ora` for access through JDBC thin client.
-    - optionally saving database access credentials as an alias.
+    - optionally saving database access credentials as an alias. The password in these
+      credentials may be encrypted with a master password.
 - Direct command-line access to a database for upload and download.
 - Command-line transfer of tables between independent database instances, possibly of a different server-type.
 - Python classes for encapsulated transfer of data.

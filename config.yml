@@ -34,3 +34,4 @@ drivers:
         jar:    'http://central.maven.org/maven2/org/xerial/sqlite-jdbc/3.21.0/sqlite-jdbc-3.21.0.jar'
         class:  'org.sqlite.JDBC'
         url:    'jdbc:sqlite:'
+encryption: false

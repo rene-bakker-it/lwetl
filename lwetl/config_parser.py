@@ -38,6 +38,7 @@ from urllib.error import HTTPError
 
 from .exceptions import ServiceNotFoundException
 from .utils import verified_boolean
+from .security import encrypt, decrypt
 
 MODULE_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir))
 HOME_DIR = os.path.expanduser('~')
@@ -53,6 +54,9 @@ CFG_DIRS = [d for d in [
     os.path.join(HOME_DIR, MOD_NAME)] if os.path.isdir(d)]
 
 CFG_FILES = [os.path.join(WORK_DIR, CFG_FILE)] + [os.path.join(d, CFG_FILE) for d in CFG_DIRS]
+
+# Encrypt passwords
+CFG_ENCRYPT = True
 
 
 def merge(source: dict, destination: dict) -> dict:
@@ -86,6 +90,13 @@ def parse_login(login: str):
         username_password, service_name = login_credentials.rsplit('@',1)
         if '/' in username_password:
             user_name, password = username_password.rsplit('/',1)
+            if CFG_ENCRYPT:
+                try:
+                    pw = decrypt(password)
+                except Exception:
+                    pass
+                else:
+                    password = pw
             credentials = user_name, password
         else:
             user_name = username_password
@@ -201,6 +212,11 @@ if (len(configuration) == 0) or (count_cfg_files <= 1):
 # add environment variables
 for var_name, value in configuration.get('env', {}).items():
     os.environ[var_name] = str(value)
+
+# encryption of db passwords
+CFG_ENCRYPT = configuration.get('encrypt', True)
+if not isinstance(CFG_ENCRYPT, bool):
+    CFG_ENCRYPT = True
 
 # parse the drivers section
 # download new drivers, if required.

@@ -36,6 +36,7 @@ setup(
             'sql-query=lwetl.programs.sql_query.main:main',
             'db-copy=lwetl.programs.db_copy.main:main',
             'table-cardinality=lwetl.programs.table_cardinality.main:main',
+            'lwetl-security=lwetl.programs.lwetl_security.main:main'
         ],
     },
 )

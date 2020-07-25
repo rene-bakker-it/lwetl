@@ -30,7 +30,35 @@ servers:
 alias:
   containing access credentials and references to database servers, which were specified in the ``servers`` section.
 
-**Note:** access credentials in the alias section are stored in plain text. If security is an issue, make sure that the configuration file is properly read-protected. Alternatively this section can be skipped and access credentials may be entered in the appropriate methods.
+encrypt: (true|false)
+  to specify if the passwords in the alias should be encrypted with a master password.
+
+**Note:** access credentials in the alias section may stored in plain text. If security is an issue, you have
+the following options:
+
+- make sure that the configuration file is properly read-protected.
+- use the lwetl-security program to encrypt the passwords with a master password. By default the master password is
+  asked each time you open a database connection. As an alternative it may may be stored in the environment
+  variable LWETL (less secuure).
+- If you do not create aliases the username and password must be entered in the appropriate methods.
+
+Encryption with a master password
+---------------------------------
+
+::
+
+   # (re) encrypt the home configuration file with a password
+
+   # 1. make sure the master password has to be entered on the command line:
+   unset LWETL
+
+   # 2. (re) encrypt
+   # the current and new password will be asked on the command line
+   lwetl-security -c ~/.lwetl/config.yml
+
+   # remove encryption
+   lwetl-security -r ~/.lwetl/config.yml
+
 
 Example
 =======
@@ -103,6 +131,7 @@ Example
 
     # alias for connections, in ORACLE credentials format
     # <username>/<password>@<servername>
+    encrypted: false
     alias:
         scott_mysql:      "scott/tiger@scott_mysql"
         scott_postgresql: "scott/tiger@scott_postgresql"

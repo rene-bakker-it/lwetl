@@ -41,14 +41,17 @@ or with a configured alias:
 
 Implemented command line options are (use the -h option for help):
 
+lwetl-security
+  to encrypt/decrypt the passwords in the alias with a master password.
+
 sql-query
   as a general purpose command-line sql parser, up-loader, or down-loader.
 
-db-copy
-  to quickly copy entire tables between database instances.
-
 table-cardinality
   to dump cardinality data of a table into an xlsx spreadsheet.
+
+db-copy
+  to copy entire tables between database instances.
 
 Alternatively they may be invoced as a module, for example:
 

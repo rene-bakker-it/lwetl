@@ -20,8 +20,7 @@ FORMATTERS = {
 
 parser = argparse.ArgumentParser(
     prog='sql-query',
-    description='Command line interface for database manipulation.',
-    formatter_class=argparse.RawTextHelpFormatter)
+    description='Command line interface for database manipulation.')
 
 parser.add_argument('login', nargs='?', default='',
                     help='''login credentials or alias.
