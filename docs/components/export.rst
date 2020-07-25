@@ -147,11 +147,6 @@ Below onl the TextFormatter is described in detail. For the otherones only the d
         Writes the output of :func:`format(row)` to the specified output stream.
 
 
-    .. function:: header()
-
-        Does nothing.
-
-
 .. class:: CsvFormatter():
 
     Outputs a table in CSV format. The functionality is identical to the :class:`TextFormatter`
