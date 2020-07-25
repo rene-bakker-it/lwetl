@@ -1,9 +1,0 @@
-JayDeBeApi
-PyYAML
-Sphinx
-sphinx-autobuild
-sphinx-rtd-theme
-sphinxcontrib-websupport
-openpyxl
-psutil
-regex
