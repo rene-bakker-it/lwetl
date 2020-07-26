@@ -1,3 +1,7 @@
+"""
+Command line arguments for the application db-copy
+"""
+
 import argparse
 import lwetl
 
@@ -20,9 +24,10 @@ COPY_AND_SYNC = 'sync'
 COPY_MODE = OrderedDict()
 COPY_MODE[COPY_EMPTY] = 'only copy tables, which are emtpy in the target table (default).'
 COPY_MODE[COPY_NEW] = 'only copy records, which do not exist in the target table.'
-COPY_MODE[COPY_AND_UPDATE] = 'like new. Additionally update existing records with the contents found in the source table.'
+COPY_MODE[COPY_AND_UPDATE] = 'like new. Then update existing records with the contents found in the source table.'
 COPY_MODE[COPY_AND_SYNC] = 'additionally remove records that where deleted in the source table.'
 
+# noinspection PyTypeChecker
 parser = argparse.ArgumentParser(
     prog='db-copy',
     description='''Copy tables between database instances.
@@ -43,7 +48,7 @@ Credentials are in ORACLE format: <username>/<password>@server''')
 parser.add_argument('login_target',
                     help='login credentials or alias of the target database.')
 
-parser.add_argument('tables', nargs='?',default=None,
+parser.add_argument('tables', nargs='?', default=None,
                     help='Comma separated list of tables to include. Use all common tables if not defined.')
 
 parser.add_argument(
@@ -90,7 +95,7 @@ parser.add_argument(
     '-m', '--mode', action='store',
     default='emtpy',
     choices=list(COPY_MODE.keys()),
-    help='Specity the copy mode:' + ''.join([('\n- %-10s %s' % (k+':',v)) for k,v in COPY_MODE.items()])
+    help='Specity the copy mode:' + ''.join([('\n- %-10s %s' % (k+':', v)) for k, v in COPY_MODE.items()])
 )
 
 parser.add_argument(
@@ -101,7 +106,8 @@ parser.add_argument(
     help='''Specify the upload mode:
 - native: use native SQL (does not permit transfer of binary data)
 - single: parse single parameterized sqls to the target server (DEFAULT).
-- multi:  parse an sql with multiple parameter rows in a single commit (not compatible with update mode 'update' and 'sync').''')
+- multi:  parse an sql with multiple parameter rows in a single commit 
+          (not compatible with update mode 'update' and 'sync').''')
 
 parser.add_argument(
     '--ignore', action='store_true',
@@ -117,31 +123,5 @@ parser.add_argument(
     '--fast', action='store_true',
     dest='update_fast',
     help='Huristic fast update with reverse insert')
-
-# Not implemented
-# parser.add_argument(
-#     '--map', action='store', type=str,
-#     dest='mapping',
-#     help='''Provide a YAML file with table mappings. Possible options are:
-# 1. mapping of table names only:
-#        <source table 1>: <destination table 1>
-#        <source table 2>: <destination table 2>
-#        .......
-#    Tables not present in the mapping file are assumed to keep their original name.
-# 2. mappping o table names and/or column names:
-#        <source table 1>:
-#            name: <target table 1> (use source if omitted)
-#            columns:
-#                <source column 1>: <target column 1>
-#                <source column 2>: <target column 2>
-#                ......
-#        ........
-#     Columns not present in the mapping are assumed to keep their original name.
-# IMPORTANT:
-# Only colums, which exist in the target table, are copied. Non existing columns are silently ignored unless the --strict option is added.''')
-
-# parser.add_argument(
-#     '--strict', action='store_true',
-#     help='Fail if source columns are not found in the target table.')
 
 parser.add_argument('--version', action='store_true')

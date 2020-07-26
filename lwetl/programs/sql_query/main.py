@@ -1,3 +1,8 @@
+"""
+    Parse sql to a database, either to extract data or to insert it
+    Supports multiple io formats.
+"""
+
 import lwetl
 import os
 import sys
@@ -64,7 +69,7 @@ def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: i
         if file_format not in ['xls', 'csv']:
             # guess by file type: binary/text
             textchars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
-            is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
+            is_binary_string = lambda bts: bool(bts.translate(None, textchars))
             with open(file_name, 'rb') as f:
                 if is_binary_string(f.read(1024)):
                     file_format = 'xlsx'
@@ -93,6 +98,7 @@ def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: i
     return 0
 
 
+# noinspection PyBroadException
 def parse_output(cursors: list, args):
     if len(cursors) < 1:
         return
@@ -108,7 +114,7 @@ def parse_output(cursors: list, args):
     elif args.format == 'xmlp':
         kwargs['pretty_print'] = True
     elif args.format == 'sql':
-        jdbc = getattr(cursors[0],lwetl.jdbc.PARENT_CONNECTION)
+        jdbc = getattr(cursors[0], lwetl.jdbc.PARENT_CONNECTION)
         kwargs['connection'] = jdbc
         kwargs['columns'] = jdbc.get_columns(cursors[0])
         if args.target_db is not None:
@@ -151,8 +157,8 @@ def parse_output(cursors: list, args):
         kwargs['cursor'] = cursor
         if sql_count == 1:
             f.open(**kwargs)
-        elif args.format in ['xlsx','xml','xmlp']:
-            f.next_sheet(cursor,'Sheet%d' % sql_count)
+        elif args.format in ['xlsx', 'xml', 'xmlp']:
+            f.next_sheet(cursor, 'Sheet%d' % sql_count)
         else:
             f.close()
             kwargs['append'] = True
@@ -174,6 +180,7 @@ def parse_output(cursors: list, args):
             print('ERROR: cannot retrieve the data: ' + str(exec_error))
     f.close()
 
+
 def commit(jdbc: lwetl.Jdbc, cursor, mode, row_count, tot_count):
     if mode == lwetl.UPLOAD_MODE_COMMIT:
         jdbc.commit(cursor)
@@ -183,6 +190,7 @@ def commit(jdbc: lwetl.Jdbc, cursor, mode, row_count, tot_count):
         n_rollback = row_count
     print('%s for %3d rows (%6d total)' % (mode.upper(), row_count, tot_count))
     return n_rollback
+
 
 def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
     has_error = False
@@ -223,7 +231,7 @@ def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
         if has_update:
             print('Finished. %6d rows updated.' % (tot_count - tot_rollb))
         if len(cursors) > 0:
-            parse_output(cursors,args)
+            parse_output(cursors, args)
     return has_error
 
 
@@ -268,7 +276,7 @@ def main():
             print(le)
             return 1
     elif os.path.isfile(args.command_or_sql):
-        input_file = args.command_or_sql
+        pass
     elif ' ' not in args.command_or_sql.strip():
         # the input might be a table name -> test this
         table_name = args.command_or_sql.strip()

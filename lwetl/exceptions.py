@@ -1,5 +1,6 @@
 import jaydebeapi
 
+
 class ServiceNotFoundException(RuntimeError):
     """
     Thrown when the configured database server cannot be configured.
@@ -11,6 +12,7 @@ class DriverNotFoundException(RuntimeError):
     """
     Thrown when the JDBC driver cannot be loaded into the JVM
     """
+
     def __init__(self, message):
         super(DriverNotFoundException, self).__init__('Jar file for JDBC not found: ' + message)
 
@@ -21,8 +23,10 @@ class SQLExcecuteException(Exception):
     """
     pass
 
+
 class DatabaseError(jaydebeapi.DatabaseError):
     pass
+
 
 class CommitException(Exception):
     """
@@ -30,11 +34,20 @@ class CommitException(Exception):
     """
     pass
 
+
 class UnsupportedDatabaseTypeException(Exception):
     pass
+
 
 class EmptyFileError(Exception):
     """
     Thrown if an input data buffer is empty
+    """
+    pass
+
+
+class DecryptionError(Exception):
+    """
+    Thrown data cannot be decrypted
     """
     pass

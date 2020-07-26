@@ -28,6 +28,7 @@ DEC_ZERO = Decimal(0.0)
 
 JAVA_STRING = None
 
+
 def default_cursor(default_result):
     """
     Decorator: addes check on the cursor.
@@ -45,8 +46,8 @@ def default_cursor(default_result):
                 raise LookupError('Illegal function for default_cursor decorator')
             self = args[0]
             argl = list(args)
-            cursor = kwargs.get('cursor',None)
-            if isinstance(cursor,Cursor):
+            cursor = kwargs.get('cursor', None)
+            if isinstance(cursor, Cursor):
                 del kwargs['cursor']
             else:
                 if (len(argl) < 2) or (argl[1] is None):
@@ -54,7 +55,7 @@ def default_cursor(default_result):
                 elif isinstance(argl[1], Cursor):
                     cursor = argl[1]
 
-            if isinstance(cursor,Cursor):
+            if isinstance(cursor, Cursor):
                 if cursor not in self.cursors:
                     raise LookupError('Specified cursor not found in this instance.')
             elif cursor is not None:
@@ -84,7 +85,7 @@ def get_columns_of_cursor(cursor: Cursor) -> OrderedDict:
     upper_case = False
     if isinstance(cursor, Cursor):
         if hasattr(cursor, PARENT_CONNECTION):
-            upper_case = getattr(cursor,PARENT_CONNECTION).upper_case
+            upper_case = getattr(cursor, PARENT_CONNECTION).upper_case
     else:
         raise TypeError('cursor must be of type Cursor, found: ' + type(cursor).__name__)
 
@@ -181,7 +182,7 @@ class DataTransformer:
         if isinstance(v, str):
             # Bugfix: jpype for some multi-byte characters parses the surrogate unicode escape string
             #         most notably 4-byte utf-8 for emoji
-            return v.encode('utf-16',errors='surrogatepass').decode('utf-16')
+            return v.encode('utf-16', errors='surrogatepass').decode('utf-16')
         if type(v) == 'java.lang.String':
             return v.getBytes().decode()
         else:
@@ -205,6 +206,7 @@ class DataTransformer:
             else:
                 return dval
 
+    # noinspection PyTypeChecker
     def __call__(self, row):
         """
         Transform a row of data
@@ -248,14 +250,13 @@ class DataTransformer:
                     self.transformer[x] = self.parse_number
                 else:
                     self.transformer[x] = self.default_transformer
-                    #(lambda v: v)
                 func = self.transformer[x]
 
             parse_exception = None
             try:
                 values.append(func(value))
             except Exception as e:
-                print('ERROR - cannot parse {}: {}'.format(value,str(e)))
+                print('ERROR - cannot parse {}: {}'.format(value, str(e)))
                 parse_exception = e
             if parse_exception is not None:
                 raise parse_exception
@@ -271,13 +272,14 @@ class DataTransformer:
                     dd[self.columns[x]] = values[x]
             return dd
 
+
 class DummyJdbc:
     """
     Dummy JDBC connection.
     Only stores configuration parameters of the connection, there is not real connection
     """
 
-    def __init__(self, login_or_drivertype:str, upper_case=True):
+    def __init__(self, login_or_drivertype: str, upper_case=True):
         self.login = 'nobody'
         self.upper_case = upper_case
         self.type, self.always_escape = parse_dummy_login(login_or_drivertype)
@@ -288,10 +290,12 @@ class DummyJdbc:
     def rollback(self):
         pass
 
-    def execute(self,sql, parametes=None, cursor=None):
+    # noinspection PyUnusedLocal
+    def execute(self, sql, parametes=None, cursor=None):
         return cursor
 
-    def get_int(self,sql, parameters=None):
+    # noinspection PyUnusedLocal
+    def get_int(self, sql, parameters=None):
         return 0
 
 
@@ -408,9 +412,9 @@ class Jdbc:
 
             if sql_or_list is None:
                 return None
-            elif isinstance(sql_or_list,str):
+            elif isinstance(sql_or_list, str):
                 return JAVA_STRING(sql_or_list.encode(), 'UTF8')
-            elif isinstance(sql_or_list,(list,tuple)):
+            elif isinstance(sql_or_list, (list, tuple)):
                 parms = []
                 for p in sql_or_list:
                     if isinstance(p, str):
@@ -437,16 +441,16 @@ class Jdbc:
         error_message = None
         with self.statistics as stt:
             try:
-                if isinstance(parameters,(list,tuple)) and (len(parameters) > 0) and (
+                if isinstance(parameters, (list, tuple)) and (len(parameters) > 0) and (
                         isinstance(parameters[0], (list, tuple, dict))):
                     stt.add_exec_count(len(parameters))
-                    cursor.executemany(sql,[string2java_string(p) for p in parameters])
+                    cursor.executemany(sql, [string2java_string(p) for p in parameters])
                 else:
                     stt.add_exec_count()
                     if parameters is None:
-                        cursor.execute(string2java_string(sql),None)
+                        cursor.execute(string2java_string(sql), None)
                     else:
-                        cursor.execute(sql,string2java_string(parameters))
+                        cursor.execute(sql, string2java_string(parameters))
             except Exception as execute_exception:
                 self.close(cursor)
                 error_message = str(execute_exception)
@@ -455,7 +459,7 @@ class Jdbc:
                         error_message = error_message[len(prefix):]
             if error_message is not None:
                 print(sql, file=sys.stderr)
-                if isinstance(parameters,(list,tuple)):
+                if isinstance(parameters, (list, tuple)):
                     print(parameters, file=sys.stderr)
                 raise SQLExcecuteException(error_message)
 
@@ -591,7 +595,7 @@ class Jdbc:
         else:
             return int(value)
 
-    def get_statistics(self, tag = None) -> str:
+    def get_statistics(self, tag=None) -> str:
         """
         Return the query time of this instance as a string
         @return: query time of this instance as hh:mm:ss

@@ -7,6 +7,8 @@ import sys
 
 from collections import OrderedDict
 from decimal import Decimal
+
+# noinspection PyUnresolvedReferences
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 

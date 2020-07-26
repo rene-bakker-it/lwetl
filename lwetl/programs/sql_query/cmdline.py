@@ -18,9 +18,11 @@ FORMATTERS = {
     'sql': lwetl.SqlFormatter
 }
 
+# noinspection PyTypeChecker
 parser = argparse.ArgumentParser(
     prog='sql-query',
-    description='Command line interface for database manipulation.')
+    description='Command line interface for database manipulation.',
+    formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('login', nargs='?', default='',
                     help='''login credentials or alias.
@@ -53,11 +55,11 @@ parser.add_argument(
     dest='commit_mode',
     choices=[lwetl.UPLOAD_MODE_DRYRUN, lwetl.UPLOAD_MODE_ROLLBACK, lwetl.UPLOAD_MODE_COMMIT],
     help='''Specify the commit mode:
-    - {0} generate the SQLs for upload but do not send them.
-          produces no output with combined with a SELECT statement
-    - {1} (DEFAULT) send SQLs but perform a rollback instead of a commit.
-    - {2} commit uploads to the database'''.format(lwetl.UPLOAD_MODE_DRYRUN, lwetl.UPLOAD_MODE_ROLLBACK,
-                                                   lwetl.UPLOAD_MODE_COMMIT)
+- {0} generate the SQLs for upload but do not send them. 
+  Produces no output with combined with a SELECT statement
+- {1} (DEFAULT) send SQLs but perform a rollback instead of a commit.
+- {2} commit uploads to the database'''.format(lwetl.UPLOAD_MODE_DRYRUN, lwetl.UPLOAD_MODE_ROLLBACK,
+                                               lwetl.UPLOAD_MODE_COMMIT)
 )
 
 parser.add_argument(
@@ -65,7 +67,9 @@ parser.add_argument(
     choices=list(FORMATTERS.keys()),
     default='csv',
     dest='format',
-    help='Specify the input or output format. Defaults to csv. SQL output also requires the -t option!'
+    help='''Specify the input or output format. 
+The xmlp option stands for xml with pretty pring. 
+Defaults to csv. SQL output also requires the -t option!'''
 )
 
 parser.add_argument(
@@ -112,8 +116,8 @@ parser.add_argument('--log', action='store', nargs='?', type=str,
                     help='Log generated sql statements. Defaults to stdout, if set.')
 
 parser.add_argument('-t', '--target', action='store', nargs='?', type=str,
-    dest='target_db', default=None,
-    help='''Defines the destination: [login_or_databasetype?]table_name[,columns]
+                    dest='target_db', default=None,
+                    help='''Defines the destination: [login_or_databasetype?]table_name[,columns]
 - login_or_databasetype 
   May be a login alias defined in the config.yml or a database type defined in this file.
   If omitted, the current database connection is assumed. 

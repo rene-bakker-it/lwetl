@@ -1,3 +1,8 @@
+"""
+    Helper program to encrypt/decrypt the database passwords stored in the aliases
+    of the main configuration file
+"""
+
 import argparse
 import getpass
 import lwetl
@@ -11,12 +16,15 @@ from lwetl.version import __version__
 from lwetl.config_parser import CFG_FILES, merge
 from lwetl.security import encrypt, decrypt, init_key
 from lwetl.queries import table_count_queries
+from lwetl.exceptions import DecryptionError
 
 Credentials = namedtuple('Credentials', 'username password server')
 
+# noinspection PyTypeChecker
 parser = argparse.ArgumentParser(
     prog='lwetl-security',
-    description='Encrypt/Decrypt passwords stored in the lwetl configuration file')
+    description='Encrypt/Decrypt passwords stored in the lwetl configuration file',
+    formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('output_file', nargs='?', default=None,
                     help='Name of the output file (stdout if not specified).')
@@ -38,8 +46,12 @@ def parse_credentials(s, pw_encrypted=True):
         return s
     else:
         if pw_encrypted:
-            password = decrypt(password)
+            try:
+                password = decrypt(password, raise_error=True)
+            except DecryptionError:
+                print('WARNING: failed to decrypt password for {}'.format(username), file=sys.stderr)
     return Credentials(username, password, server)
+
 
 def show_version():
     """
@@ -48,6 +60,7 @@ def show_version():
     """
     print('%s, version: %s' % (os.path.basename(sys.argv[0]), __version__))
     return 0
+
 
 def main():
     if (len(sys.argv) > 1) and (sys.argv[1].lower() == '--version'):
@@ -78,17 +91,17 @@ def main():
     pw_encrypted = configuration.get('encrypt', True)
     if not isinstance(pw_encrypted, bool):
         pw_encrypted = True
-    for a in configuration.get('alias',{}).keys():
+    for a in configuration.get('alias', {}).keys():
         configuration['alias'][a] = parse_credentials(configuration['alias'][a], pw_encrypted)
 
     if args.test:
-        keys = sorted(configuration.get('alias',{}).keys())
+        keys = sorted(configuration.get('alias', {}).keys())
         for indx, k in enumerate(keys, start=1):
             try:
                 jdbc = lwetl.Jdbc(k)
                 if jdbc.type in table_count_queries:
                     sql = table_count_queries[jdbc.type].replace('@SCHEMA', jdbc.schema)
-                    r   = 'OK: {:>4} tables found.'.format(jdbc.get_int(sql))
+                    r = 'OK: {:>4} tables found.'.format(jdbc.get_int(sql))
                 else:
                     r = 'Unsupported db type: {}'.format(jdbc.type)
             except Exception as e:
@@ -103,7 +116,7 @@ def main():
             configuration['encrypt'] = False
 
         new_alias = dict()
-        for a, c in configuration.get('alias',{}).items():
+        for a, c in configuration.get('alias', {}).items():
             if isinstance(c, Credentials):
                 if configuration['encrypt']:
                     c = Credentials(c.username, encrypt(c.password), c.server)
@@ -118,6 +131,7 @@ def main():
             with open(args.output_file, 'w') as f:
                 yaml.dump(configuration, f)
             print('Configuration written to: ' + args.output_file)
+
 
 if __name__ == '__main__':
     main()

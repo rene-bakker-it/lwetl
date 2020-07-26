@@ -1,22 +1,8 @@
 import sys
 
 from jpype import *
-from io import StringIO
 from lwetl.config_parser import parse_login, JDBC_DRIVERS, JAR_FILES
 
-class Capturing(list):
-    def __enter__(self):
-        self._stdout = sys.stdout
-        sys.stdout = self._stringio_out = StringIO()
-        self._stderr = sys.stderr
-        sys.stderr = self._stringio_err = StringIO()
-        return self
-    def __exit__(self, *args):
-        for _stringio in [self._stringio_out,self._stringio_err]:
-            self.extend(_stringio.getvalue().splitlines())
-            del _stringio    # free up some memory
-        sys.stdout = self._stdout
-        sys.stderr = self._stderr
 
 class JdbcInfo:
     """
