@@ -300,6 +300,13 @@ if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS','').lower() not in 
             with open(tns, 'r') as fh:
                 tnsnames = fh.read()
 
+            # strip empty and comment lines
+            lines = []
+            for line in tnsnames.splitlines():
+                if (len(line.strip()) > 0) and not line.strip().startswith('#'):
+                    lines.append(line)
+            tnsnames = "\n".join(lines)
+
             r = regex.compile('(\(([^())]|(?R))*\))')
             while True:
                 m = r.search(tnsnames, regex.MULTILINE)

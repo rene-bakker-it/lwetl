@@ -44,6 +44,9 @@ class JdbcInfo:
 
         driver_class = JDBC_DRIVERS[self.type]['class']
         print('Info for: %s (%s)' % (self.type, driver_class),file=file)
+        print('- URL ----------------------------------------------------------------------')
+        print(self.url)
+        print('----------------------------------------------------------------------------')
 
         try:
             properties = JPackage('java').util.Properties()

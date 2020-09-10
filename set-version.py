@@ -58,8 +58,7 @@ parser.add_argument('--minor', nargs='?', const=vlist[1] + 1, type=check_positiv
                          'Resets the revision number to 0.')
 
 parser.add_argument('--revision', nargs='?', const=vlist[2] + 1, type=check_positive,
-                    help='Increase the revision number (or specifiy). ' +
-                         'Resets the revision number to 0.')
+                    help='Increase the revision number (or specifiy). ')
 
 parser.add_argument('-p','--push',action='store_true',
                     help='Push a tag to the remove repository.')
