@@ -113,6 +113,8 @@ def parse_output(cursors: list, args):
         kwargs['column_width'] = args.column_width
     elif args.format == 'xmlp':
         kwargs['pretty_print'] = True
+    elif args.format == 'xlsx':
+        kwargs['pretty'] = True
     elif args.format == 'sql':
         jdbc = getattr(cursors[0], lwetl.jdbc.PARENT_CONNECTION)
         kwargs['connection'] = jdbc
