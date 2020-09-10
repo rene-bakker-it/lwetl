@@ -13,7 +13,11 @@ from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from jaydebeapi import Cursor
-from openpyxl import Workbook
+
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import NamedStyle, Font, Border, Side, Alignment
+from openpyxl.styles.fills import PatternFill
 
 from .jdbc import Jdbc, DummyJdbc, PARENT_CONNECTION, COLUMN_TYPE_DATE, get_columns_of_cursor
 from .uploader import NativeUploader, UPLOAD_MODE_PIPE
@@ -380,6 +384,7 @@ class XlsxFormatter(Formatter):
     def __init__(self, *args, **kwargs):
         super(XlsxFormatter, self).__init__(*args, **kwargs)
         self.name = kwargs.get('sheet_name', "Sheet1")
+        self.pretty = kwargs.get('pretty', False)
         self.book = None
         self.sheet = None
         self.count = 0
@@ -404,7 +409,9 @@ class XlsxFormatter(Formatter):
 
         self.count = 0
         self.book = Workbook(write_only=True)
+        self.sheets_with_header = set()
         self.next_sheet(self.cursor,sheet_name)
+
         return self
 
     def close(self):
@@ -413,6 +420,8 @@ class XlsxFormatter(Formatter):
         self.book.save(self.fname)
         self.book = None
         self.sheet = None
+        if self.pretty:
+            self.prettify()
         super(XlsxFormatter, self).close()
 
     def next_sheet(self, new_cursor=None, sheet_name=None):
@@ -438,6 +447,7 @@ class XlsxFormatter(Formatter):
     def header(self):
         if self.sheet is None:
             raise ValueError('I/O operation on closed xlsx formatter.')
+        self.sheets_with_header.add(str(self.sheet.title))
         self.sheet.append(list(self.columns.keys()))
 
     def write(self, row: list):
@@ -451,6 +461,38 @@ class XlsxFormatter(Formatter):
             x += 1
         self.sheet.append(r)
 
+    def prettify(self):
+        b = load_workbook(self.fname)
+        header_style = NamedStyle(name='table_header')
+        header_style.font = Font(bold=True)
+        header_style.fill = PatternFill(fill_type='solid', start_color='00CCCCCC', end_color='00CCCCCC')
+        header_style.alignment = Alignment(horizontal='center')
+        thin = Side(border_style='thin', color='000000')
+        double = Side(border_style="double", color="ff0000")
+        header_style.border = Border(top=double, left=thin, right=thin, bottom=double)
+
+        b.add_named_style(header_style)
+
+        for ws in b.worksheets:
+            if ws.title in self.sheets_with_header:
+                has_header = True
+                for cell in ws[1]:
+                    cell.style = header_style
+            else:
+                has_header = False
+            for x, c in enumerate(ws.columns, start=1):
+                column_width = 5
+                for y, cell in enumerate(c, start=1):
+                    if cell.value is not None:
+                        w = len(str(cell.value))
+                        if has_header and (y == 1):
+                            w = int(1.25*w)
+                        if w > column_width:
+                            column_width = w
+                if column_width > 50:
+                    column_width = 50
+                ws.column_dimensions[get_column_letter(x)].width = column_width+2
+        b.save(self.fname)
 
 class SqlFormatter(Formatter):
     UNDEFINED_TABLE = '@UNDEFINED_TABLE@'
