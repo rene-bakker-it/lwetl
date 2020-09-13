@@ -36,15 +36,16 @@ Alternatively the repository may first be cloned:
 Windows
 -------
 
-From the Anaconda_ command prompt:
+**Note 1:** The module depends on Java. Make sure that the JVM and Python are both of the same type, eiter 32 bits, or 64 bits.
+Only the 64 bits version has been tested:
+
+**Note 2:** the lwetl package depends on the module cryptography_, which depends on openSSL.
 
 ::
 
-        conda install -c conda-forge jpype1
-        conda install regex
+        pip install git+https://github.com/rene-bakker-it/lwetl.git
+        pip install regex
 
-        (assuming the lwetl package in the current directory):
-        pip install .
 
 Dependencies
 ============
@@ -57,7 +58,8 @@ The module depends on the following packages:
 - Jpype1_,
 - openpyxl_,
 - psutil_,
-- PyYAML_, and
+- PyYAML_,
+- cryptography_, and
 - regex_ (optionally).
 
 Tests in the ``tests`` directory are based on pytest_, whichalso requires: pytest-html_, pytest-metadata_, and pytest-progress_.
@@ -84,3 +86,4 @@ Developers, who want to use the utility function ``set-version.py`` in the main 
 .. _Sphinx: http://www.sphinx-doc.org/en/stable
 .. _`read the docs`: https://github.com/rtfd/sphinx_rtd_theme
 .. _GitPython: https://pypi.python.org/pypi/GitPython
+.. _cryptography: https://cryptography.io/en/latest/installation/

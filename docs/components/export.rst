@@ -215,7 +215,9 @@ Below onl the TextFormatter is described in detail. For the otherones only the d
 .. class:: XlsxFormatter(jdbc: Jdbc):
 
     Outputs a table in a Excel 2007+ file. The functionality is identical to the :class:`XmlFormatter`
-    but ``dialect`` and ``pretty_print`` are not supported.
+    but ``dialect`` and ``pretty_print`` are not supported. Instead, the argument ``pretty=True`` in
+    the open method, will reformat the xlsx file to autoset the column width and print the header line
+    in bold.
 
     .. warning::
 
