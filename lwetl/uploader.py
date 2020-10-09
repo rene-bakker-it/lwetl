@@ -468,16 +468,22 @@ class ParameterUploader(Uploader):
     def __exit__(self, exc_type, exc_val, exc_tb):
         super(ParameterUploader, self).__exit__(exc_type, exc_val, exc_tb)
 
-    def _filter_data(self, data: dict):
+    def _filter_data(self, data: dict, export_null=False):
         column_names = [k.upper() for k in data.keys()
                         if (k.upper() in self.columns) and k.upper()]
 
-        dd = dict()
+        data_dict = dict()
+        null_list = list()
         for column_name, value in data.items():
             column_name = column_name.upper()
             if (column_name in column_names) and (not is_empty(value)):
-                dd[column_name] = value
-        return dd
+                data_dict[column_name] = value
+            else:
+                null_list.append(column_name)
+        if export_null:
+            return data_dict, null_list
+        else:
+            return data_dict
 
     def _process_where_clause(self, where_clause):
         if is_empty(where_clause):
@@ -510,7 +516,7 @@ class ParameterUploader(Uploader):
             return blob
         elif type(value).__name__ in ['int', 'float']:
             return value
-        elif isinstance(value, str) and (value.lower() != 'null'):
+        elif isinstance(value, str):
             if self.columns[column_name] == COLUMN_TYPE_DATE:
                 if RE_IS_DATE_TIME.match(value):
                     date = datetime.strptime(value[:19], '%Y-%m-%d %H:%M:%S')
@@ -562,8 +568,8 @@ class ParameterUploader(Uploader):
                     - a string with an operator and value (e.g., LIKE 'ABC%')
                     - a tuple (operator,value)
         """
-        update_data = self._filter_data(data)
-        if len(update_data) == 0:
+        update_data, null_list = self._filter_data(data, True)
+        if (len(update_data) + len(null_list)) == 0:
             return
 
         values = []
@@ -571,7 +577,9 @@ class ParameterUploader(Uploader):
         w_list = []
         for column_name in [k for k in self.columns.keys() if k in update_data]:
             values.append(self._convert(column_name, update_data[column_name]))
-            s_list.append('%s = ?' % self.escape_column_name(column_name))
+            s_list.append('{} = ?'.format(self.escape_column_name(column_name)))
+        for column_name in null_list:
+            s_list.append('{} = NULL'.format(self.escape_column_name(column_name)))
 
         where_data = self._process_where_clause(where_clause)
         if where_data:
