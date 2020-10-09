@@ -510,7 +510,7 @@ class ParameterUploader(Uploader):
             return blob
         elif type(value).__name__ in ['int', 'float']:
             return value
-        elif isinstance(value, str) and (str.lower() != 'null'):
+        elif isinstance(value, str) and (value.lower() != 'null'):
             if self.columns[column_name] == COLUMN_TYPE_DATE:
                 if RE_IS_DATE_TIME.match(value):
                     date = datetime.strptime(value[:19], '%Y-%m-%d %H:%M:%S')
