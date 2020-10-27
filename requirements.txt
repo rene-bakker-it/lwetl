@@ -1,4 +1,4 @@
-cryptography==3.0
+cryptography==3.2
 JPype1==1.0.1
 JayDeBeApi==1.2.3
 PyYAML==5.3.1
