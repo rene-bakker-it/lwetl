@@ -8,6 +8,6 @@ openpyxl==3.0.4
 psutil==5.7.2
 regex==2020.7.14
 requests==2.24.0
-urllib3==1.25.10
+urllib3==1.26.5
 pytest~=5.4.3
 setuptools~=49.2.0
