@@ -31,6 +31,8 @@ parser.add_argument('output_file', nargs='?', default=None,
 
 parser.add_argument('-c', '--change', action='store_true',
                     help='Change the master password. You will be prompted to enter a new password.')
+parser.add_argument('-n', '--no_interaction', action='store_true',
+                    help='Take encryption password from the environment variable LWETL')
 parser.add_argument('-r', '--remove', action='store_true',
                     help='Remove encryption on storage.')
 parser.add_argument('-t', '--test', action='store_true',
@@ -109,8 +111,13 @@ def main():
             print('{:>3}/{}. {:.<30} {}'.format(indx, len(keys), k, r))
     else:
         if args.change:
-            print('Enter new password: ')
-            init_key(getpass.getpass())
+            new_password = None
+            if args.no_interaction:
+               new_password = os.environ.get('LWETL')
+            if new_password is None:
+                print('Enter new password: ')
+                new_password = getpass.getpass()
+            init_key(new_password)
             configuration['encrypt'] = True
         elif args.remove:
             configuration['encrypt'] = False
