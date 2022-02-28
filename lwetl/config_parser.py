@@ -38,7 +38,7 @@ from urllib.error import HTTPError, URLError
 
 from .exceptions import ServiceNotFoundException
 from .utils import verified_boolean
-from .security import encrypt, decrypt
+from .security import decrypt
 
 MODULE_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir))
 HOME_DIR = os.path.expanduser('~')
@@ -81,10 +81,18 @@ def merge(source: dict, destination: dict) -> dict:
 def parse_login(login: str):
     """
     Parse the login string against the configuration
-    @param login: str login credentials in oracle format: username/password@service
+    @param login: str login credentials in oracle format: username/password@service, or,
+                  in the case of a non-encrypted sqlite local file, as sqlite:<filename>
     @return: Tuple (login credentials (tuple of username, password), database type,
                         connection url, column_escape option)
     """
+
+    # sqlite can be called directly
+    if login.startswith('sqlite:') and ('sqlite' in JDBC_DRIVERS):
+        db_file = login[7:]
+        url = JDBC_DRIVERS['sqlite']['url'] + db_file
+        return None, 'sqlite', db_file, url, False
+
     login_credentials = LOGIN_ALIAS.get(login, login)
     if '@' in login_credentials:
         username_password, service_name = login_credentials.rsplit('@',1)
