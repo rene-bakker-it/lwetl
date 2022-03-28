@@ -252,7 +252,8 @@ class DataTransformer:
                     self.transformer[x] = self.default_transformer
                 func = self.transformer[x]
 
-            if type(value).__name__ in ['int', 'bool', 'float', 'str']:
+            if type(value).__name__ in ['int', 'bool', 'float']:
+                # might return from java and they do not have a toString method
                 values.append(value)
             else:
                 parse_exception = None
