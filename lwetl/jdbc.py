@@ -252,14 +252,17 @@ class DataTransformer:
                     self.transformer[x] = self.default_transformer
                 func = self.transformer[x]
 
-            parse_exception = None
-            try:
-                values.append(func(value))
-            except Exception as e:
-                print('ERROR - cannot parse {}: {}'.format(value, str(e)))
-                parse_exception = e
-            if parse_exception is not None:
-                raise parse_exception
+            if type(value).__name__ in ['int', 'bool', 'float', 'str']:
+                values.append(value)
+            else:
+                parse_exception = None
+                try:
+                    values.append(func(value))
+                except Exception as e:
+                    print('ERROR - cannot parse {}: {}'.format(value, str(e)))
+                    parse_exception = e
+                if parse_exception is not None:
+                    raise parse_exception
         if self.return_type == list:
             return values
         elif self.return_type == tuple:
