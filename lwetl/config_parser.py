@@ -67,13 +67,14 @@ def merge(source: dict, destination: dict) -> dict:
     @param destination: dict destination
     @return: dict destination with source merged into it
     """
-    for key, value in source.items():
-        if isinstance(value, dict):
-            # get node or create one
-            node = destination.setdefault(key, {})
-            merge(value, node)
-        else:
-            destination[key] = value
+    if isinstance(source, dict):
+        for key, value in source.items():
+            if isinstance(value, dict):
+                # get node or create one
+                node = destination.setdefault(key, {})
+                merge(value, node)
+            else:
+                destination[key] = value
 
     return destination
 
