@@ -1,8 +1,7 @@
 import sys
 
-from jpype import *
+from jpype import isJVMStarted, startJVM, shutdownJVM, getDefaultJVMPath, JPackage
 from lwetl.config_parser import parse_login, JDBC_DRIVERS, JAR_FILES
-
 
 class JdbcInfo:
     """

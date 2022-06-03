@@ -69,7 +69,7 @@ class BaseTextImport:
     @staticmethod
     def _open_text_input(filename_or_stream, encoding='utf-8'):
         """
-        Parse the input and determine if its a stream or a file
+        Parse the input and determine if it is a stream or a file
         @param filename_or_stream:
         @return: tuple one of which is
         """
@@ -252,22 +252,19 @@ class LdifImport(BaseTextImport):
 
     Here is an example of an LDIF file containing three entries.
 
-          dn: cn=John E Doe, o=University of High
-           er Learning, c=US
+          dn: cn=John E Doe, o=University of Higher Learning, c=US
           cn: John E Doe
           cn: John Doe
           objectclass: person
           sn: Doe
 
-          dn: cn=Bjorn L Doe, o=University of High
-           er Learning, c=US
+          dn: cn=Bjorn L Doe, o=University of Higher Learning, c=US
           cn: Bjorn L Doe
           cn: Bjorn Doe
           objectclass: person
           sn: Doe
 
-          dn: cn=Jennifer K. Doe, o=University of High
-           er Learning, c=US
+          dn: cn=Jennifer K. Doe, o=University of Higher Learning, c=US
           cn: Jennifer K. Doe
           cn: Jennifer Doe
           objectclass: person

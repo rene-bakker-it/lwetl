@@ -25,7 +25,7 @@ def time_to_string(time_value: float) -> str:
     seconds = rtime % 60
     minutes = int((rtime - seconds) / 60) % 60
     hours = int((rtime - (60 * minutes) - seconds) / 3600)
-    return '%02d:%02d:%02d.%03d' % (hours, minutes, seconds, nanos)
+    return '{:02d}:{:02d}:{:02d}.{:03d}'.format(hours, minutes, seconds, nanos)
 
 
 def timedelta_to_string(dt: timedelta) -> str:
@@ -79,7 +79,8 @@ class Statistics:
         return time_to_string(self.query_time)
 
     def get_statistics(self, tag: str = '') -> str:
-        return '+ %-9s   %-11s,  nq = %8d, rc = %8d' % ('db ' + tag + ':', self.get_query_time(), self.exec_count, self.row_count)
+        return '+ {:9<}   {:11<},  nq = {:8d}, rc = {:8d}'.format(
+            'db ' + tag + ':', self.get_query_time(), self.exec_count, self.row_count)
 
 
 GLOBAL_STATISTICS = Statistics()
@@ -146,9 +147,9 @@ def get_execution_statistics() -> str:
 
     str_list = [
         'Execution statistics:',
-        '+ Total time: %s' % timedelta_to_string(datetime.now() - GLOBAL_STATISTICS.start_time),
-        '+ CPU user    %s' % time_to_string(cpu_info.user),
-        '+ CPU system: %s' % time_to_string(cpu_info.system),
+        '+ Total time: {}'.format(timedelta_to_string(datetime.now() - GLOBAL_STATISTICS.start_time)),
+        '+ CPU user    {}'.format(time_to_string(cpu_info.user)),
+        '+ CPU system: {}'.format(time_to_string(cpu_info.system)),
         GLOBAL_STATISTICS.get_statistics('TOTAL')]
     for tag, jdbc in MARKED_CONNECTIONS.items():
         str_list.append(jdbc.get_statistics(tag))

@@ -11,7 +11,7 @@ and scanned in 3 locations (exist and readable) in the following order:
      Each yaml file may contain 4 sections:
      env      for replacmement or addition of environment variables
      drivers  defines the drivers used for the connection.
-     servers  defines server reference to connect to. May be omitted for
+     servers  defines the server to connect to. May be omitted for
               connections defined in tnsnames.ora
               For each server the following must be specfied:
               - type: type of server (mysql, sqlserver, oracle)
@@ -163,7 +163,7 @@ def parse_dummy_login(login_or_drivertype:str):
 
 def print_info():
     """
-    Human readable output to stdout of the defined servers and aliases
+    Human-readable output to stdout of the defined servers and aliases
     as defined in config.yml
     """
     print("Known servers:")
@@ -227,7 +227,7 @@ CFG_ENCRYPT = configuration.get('encrypt', True)
 if not isinstance(CFG_ENCRYPT, bool):
     CFG_ENCRYPT = True
 
-# parse the drivers section
+# parse the driver section
 # download new drivers, if required.
 JDBC_DRIVERS = dict()
 for jdbc_type, cfg in configuration.get('drivers', {}).items():

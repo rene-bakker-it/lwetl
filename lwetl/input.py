@@ -11,8 +11,8 @@ import sys
 class InputParser:
     """
     Class to parse SQL input, either from file or from a stream (e.g., stdin)
-    Assumes that all SQLs are terminated with an sql_terminator character
-    (defaults to a semi-colon) at the end of a line.
+    Assumes that all SQLs are terminated with a sql_terminator character
+    (defaults to a semicolon) at the end of a line.
 
     WARNING: may fail on multi-line string inputs that use the same character
     and the and of a CRLF.

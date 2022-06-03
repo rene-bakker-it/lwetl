@@ -15,6 +15,7 @@ from .exceptions import DriverNotFoundException, SQLExcecuteException, CommitExc
 from .runtime_statistics import RuntimeStatistics
 from .utils import *
 
+# marker (attribute) to trace chained connections
 PARENT_CONNECTION = '_lwetl_jdbc'
 
 # Handled column types
@@ -31,8 +32,8 @@ JAVA_STRING = None
 
 def default_cursor(default_result):
     """
-    Decorator: addes check on the cursor.
-    The function will return the default_result if the the specified cursor does not exist
+    Decorator: adds check on the cursor.
+    The function will return the default_result if the specified cursor does not exist
     or current cursor is not defined.
     @param default_result: Any - the default value the function should return if the cursor is not found
     @return: decorated function
@@ -75,6 +76,7 @@ def default_cursor(default_result):
     return wrap
 
 
+# noinspection PyProtectedMember
 def get_columns_of_cursor(cursor: Cursor) -> OrderedDict:
     """
     Retrieve the column information of the specified cursor
@@ -113,16 +115,18 @@ def get_columns_of_cursor(cursor: Cursor) -> OrderedDict:
 class DataTransformer:
     """
         Row types returned by jaydebeapi are not always of a python compatible type.
-        This transformer class makes correctons.
+        This transformer class makes corrections.
     """
 
+    # noinspection PyProtectedMember
     def __init__(self, cursor: Cursor, return_type=tuple, upper_case: bool = True, include_none: bool = False):
         """
         Instantiate a DataTransformer
 
         @param cursor: Cursor containing query data.
-        @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict, or
-            OrderedDict (see collections)
+        @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
+            OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
+            that only the first value of each row is returned and casted to the specified type.
         @param upper_case: bool - transform column names in upper case (defaults to True)
         @param include_none: bool - include None values in dictionary return types. Defaults to False
         @return DataTransformer
@@ -138,9 +142,9 @@ class DataTransformer:
             raise ValueError('Cannot create a DataTransformer on a cursor without data.')
 
         expected_types = [list, tuple, dict, OrderedDict]
-        if return_type not in expected_types:
+        if (return_type not in expected_types) and (not isinstance(return_type, str)):
             str_types = [str(t).split("'")[1] for t in expected_types]
-            raise TypeError('Specified return type must me one of: %s. Found: %s' % (
+            raise TypeError('Specified return type must me one of: {}. Found: {}'.format(
                 ', '.join(str_types), type(return_type).__name__))
         self.return_type = return_type
         self.include_none = verified_boolean(include_none)
@@ -180,7 +184,7 @@ class DataTransformer:
     @staticmethod
     def default_transformer(v):
         if isinstance(v, str):
-            # Bugfix: jpype for some multi-byte characters parses the surrogate unicode escape string
+            # Bugfix: jpype for some multibyte characters parses the surrogate unicode escape string
             #         most notably 4-byte utf-8 for emoji
             return v.encode('utf-16', errors='surrogatepass').decode('utf-16')
         if type(v) == 'java.lang.String':
@@ -192,6 +196,7 @@ class DataTransformer:
         # print(type(lob).__name__)
         return self.byte_array_to_bytes(lob.getBytes(1, int(lob.length())))
 
+    # noinspection PyMethodMayBeStatic
     def oracle_clob(self, clob):
         return clob.stringValue()
 
@@ -222,7 +227,7 @@ class DataTransformer:
             row = [row]
             row_length = 1
         if row_length != self.nr_of_columns:
-            raise ValueError('Invalid row. Expected %d elements but found %d.' % (self.nr_of_columns, row_length))
+            raise ValueError('Invalid row. Expected {} elements but found {}.'.format(self.nr_of_columns, row_length))
         if row_length == 0:
             return self.return_type()
 
@@ -242,11 +247,11 @@ class DataTransformer:
                 elif vtype == 'oracle.sql.CLOB':
                     self.transformer[x] = self.oracle_clob
                 elif vtype.startswith('java') or vtype.startswith('oracle'):
-                    self.transformer[x] = (lambda v: v.toString())
+                    self.transformer[x] = (lambda vv: vv.toString())
                 elif vtype == 'byte[]':
                     self.transformer[x] = self.byte_array_to_bytes
                 elif func == COLUMN_TYPE_FLOAT:
-                    self.transformer[x] = (lambda v: v if isinstance(v, float) else float(v))
+                    self.transformer[x] = (lambda vv: vv if isinstance(vv, float) else float(vv))
                 elif func == COLUMN_TYPE_NUMBER:
                     self.transformer[x] = self.parse_number
                 else:
@@ -254,11 +259,12 @@ class DataTransformer:
                 func = self.transformer[x]
 
             if type(value).__name__ in ['int', 'bool', 'float']:
-                # might return from java and they do not have a toString method
+                # might return from java without a toString method
                 values.append(value)
             else:
                 parse_exception = None
                 try:
+                    # noinspection PyCallingNonCallable
                     values.append(func(value))
                 except Exception as e:
                     print('ERROR - cannot parse {}: {}'.format(value, str(e)))
@@ -269,6 +275,23 @@ class DataTransformer:
             return values
         elif self.return_type == tuple:
             return tuple(values)
+        elif isinstance(self.return_type, str):
+            single_value_transformers = dict(
+                str=(lambda vv: vv if isinstance(vv, str) else str(vv)),
+                int=(lambda vv: vv if isinstance(vv, int) else int(vv)),
+                bool=(
+                    lambda vv: vv if isinstance(vv, bool) else bool(vv) if not isinstance(vv, str) else vv.lower() in [
+                        'true', '1', 'yes', 'si', 'y', 's']),
+                float=(lambda vv: vv if isinstance(vv, float) else float(vv)))
+
+            if len(values) > 0:
+                v = values.pop(0)
+                if self.return_type in single_value_transformers:
+                    return single_value_transformers[self.return_type](v)
+                else:
+                    return v
+            else:
+                return None
         else:
             dd = self.return_type()
             for x in range(row_length):
@@ -281,7 +304,7 @@ class DataTransformer:
 class DummyJdbc:
     """
     Dummy JDBC connection.
-    Only stores configuration parameters of the connection, there is not real connection
+    Only stores configuration parameters of the connection, there is no real connection
     """
 
     def __init__(self, login_or_drivertype: str, upper_case=True):
@@ -295,11 +318,11 @@ class DummyJdbc:
     def rollback(self):
         pass
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,PyMethodMayBeStatic
     def execute(self, sql, parametes=None, cursor=None):
         return cursor
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,PyMethodMayBeStatic
     def get_int(self, sql, parameters=None):
         return 0
 
@@ -356,6 +379,7 @@ class Jdbc:
         self.cursors = []
         self.current = None
 
+    # noinspection PyBroadException
     def __del__(self):
         if self.connection:
             for cursor in self.cursors:
@@ -388,6 +412,7 @@ class Jdbc:
                     self.current = self.cursors[-1]
                 else:
                     self.current = None
+            # noinspection PyBroadException
             try:
                 # for garbage collection
                 del cursor
@@ -498,9 +523,11 @@ class Jdbc:
     def get_data(self, cursor: Cursor = None, return_type=tuple,
                  include_none=False, max_rows: int = 0, array_size: int = 1000):
         """
-        An iterator using fetchmany to keep the memory usage reasonalble
+        An iterator using fetchmany to keep the memory usage reasonable
         @param cursor: Cursor to query, use current if not specified
-        @param return_type: return type of rows. May be list, tuple (default), dict, or OrderedDict
+        @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
+            OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
+            that only the first value of each row is returned and casted to the specified type.
         @param include_none: bool return None values in dictionaries, if True. Defaults to False
         @param max_rows: int maximum number of rows to return before closing the cursor. Negative or zero implies
             all rows
@@ -526,10 +553,10 @@ class Jdbc:
                 fetch_error = error
 
             if fetch_error is not None:
-                print('Fetch error in batch %d of size %d.' % (batch_nr, array_size), file=sys.stderr)
+                print('Fetch error in batch {} of size {}.'.format(batch_nr, array_size), file=sys.stderr)
                 error_msg = str(fetch_error)
                 print(error_msg, file=sys.stderr)
-                raise SQLExcecuteException('Failed to fetch data in batch %d: %s' % (batch_nr, error_msg))
+                raise SQLExcecuteException('Failed to fetch data in batch {}: {}'.format(batch_nr, error_msg))
 
             if len(results) == 0:
                 self.close(cursor)
@@ -564,10 +591,12 @@ class Jdbc:
 
     def query(self, sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000):
         """
-        Send a query SQL to the database and return rows of results
+        Send an SQL to the database and return rows of results
         @param sql: str - single sql statement
         @param parameters: list - list of parameters specified in the SQL (defaults to None)
-        @param return_type: type of the rows return. May be list, tuple (default), dict, or OrderedDict
+        @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
+            OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
+            that only the first value of each row is returned and casted to the specified type.
         @param max_rows: maximum number of rows to return. Zero or negative imply all
         @param array_size: batch size for which results are buffered when retrieving from the database
         @return: iterator of the specified return type, or the return type if max_rows=1
@@ -578,6 +607,16 @@ class Jdbc:
         return self.get_data(cur, return_type=return_type, include_none=False, max_rows=max_rows, array_size=array_size)
 
     def query_single(self, sql: str, parameters=None, return_type=tuple) -> (tuple, list, dict, OrderedDict):
+        """
+        Send an SQL to the database and only return the first row.
+
+        @param sql: str - single sql statement
+        @param parameters: list - list of parameters specified in the SQL (defaults to None)
+        @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
+            OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
+            that only the first value of each row is returned and casted to the specified type.
+        @return: first row of the specified return type
+        """
         result = None
         for r in self.query(sql, parameters=parameters, return_type=return_type, max_rows=1):
             result = r
