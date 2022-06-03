@@ -114,12 +114,23 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
         .. warning:: This may also commit pending modifications of other cursors associated to the connection.
 
 
-    .. function::get_data(cursor: Cursor = None, return_type=tuple,include_none=False, max_rows: int = 0, array_size: int = 1000)-> iterator:
+    .. function::get_data(cursor: Cursor = None, return_type=tuple, include_none=False, max_rows: int = 0, array_size: int = 1000)-> iterator:
 
         Get the data retrieved from a :func:`execute()` command.
 
         :arg Cursor cursor:
             cursor to query, use current if not specified
+
+        :arg Any return_type:
+            the return type of the method. Defaults to :class:`tuple`. Other valid options are :class:`list`,
+            :class:`dict`, :class:`OrderedDict`, or a (tuple of) stings.
+            In case of the latter, the output is casted to the specified types. Supported types are :class:`Any`
+            (no casting), :class:`str`, :class:`int`, :class:`bool`, :class:`float`, :class:`date`,
+            or a format string compatible with :class:'datetime.strptime()'. The format string for 'date' is
+            '%Y-%m-%d [%H:%M:%S]'. If a single string is specified, the returned row will only be the first value of
+            each row. Otherwise the output is a tuple of values with a maximum length of the specified input tuple.
+            This option is particularly useful for connections to a sqlite, where the auto-casting casting of the types
+            in the jdbc driver may fail.
 
         :arg bool include_none:
             if set to :data:`True`, also returns :class:`None` values in dictionaries. Defaults to :data:`False`. For
@@ -133,16 +144,6 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
 
         :returns:
             an iterator with rows of data obtained from an SQL.
-
-        :rtype:
-            may be :class:`list`, :class:`tuple` (default), :class:`dict`, :class:`OrderedDict`, or a (tuple of)
-            strings.
-            If a tuple of strings is specified, the output is casted to the specified type. Supported types
-            are :class:'any' (no casting), :class:'str', :class:'int', class:'bool', :class:'float', :class:'date',
-            or a format string compatible with :class:'datetime.strptime()'. If a single string is specified, the
-            returned row will only be the first value of that row. Otherwise the output is a tuple of values with
-            a maximum length of the specified input tuple. This option is particularly useful for connections to
-            a sqlite, where the auto-casting casting of the types in the jdbc driver may fail.
 
 
     .. function:: query(sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000)->iterator:
