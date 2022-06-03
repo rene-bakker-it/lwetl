@@ -142,10 +142,24 @@ class DataTransformer:
             raise ValueError('Cannot create a DataTransformer on a cursor without data.')
 
         expected_types = [list, tuple, dict, OrderedDict]
-        if (return_type not in expected_types) and (not isinstance(return_type, str)):
+
+        self.force_transformation = False
+        if isinstance(return_type, str):
+            return_type = tuple([return_type])
+            self.force_transformation = True
+        elif isinstance(return_type, tuple):
+            for x, rt in enumerate(return_type, start=1):
+                if not isinstance(rt, str):
+                    raise TypeError(
+                        'Specified return type is not a tuple of strings: element {} is a {}'.format(
+                            x, type(rt).__name__))
+            self.force_transformation = True
+
+        elif return_type not in expected_types:
             str_types = [str(t).split("'")[1] for t in expected_types]
-            raise TypeError('Specified return type must me one of: {}. Found: {}'.format(
-                ', '.join(str_types), type(return_type).__name__))
+            raise TypeError(
+                'Specified return type must me one of: {} or a (list) of string identifiers. Found: {}'.format(
+                    ', '.join(str_types), type(return_type).__name__))
         self.return_type = return_type
         self.include_none = verified_boolean(include_none)
 
@@ -275,23 +289,31 @@ class DataTransformer:
             return values
         elif self.return_type == tuple:
             return tuple(values)
-        elif isinstance(self.return_type, str):
+        elif self.force_transformation:
             single_value_transformers = dict(
                 str=(lambda vv: vv if isinstance(vv, str) else str(vv)),
                 int=(lambda vv: vv if isinstance(vv, int) else int(vv)),
                 bool=(
                     lambda vv: vv if isinstance(vv, bool) else bool(vv) if not isinstance(vv, str) else vv.lower() in [
                         'true', '1', 'yes', 'si', 'y', 's']),
-                float=(lambda vv: vv if isinstance(vv, float) else float(vv)))
+                float=(lambda vv: vv if isinstance(vv, float) else float(vv)),
+                date=(lambda vv: vv if isinstance(vv, datetime) else string2date(vv)))
 
-            if len(values) > 0:
-                v = values.pop(0)
-                if self.return_type in single_value_transformers:
-                    return single_value_transformers[self.return_type](v)
-                else:
-                    return v
-            else:
+            transformed_values = []
+            for rt in self.return_type:
+                if len(values) > 0:
+                    v = values.pop(0)
+                    if rt in single_value_transformers:
+                        transformed_values.append(single_value_transformers[rt](v))
+                    elif '%' in rt:
+                        transformed_values.append(datetime.strptime(v, rt))
+                    else:
+                        transformed_values.append(v)
+            if len(transformed_values) == 0:
                 return None
+            if len(transformed_values) == 1:
+                return transformed_values.pop()
+            return tuple(transformed_values)
         else:
             dd = self.return_type()
             for x in range(row_length):

@@ -135,7 +135,14 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
             an iterator with rows of data obtained from an SQL.
 
         :rtype:
-            may be :class:`list`, :class:`tuple` (default), :class:`dict`, or :class:`OrderedDict`.
+            may be :class:`list`, :class:`tuple` (default), :class:`dict`, :class:`OrderedDict`, or a (tuple of)
+            strings.
+            If a tuple of strings is specified, the output is casted to the specified type. Supported types
+            are :class:'any' (no casting), :class:'str', :class:'int', class:'bool', :class:'float', :class:'date',
+            or a format string compatible with :class:'datetime.strptime()'. If a single string is specified, the
+            returned row will only be the first value of that row. Otherwise the output is a tuple of values with
+            a maximum length of the specified input tuple. This option is particularly useful for connections to
+            a sqlite, where the auto-casting casting of the types in the jdbc driver may fail.
 
 
     .. function:: query(sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000)->iterator:
