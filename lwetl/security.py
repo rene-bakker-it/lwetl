@@ -54,7 +54,7 @@ def get_key(k):
 
 def encrypt(s: str, key=None):
     """
-    Encrypt the input string with the specified key. Uses the default key of not specified.
+    Encrypt the input string with the specified key. Uses the default key if not specified.
     @param str s: the string to encrypt
     @param str key: the key/password to encrypt with
     @return a b64 url-safe encoded string:

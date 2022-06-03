@@ -213,6 +213,7 @@ class DataTransformer:
         @param row: list or tuple
         @return: the transformed row in the return type specified when the class was instantiated
         """
+
         if row is None:
             return None
         try:
