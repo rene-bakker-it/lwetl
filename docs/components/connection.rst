@@ -114,7 +114,7 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
         .. warning:: This may also commit pending modifications of other cursors associated to the connection.
 
 
-    .. function::get_data(cursor: Cursor = None, return_type=tuple, include_none=False, max_rows: int = 0, array_size: int = 1000)-> iterator:
+    .. function:: get_data(cursor: Cursor = None, return_type=tuple, include_none=False, max_rows: int = 0, array_size: int = 1000)-> iterator:
 
         Get the data retrieved from a :func:`execute()` command.
 
