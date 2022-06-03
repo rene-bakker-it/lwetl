@@ -143,7 +143,8 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
             the buffer size to retrieve batches of data.
 
         :returns:
-            an iterator with rows of data obtained from an SQL.
+            an iterator with rows of data obtained from an SQL with the data-type specified with the `return_type`
+            parameter.
 
 
     .. function:: query(sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000)->iterator:
