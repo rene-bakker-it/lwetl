@@ -17,7 +17,7 @@ class DriverNotFoundException(RuntimeError):
         super(DriverNotFoundException, self).__init__('Jar file for JDBC not found: ' + message)
 
 
-class SQLExcecuteException(Exception):
+class SQLExecuteException(Exception):
     """
     Thrown when the SQL cannot be parsed
     """

@@ -18,7 +18,7 @@ import os
 
 from time import sleep
 
-from lwetl import Jdbc, SQLExcecuteException, get_execution_statistics
+from lwetl import Jdbc, SQLExecuteException, get_execution_statistics
 
 TABLE_NAME = 'T2_CX_STRINGS'
 
@@ -204,7 +204,7 @@ jdbc = Jdbc(login)
 try:
     id_start = jdbc.get_int("SELECT MAX(ID) FROM {0}".format(TABLE_NAME))
     print('Start inserting with: %d' % id_start)
-except SQLExcecuteException:
+except SQLExecuteException:
     if jdbc.type not in CREATE_TABLE:
         raise LookupError('Database type %s not in known list: %s' % (jdbc.type, ', '.join(CREATE_TABLE.keys())))
     print('CREATING TABLE:' + TABLE_NAME)

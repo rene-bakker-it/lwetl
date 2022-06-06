@@ -38,7 +38,7 @@
 import argparse
 import sys
 
-from lwetl import Jdbc, NativeUploader, get_execution_statistics, tag_connection, SQLExcecuteException, \
+from lwetl import Jdbc, NativeUploader, get_execution_statistics, tag_connection, SQLExecuteException, \
     UPLOAD_MODE_COMMIT
 from lwetl.utils import is_empty
 
@@ -162,7 +162,7 @@ def create_target_table(jdbc: Jdbc):
     try:
         jdbc.execute(SQL_EXISTS)
         created = False
-    except SQLExcecuteException:
+    except SQLExecuteException:
         if jdbc.type not in CREATE_TABLE:
             raise LookupError('Database type %s not in known list: %s' % (jdbc.type, ', '.join(CREATE_TABLE.keys())))
         print('CREATING TABLE:' + TARGET_TABLE)

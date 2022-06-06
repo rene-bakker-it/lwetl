@@ -187,7 +187,7 @@ def parse_output(cursors: list, args):
                     jdbc.close(cursor)
                     break
             f.footer()
-        except lwetl.SQLExcecuteException as exec_error:
+        except lwetl.SQLExecuteException as exec_error:
             print('ERROR: cannot retrieve the data: ' + str(exec_error))
     f.close()
 
@@ -219,7 +219,7 @@ def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
 
             try:
                 cursor = jdbc.execute(sql, cursor=cursor)
-            except lwetl.SQLExcecuteException as exec_error:
+            except lwetl.SQLExecuteException as exec_error:
                 print("ERROR in parsing: " + sql, file=sys.stderr)
                 print(exec_error)
                 has_error = True
@@ -293,7 +293,7 @@ def main():
         table_name = args.command_or_sql.strip()
         try:
             jdbc.query("SELECT * FROM {0} WHERE 0=1".format(table_name))
-        except lwetl.SQLExcecuteException:
+        except lwetl.SQLExecuteException:
             table_name = None
         if table_name is not None:
             if args.file_name is None:

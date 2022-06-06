@@ -1,5 +1,5 @@
 """
-    Table importer classes to extract dictionaries from eithr a CSV file, or and xls worksheet
+    Table importer classes to extract dictionaries from either a CSV file, or and xls worksheet
 """
 
 import base64
@@ -9,7 +9,6 @@ import re
 import sys
 
 from io import TextIOWrapper, StringIO
-from codecs import EncodedFile
 
 from csv import reader
 from openpyxl import load_workbook
@@ -17,7 +16,7 @@ from openpyxl import load_workbook
 from .exceptions import EmptyFileError
 from .utils import is_empty
 
-RE_START_WITH_CHAR = re.compile('^[A-Z_].*')
+RE_START_WITH_CHAR = re.compile(r'^[A-Z_].*')
 LDAP_ATTR_MATCH = re.compile(r'^(?P<attr>[A-Za-z]+[0-9A-Za-z\-]*)(?P<sep>:{1,2})(?P<val>.*)')
 
 
@@ -34,19 +33,19 @@ def unique_column_name(name, defined_columns: list) -> str:
     @rtype: str
     """
     if is_empty(name):
-        name = 'C%d' % (len(defined_columns) + 1)
+        name = 'C{}'.format(len(defined_columns) + 1)
     else:
         if not isinstance(name, str):
             name = str(name)
         name = name.strip().upper()
         if RE_START_WITH_CHAR.match(name) is None:
-            name = 'C%d' % (len(defined_columns) + 1)
+            name = 'C{}'.format(len(defined_columns) + 1)
 
     x = 0
     v = name
     while v in defined_columns:
         x += 1
-        v = '%s%d' % (name, x)
+        v = '{}{}'.format(name, x)
     return name
 
 
@@ -61,7 +60,7 @@ class BaseTextImport:
 
     @staticmethod
     def _check_encoding(encoding):
-        if isinstance(encoding,str) and (len(encoding.strip()) > 0):
+        if isinstance(encoding, str) and (len(encoding.strip()) > 0):
             return encoding.strip()
         else:
             return 'utf-8'
@@ -84,7 +83,7 @@ class BaseTextImport:
                 fname = None
             else:
                 fstream = open(fname, 'r', encoding=encoding)
-        elif isinstance(filename_or_stream,(TextIOWrapper, StringIO, EncodedFile)):
+        elif isinstance(filename_or_stream, (TextIOWrapper, StringIO)):
             fname = None
             fstream = filename_or_stream
         else:
@@ -94,7 +93,7 @@ class BaseTextImport:
 
     def _force_close(self):
         """
-        Forse closing of previous pending input
+        Force closing of previous pending input
         """
         if isinstance(self.fstream, TextIOWrapper) and (self.fstream != sys.stdin) and \
                 (not getattr(self.fstream, 'closed', False)) and (self.fname is not None):
@@ -170,7 +169,7 @@ class CsvImport(BaseTextImport):
                 input_spec = 'input stream'
             else:
                 input_spec = self.fname
-            raise EmptyFileError("No data found for: '%s'" % input_spec)
+            raise EmptyFileError("No data found for: '{}'".format(input_spec))
         else:
             self.n_columns = len(self.columns)
             self.row_count += 1
@@ -201,15 +200,15 @@ class CsvImport(BaseTextImport):
             for row in rows:
                 self.row_count += 1
                 dd = dict()
-                indx = 0
-                for value in row:
-                    if indx < self.n_columns:
-                        key = self.columns[indx]
+                key = None
+                for x, value in enumerate(row):
+                    if x < self.n_columns:
+                        key = self.columns[x]
                     elif not is_empty(value):
                         key = unique_column_name(None, self.columns)
                         self.columns.append(key)
                         self.n_columns += 1
-                    indx += 1
+
                     if is_empty(value):
                         continue
                     dd[key] = value
@@ -240,8 +239,8 @@ class LdifImport(BaseTextImport):
           cn: John E Doe
           cn: John Doe
 
-    If an <attrvalue> contains a non-US-ASCII character, or begins with a space or a colon ':', the <attrtype> is followed
-    by a double colon and the value is encoded in base-64 notation.
+    If an <attrvalue> contains a non-US-ASCII character, or begins with a space or a colon ':', the <attrtype> is
+    followed by a double colon and the value is encoded in base-64 notation.
     For example, the value " begins with a space" would be encoded like this:
 
           cn:: IGJlZ2lucyB3aXRoIGEgc3BhY2U=
@@ -279,8 +278,8 @@ class LdifImport(BaseTextImport):
     for the protocol (that is, for LDAP V2, the IA5 character set and for LDAP V3, the UTF-8 encoding).
     """
 
-    def __init__(self, filename_or_stream = None, separator=None, encoding='utf-8'):
-        super(LdifImport,self).__init__(filename_or_stream, encoding)
+    def __init__(self, filename_or_stream=None, separator=None, encoding='utf-8'):
+        super(LdifImport, self).__init__(filename_or_stream, encoding)
         self.separator = self._check_separator(separator)
 
     def __enter__(self):
@@ -291,13 +290,13 @@ class LdifImport(BaseTextImport):
 
     @staticmethod
     def _check_separator(separator):
-        if isinstance(separator,str) and (not is_empty(separator)):
+        if isinstance(separator, str) and (not is_empty(separator)):
             return separator
         else:
             return None
 
-    def open(self,filename_or_stream=None, separator=None, encoding=None):
-        super(LdifImport,self).open(filename_or_stream, encoding)
+    def open(self, filename_or_stream=None, separator=None, encoding=None):
+        super(LdifImport, self).open(filename_or_stream, encoding)
         if self._check_separator(separator) is not None:
             self.separator = separator
         return self
@@ -306,39 +305,39 @@ class LdifImport(BaseTextImport):
         def init_record():
             return dict(), None, '', False
 
-        def parse_attribute(attribute, value, is_base64, record):
+        def parse_attribute(attribute, val, is_b64, rec):
             if attribute is not None:
-                if (len(value) > 0) and is_base64:
+                if (len(val) > 0) and is_b64:
                     try:
-                        value = base64.standard_b64decode(value)
+                        val = base64.standard_b64decode(val)
                     except binascii.Error as be:
-                        print('ERROR: ' + be)
-                        value = ''
+                        print('ERROR: ' + str(be))
+                        val = ''
                     else:
                         try:
-                            svalue = value.decode(self.encoding)
-                            value = svalue
+                            sval = val.decode(self.encoding)
+                            val = sval
                         except UnicodeError:
                             pass
-                if len(value) > 0:
-                    if attribute not in record:
-                        record[attribute] = []
-                    record[attribute].append(value)
+                if len(val) > 0:
+                    if attribute not in rec:
+                        rec[attribute] = []
+                    rec[attribute].append(val)
             return None, '', False
 
-        def finalize_record(record:dict)->dict:
-            r = dict()
-            for k,v in record.items():
+        def finalize_record(rec: dict) -> dict:
+            rr = dict()
+            for k, v in rec.items():
                 if len(v) == 1:
-                    r[k] = v[0]
+                    rr[k] = v[0]
                 elif len(v) > 1:
-                    if isinstance(self.separator,str) and (not is_empty(self.separator)):
-                        r[k] = self.separator.join([str(s) for s in v])
+                    if isinstance(self.separator, str) and (not is_empty(self.separator)):
+                        rr[k] = self.separator.join([str(s) for s in v])
                     else:
-                        r[k] = v
-            return r
+                        rr[k] = v
+            return rr
 
-        if (self.fstream is None) or getattr(self.fstream,'closed',False):
+        if (self.fstream is None) or getattr(self.fstream, 'closed', False):
             return []
 
         line_nr = 0
@@ -355,7 +354,7 @@ class LdifImport(BaseTextImport):
                     yield r
                 attr, value, is_base64 = None, '', False
                 record = dict()
-            elif (line[0] in [" ","\t"]) and (attr is not None):
+            elif (line[0] in [" ", "\t"]) and (attr is not None):
                 value += line.rstrip()[1:]
             else:
                 m = LDAP_ATTR_MATCH.match(line)
@@ -377,7 +376,7 @@ class LdifImport(BaseTextImport):
 
 class XlsxImport:
     """
-    Open an xls worksheet and extract the data by row in the form of a dictionary
+    Open a xls worksheet and extract the data by row in the form of a dictionary
     Expects the first row of the worksheet to contain the column names
     """
 
@@ -404,13 +403,13 @@ class XlsxImport:
         elif not isinstance(file_name, str):
             raise TypeError('Filename specifier of wrong type: ' + type(file_name).__name__)
         if not os.path.isfile(file_name):
-            raise FileNotFoundError("No such file: '%s'" % file_name)
+            raise FileNotFoundError("No such file: '{}'".format(file_name))
 
         self.work_book = load_workbook(file_name, read_only=True, data_only=True)
 
         sheet_names = self.work_book.sheetnames
         if len(sheet_names) == 0:
-            raise EmptyFileError("Workbook '%s' has no data." % file_name)
+            raise EmptyFileError("Workbook '{}' has no data.".format(file_name))
 
         self.work_sheet = None
         if sheet_name is None:
@@ -428,7 +427,7 @@ class XlsxImport:
             raise ValueError('Sheet name must be string. Found: ' + type(sheet_name).__name__)
 
         if self.work_sheet is None:
-            raise LookupError("Cannot find work sheet: '%s'" % sheet_name)
+            raise LookupError("Cannot find work sheet: '{}'".format(sheet_name))
         self.row_count = 0
         for row in self.work_sheet.rows:
             self.columns = []
@@ -438,7 +437,7 @@ class XlsxImport:
             self.row_count += 1
             break
         if self.columns is None:
-            raise EmptyFileError("Worksheet '%s' has no data." % sheet_name)
+            raise EmptyFileError("Worksheet '{}' has no data.".format(sheet_name))
         return self
 
     def close(self):
@@ -463,13 +462,12 @@ class XlsxImport:
                 self.row_count += 1
 
                 dd = dict()
-                indx = 0
-                for value in get_xls_row_values(row):
-                    if indx < self.n_columns:
-                        key = self.columns[indx]
+                for x, value in enumerate(get_xls_row_values(row)):
+                    if x < self.n_columns:
+                        key = self.columns[x]
                     else:
-                        key = 'C%d' % indx
-                    indx += 1
+                        key = 'C{}'.format(x)
+
                     if is_empty(value):
                         continue
                     dd[key] = value

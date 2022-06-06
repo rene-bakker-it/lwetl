@@ -58,17 +58,17 @@ class Formatter:
         self.close()
 
     def _call(self, *args, **kwargs):
-        jdbc = kwargs.get('jdbc',None)
+        jdbc = kwargs.get('jdbc', None)
         if not isinstance(jdbc, Jdbc):
             raise ValueError('Jdbc connection of wrong type. Expected Jdbc, found: ' + type(jdbc).__name__)
 
-        sql = kwargs.get('sql',None)
-        if is_empty(sql) or (not isinstance(sql,str)):
+        sql = kwargs.get('sql', None)
+        if is_empty(sql) or (not isinstance(sql, str)):
             raise ValueError('SQL empty or not a string: ' + type(sql).__name__)
-        self.cursor = jdbc.execute(sql,cursor=None)
+        self.cursor = jdbc.execute(sql, cursor=None)
 
         new_kwargs = {}
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             if k not in ['cursor', 'sql', 'jdbc']:
                 new_kwargs[k] = v
         self.open(*args, **new_kwargs)
@@ -121,7 +121,7 @@ class Formatter:
             return []
         elif len(row) != self.n_columns:
             raise ValueError(
-                'Mismatch in the number of columns: expected = %d, found = %d.' % (self.n_columns, len(row)))
+                'Mismatch in the number of columns: expected = {}, found = {}.'.format(self.n_columns, len(row)))
         return [('Binary data suppressed.' if isinstance(r, bytes) else r) for r in row]
 
     def header(self):
@@ -164,15 +164,13 @@ class TextFormatter(Formatter):
             raise ValueError('Column width must be defined as an integer.')
         if column_width < 5:
             column_width = 5
-        return column_width, '%%-%ds' % column_width, '%%%ds' % column_width
+        return column_width, '{{:<{}}}'.format(column_width), '{{:>{}}}'.format(column_width)
 
     def _limit_str(self, value, ctype):
         if (value is None) or (isinstance(value, str) and (len(value.strip()) == 0)):
-            return self.format_left % ''
-        elif isinstance(value, int):
-            return self.format_right % str(value)
-        elif isinstance(value, Decimal):
-            return self.format_right % str(value)
+            return self.format_left.format('')
+        elif isinstance(value, (int, Decimal)):
+            return self.format_right.format(value)
         elif isinstance(value, str):
             v = value
         else:
@@ -180,7 +178,7 @@ class TextFormatter(Formatter):
         if len(v) > self.column_width:
             return v[:self.column_width - 3] + '...'
         else:
-            return self.format_left % v
+            return self.format_left.format(v)
 
     def header(self):
         if self.fstream is not None:
@@ -286,7 +284,7 @@ class XmlFormatter(Formatter):
 
         if not is_empty(sheet_name):
             sheet_name = str(sheet_name)
-        self.next_sheet(self.cursor,sheet_name)
+        self.next_sheet(self.cursor, sheet_name)
         return self
 
     def close(self, pretty_print=None):
@@ -319,7 +317,7 @@ class XmlFormatter(Formatter):
         if isinstance(sheet_name, str) and (not is_empty(sheet_name)):
             self.name = sheet_name
         else:
-            self.name = "Sheet%d" % self.count
+            self.name = "Sheet{}".format(self.count)
         if self.dialect == self.EXCEL:
             self.sheet = SubElement(self.book, "ss:Worksheet", attrib={'ss:Name': self.name})
             self.table = SubElement(self.sheet, "Table")
@@ -388,6 +386,7 @@ class XlsxFormatter(Formatter):
         self.book = None
         self.sheet = None
         self.count = 0
+        self.sheets_with_header = None
 
     def __call__(self, *args, **kwargs):
         self._call(*args, **kwargs)
@@ -410,7 +409,7 @@ class XlsxFormatter(Formatter):
         self.count = 0
         self.book = Workbook(write_only=True)
         self.sheets_with_header = set()
-        self.next_sheet(self.cursor,sheet_name)
+        self.next_sheet(self.cursor, sheet_name)
 
         return self
 
@@ -429,10 +428,10 @@ class XlsxFormatter(Formatter):
             self.name = None
         self.count += 1
 
-        if (isinstance(sheet_name, str) and (len(sheet_name.strip()) > 0)):
+        if isinstance(sheet_name, str) and (len(sheet_name.strip()) > 0):
             self.name = sheet_name
         if not (isinstance(self.name, str) and (len(self.name.strip()) > 0)):
-            self.name = "Sheet%d" % self.count
+            self.name = "Sheet{}".format(self.count)
 
         self.sheet = self.book.create_sheet(title=self.name)
 
@@ -486,13 +485,14 @@ class XlsxFormatter(Formatter):
                     if cell.value is not None:
                         w = len(str(cell.value))
                         if has_header and (y == 1):
-                            w = int(1.25*w)
+                            w = int(1.25 * w)
                         if w > column_width:
                             column_width = w
                 if column_width > 50:
                     column_width = 50
-                ws.column_dimensions[get_column_letter(x)].width = column_width+2
+                ws.column_dimensions[get_column_letter(x)].width = column_width + 2
         b.save(self.fname)
+
 
 class SqlFormatter(Formatter):
     UNDEFINED_TABLE = '@UNDEFINED_TABLE@'
@@ -510,7 +510,7 @@ class SqlFormatter(Formatter):
         self._call(*args, **kwargs)
 
     def __enter__(self):
-        outp = self.fstream if self.fname is None else self.fname
+        # outp = self.fstream if self.fname is None else self.fname
         return self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -518,7 +518,7 @@ class SqlFormatter(Formatter):
 
     def open(self, *args, **kwargs):
         target_columns = kwargs.get('columns', self.columns)
-        db_type = kwargs.get('type',self.database_type)
+        db_type = kwargs.get('type', self.database_type)
         super(SqlFormatter, self).open(*args, **kwargs)
 
         connection = kwargs.get('connection', self.jdbc)
@@ -550,15 +550,14 @@ class SqlFormatter(Formatter):
     def format(self, row: list):
         if self.uploader is None:
             raise ValueError('I/O operation on closed sql formatter.')
-        x = 0
+
         dd = dict()
         rs = super(SqlFormatter, self).format(row)
-        for column_name, type in self.columns.items():
+        for x, column_name in enumerate(self.columns.keys()):
             value = rs[x]
             if not is_empty(value):
                 dd[column_name] = value
-            x += 1
         self.uploader.insert(dd)
-        sqls = self.uploader.commit()
+        sql_list = self.uploader.commit()
         if self.fstream is not None:
-            print(';\n'.join(sqls) + ';', file=self.fstream)
+            print(';\n'.join(sql_list) + ';', file=self.fstream)

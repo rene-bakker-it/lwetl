@@ -1,9 +1,8 @@
 """
-    Functions to upload SQL's to a server
+    Functions to upload SQLs to a server
 
 """
 import copy
-import time
 import sys
 
 from collections import OrderedDict
@@ -12,7 +11,7 @@ from decimal import Decimal
 from jaydebeapi import DatabaseError
 from jpype import JPackage
 
-from .exceptions import SQLExcecuteException, CommitException
+from .exceptions import SQLExecuteException, CommitException
 from .jdbc import Jdbc, DummyJdbc, COLUMN_TYPE_DATE, COLUMN_TYPE_FLOAT, COLUMN_TYPE_NUMBER
 from .utils import *
 
@@ -20,6 +19,9 @@ UPLOAD_MODE_DRYRUN = 'dryrun'
 UPLOAD_MODE_PIPE = 'pipe'
 UPLOAD_MODE_COMMIT = 'commit'
 UPLOAD_MODE_ROLLBACK = 'rollback'
+
+DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+DEFAULT_DATE_FORMAT = '%Y-%m-%d'
 
 # PK_COUNTERS
 # For update of integer primary keys without database IO
@@ -38,7 +40,7 @@ def get_pk_counter(jdbc: (Jdbc, DummyJdbc), table_name: str, column_name: str, i
     @param table_name: str - name of the able
     @param column_name: str - name of the PK column
     @param increment: int - increment on call. Defaults to 1
-    @return: int - the next value (increnented by increment)
+    @return: int - the next value (incremented by increment)
     """
 
     global PK_COUNTERS
@@ -49,7 +51,7 @@ def get_pk_counter(jdbc: (Jdbc, DummyJdbc), table_name: str, column_name: str, i
         PK_COUNTERS[login][table_name] = dict()
     if column_name not in PK_COUNTERS[login][table_name]:
         PK_COUNTERS[login][table_name][column_name] = jdbc.get_int(
-            "SELECT MAX(%s) FROM %s" % (column_name, table_name))
+            "SELECT MAX({}) FROM {}".format(column_name, table_name))
     PK_COUNTERS[login][table_name][column_name] += increment
     return PK_COUNTERS[login][table_name][column_name]
 
@@ -99,20 +101,20 @@ class Uploader:
             self.columns = copy.deepcopy(kwargs['columns'])
         else:
             try:
-                c = self.cursor = jdbc.execute('SELECT * FROM %s WHERE 0=1' % table)
+                c = self.cursor = jdbc.execute('SELECT * FROM {} WHERE 0=1'.format(table))
                 self.columns = jdbc.get_columns(c)
                 jdbc.close(c)
             except DatabaseError as db_error:
                 error_message = str(db_error).strip() + ': ' + table
 
         if error_message is not None:
-            raise SQLExcecuteException(error_message)
+            raise SQLExecuteException(error_message)
         if self.columns is None:
-            raise SQLExcecuteException('Columns of table %s could not be retrieved.' % table)
+            raise SQLExecuteException('Columns of table {} could not be retrieved.'.format(table))
 
     def __enter__(self):
         if self.row_count > 0:
-            print('WARNING: %d commands erased from %s.' % (self.row_count, type(self).__name__), file=sys.stderr)
+            print('WARNING: {} commands erased from {}.'.format(self.row_count, type(self).__name__), file=sys.stderr)
             if self.commit_mode in [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK]:
                 self.jdbc.rollback()
 
@@ -142,7 +144,7 @@ class Uploader:
                 n = 0
             if self.exit_on_fail and (exec_error is not None):
                 self.has_sql_errors = True
-                raise SQLExcecuteException('Insert command failed: ' + str(exec_error))
+                raise SQLExecuteException('Insert command failed: ' + str(exec_error))
         elif self.commit_mode in [UPLOAD_MODE_DRYRUN, UPLOAD_MODE_PIPE]:
             n = 1
             if isinstance(parameters, list) and (len(parameters) > 0) and isinstance(parameters[0], list):
@@ -151,14 +153,14 @@ class Uploader:
                 self.pipe_buffer.append((sql, parameters))
         else:
             supported_modes = [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK, UPLOAD_MODE_DRYRUN, UPLOAD_MODE_PIPE]
-            raise ValueError('Illegal mode. Supperted: %s. Found %s' % (supported_modes, self.commit_mode))
+            raise ValueError('Illegal mode. Supported: {}. Found: {}'.format(supported_modes, self.commit_mode))
 
         if n > 0:
             self.row_count += n
             self.total_row_count += n
         if self.fstream is not None:
             if parameters is not None:
-                sql = '%s %s' % (sql, str(parameters))
+                sql = '{} {}'.format(sql, str(parameters))
             print(sql + ";", file=self.fstream)
 
     @staticmethod
@@ -175,7 +177,7 @@ class Uploader:
         Mark columns as counters. Assumes the column type is a number.
         Queries the maximum number of each column and then adds the next value (+1) in the column on each insert.
 
-        @param columns: columns to mark as a counter. May be a (comma-seprated) string, a list, set, or a tuple
+        @param columns: columns to mark as a counter. May be a (comma-separated) string, a list, set, or a tuple
         """
         if isinstance(columns, str):
             if ',' in columns:
@@ -183,7 +185,7 @@ class Uploader:
             else:
                 columns = [columns]
         elif not isinstance(columns, (list, set, tuple)):
-            raise ValueError('Method add_counter requres a string, tuple or list')
+            raise ValueError('Method add_counter requires a string, tuple or list')
 
         for name in columns:
             name = name.upper()
@@ -198,8 +200,8 @@ class Uploader:
         @return: output dictionary with all keys in uppercase
         """
         result = {}
-        for key, value in d.items():
-            result[key.upper()] = value
+        for k, v in d.items():
+            result[k.upper()] = v
         return result
 
     @staticmethod
@@ -254,10 +256,10 @@ class Uploader:
                     self.jdbc.commit(self.cursor)
                 else:
                     self.jdbc.rollback(self.cursor)
-            except (SQLExcecuteException, LookupError, CommitException) as commit_exception:
+            except (SQLExecuteException, LookupError, CommitException) as commit_exception:
                 error = commit_exception
         elif (self.commit_mode == UPLOAD_MODE_DRYRUN) and (self.fstream is not None):
-            print('DRY-RUN COMMIT %s %d rows.' % (self.table, self.row_count), file=self.fstream)
+            print('DRY-RUN COMMIT {} } rows.'.format(self.table, self.row_count), file=self.fstream)
 
         self.cursor = None
         self.row_count = 0
@@ -286,7 +288,7 @@ class NativeUploader(Uploader):
         super(NativeUploader, self).__init__(jdbc, table, fstream=fstream, commit_mode=commit_mode,
                                              exit_on_fail=exit_on_fail, **kwargs)
         # default values, if not present in the input row
-        self.database_type = kwargs.get('type',jdbc.type)
+        self.database_type = kwargs.get('type', jdbc.type)
         self.defaults = dict()
 
     def __enter__(self):
@@ -301,7 +303,7 @@ class NativeUploader(Uploader):
         Default values and counters are added if: add_defaults is set to True, and the value is not
         specified in put input dictionary
 
-        @param data: dict - input data. Keys specifify the column name
+        @param data: dict - input data. Keys specify the column name
         @param add_defaults: bool - activate adding default values and counters if set to True
         @return: dict - the filtered data
         """
@@ -319,7 +321,7 @@ class NativeUploader(Uploader):
                 if isinstance(value, NativeExpression):
                     dd[column_name] = value.expression
                 elif self.columns[column_name] == 'number':
-                    dd[column_name] = '%s' % str(value)
+                    dd[column_name] = str(value)
                 elif self.columns[column_name] == 'date':
                     dd[column_name] = self._convert_date(value)
                 elif isinstance(value, str):
@@ -339,7 +341,7 @@ class NativeUploader(Uploader):
             where_list = []
             for column_name, value in self._filter_data(where_clause, False).items():
                 operator, value = self._split_where_value(value, ('IS', 'NULL'))
-                where_list.append('%s %s %s' % (column_name, operator, value))
+                where_list.append('{} {} {}'.format(column_name, operator, value))
             if len(where_list) == 0:
                 where_data = ''
             else:
@@ -362,9 +364,9 @@ class NativeUploader(Uploader):
         if isinstance(value, str):
             pass
         elif isinstance(value, float):
-            value = time.strftime('%Y-%m-%d %H:%M:%S', value)
+            value = datetime.fromtimestamp(int(value)).strftime(DEFAULT_TIME_FORMAT)
         elif isinstance(value, datetime):
-            value = value.strftime('%Y-%m-%d %H:%M:%S')
+            value = value.strftime(DEFAULT_TIME_FORMAT)
         else:
             raise ValueError('Value cannot be converted to a time object.')
 
@@ -372,17 +374,17 @@ class NativeUploader(Uploader):
             value = value + ' 00:00:00'
         if RE_IS_DATE_TIME.match(value):
             if self.database_type == 'oracle':
-                return "TO_DATE('%s','yyyy-mm-dd hh24:mi:ss')" % value[:19]
+                return "TO_DATE('{}','yyyy-mm-dd hh24:mi:ss')".format(value[:19])
             else:
-                return "'%s'" % value[:19]
+                return "'{}'".format(value[:19])
         else:
             raise ValueError(
-                'Value (%s) cannot be converted to a time object.' % value)
+                'Value ({}) cannot be converted to a time object.'.format(value))
 
     def insert(self, data: dict):
         """
         Insert into the table
-        @param data: dict of values, keys are the column name. Non existing column names are ignored.
+        @param data: dict of values, keys are the column name. Non-existing column names are ignored.
         """
         dd = self._filter_data(data, True)
 
@@ -400,11 +402,11 @@ class NativeUploader(Uploader):
     def update(self, data: dict, where_clause):
         """
         Update an existing row in the table
-        @param data: dict of values, keys are the column name. Non existing column names are ignored.
+        @param data: dict of values, keys are the column name. Non-existing column names are ignored.
         @param where_clause: None, str, or dict.
            - None - Updates all columns.
            - str  - RAW SQL WHERE clause (the keyword WHERE may be omitted).
-           - dict - keys are column names. Non exisiting column names are ignored. Multiple columns are
+           - dict - keys are column names. Non-existing column names are ignored. Multiple columns are
                     combined with the AND statement. The value may be:
                     - a raw value (results in COLUMN_NAME = VALUE)
                     - a string with an operator and value (e.g., LIKE 'ABC%')
@@ -416,10 +418,10 @@ class NativeUploader(Uploader):
 
         data_list = []
         for column_name, value in insert_data.items():
-            data_list.append('%s = %s' % (column_name, value))
+            data_list.append('{} = {}'.format(column_name, value))
 
         where_data = self._process_where_clause(where_clause)
-        sql = 'UPDATE {0} SET {1} {2}'.format(self.table, ', '.join(data_list), where_data)
+        sql = 'UPDATE {} SET {} {}'.format(self.table, ', '.join(data_list), where_data)
         self._insert_or_update(sql, None)
 
     def delete(self, where_clause):
@@ -428,7 +430,7 @@ class NativeUploader(Uploader):
         @param where_clause: None, str, or dict.
            - None - Updates all columns.
            - str  - RAW SQL WHERE clause (the keyword WHERE may be omitted).
-           - dict - keys are column names. Non exisiting column names are ignored. Multiple columns are
+           - dict - keys are column names. Non-existing column names are ignored. Multiple columns are
                     combined with the AND statement. The value may be:
                     - a raw value (results in COLUMN_NAME = VALUE)
                     - a string with an operator and value (e.g., LIKE 'ABC%')
@@ -512,18 +514,18 @@ class ParameterUploader(Uploader):
                 error_msg = str(e)
                 blob = None
             if error_msg is not None:
-                raise SQLExcecuteException('Binary upload not supported by driver: ' + error_msg)
+                raise SQLExecuteException('Binary upload not supported by driver: ' + error_msg)
             return blob
         elif type(value).__name__ in ['int', 'float']:
             return value
         elif isinstance(value, str):
             if self.columns[column_name] == COLUMN_TYPE_DATE:
                 if RE_IS_DATE_TIME.match(value):
-                    date = datetime.strptime(value[:19], '%Y-%m-%d %H:%M:%S')
+                    date = datetime.strptime(value[:19], DEFAULT_TIME_FORMAT)
                 elif RE_IS_DATE.match(value):
-                    date = datetime.strptime(value[:10], '%Y-%m-%d')
+                    date = datetime.strptime(value[:10], DEFAULT_DATE_FORMAT)
                 else:
-                    raise ValueError('Invalid time format. Must be yyyy-mm-dd HH:MMM:SS. Found: (%s)' % value)
+                    raise ValueError('Invalid time format. Must be {}. Found: ({})'.format(DEFAULT_TIME_FORMAT, value))
                 return self.sqlDate(int(date.strftime("%s")) * 1000)
             elif self.columns[column_name] == COLUMN_TYPE_NUMBER:
                 return int(value)
@@ -537,7 +539,7 @@ class ParameterUploader(Uploader):
     def insert(self, data: dict):
         """
         Insert into the table
-        @param data: dict of values, keys are the column name. Non existing column names are ignored.
+        @param data: dict of values, keys are the column name. Non-existing column names are ignored.
         """
         cols = []
         values = []
@@ -559,10 +561,10 @@ class ParameterUploader(Uploader):
     def update(self, data: dict, where_clause):
         """
         Update an existing row in the table
-        @param data: dict of values, keys are the column name. Non existing column names are ignored.
+        @param data: dict of values, keys are the column name. Non-existing column names are ignored.
         @param where_clause: None, str, or dict.
            - None - Updates all columns.
-           - dict - keys are column names. Non exisiting column names are ignored. Multiple columns are
+           - dict - keys are column names. Non-existing column names are ignored. Multiple columns are
                     combined with the AND statement. The value may be:
                     - a raw value (results in COLUMN_NAME = VALUE)
                     - a string with an operator and value (e.g., LIKE 'ABC%')
@@ -586,12 +588,12 @@ class ParameterUploader(Uploader):
             for column_name in [k for k in self.columns.keys() if k in where_data]:
                 operator, value = self._split_where_value(where_data[column_name], ('IS', None))
                 values.append(self._convert(column_name, value))
-                w_list.append('%s %s ?' % (column_name, operator))
+                w_list.append('{} {} ?'.format(column_name, operator))
         if len(w_list) > 0:
-            where_str = 'WHERE %s' % ' AND '.join(w_list)
+            where_str = 'WHERE {}'.format(' AND '.join(w_list))
         else:
             where_str = ''
-        sql = 'UPDATE {0} SET {1} {2}'.format(self.table, ', '.join(s_list), where_str)
+        sql = 'UPDATE {} SET {} {}'.format(self.table, ', '.join(s_list), where_str)
         self._insert_or_update(sql, values)
 
     def delete(self, where_clause):
@@ -599,7 +601,7 @@ class ParameterUploader(Uploader):
         Delete existing rows from the table
         @param where_clause: None, str, or dict.
            - None - Updates all columns.
-           - dict - keys are column names. Non exisiting column names are ignored. Multiple columns are
+           - dict - keys are column names. Non-existing column names are ignored. Multiple columns are
                     combined with the AND statement. The value may be:
                     - a raw value (results in COLUMN_NAME = VALUE)
                     - a string with an operator and value (e.g., LIKE 'ABC%')
@@ -613,13 +615,13 @@ class ParameterUploader(Uploader):
             for column_name in [k for k in self.columns.keys() if k in where_data]:
                 operator, value = self._split_where_value(where_data[column_name], ('IS', None))
                 values.append(self._convert(column_name, value))
-                w_list.append('%s %s ?' % (column_name, operator))
+                w_list.append('{} {} ?'.format(column_name, operator))
         if len(w_list) > 0:
-            where_str = 'WHERE %s' % ' AND '.join(w_list)
+            where_str = 'WHERE {}'.format(' AND '.join(w_list))
         else:
             where_str = ''
             values = None
-        sql = 'DELETE FROM {0} {1}'.format(self.table, where_str)
+        sql = 'DELETE FROM {} {}'.format(self.table, where_str)
         self._insert_or_update(sql, values)
 
     def commit(self):
@@ -642,7 +644,7 @@ class MultiParameterUploader(ParameterUploader):
         self.data_buffer = []
         self.used_keys = []
         if self.commit_mode == UPLOAD_MODE_PIPE:
-            raise ValueError("Commit mode '%s' not allowed for this class." % self.commit_mode)
+            raise ValueError("Commit mode '{}' not allowed for this class.".format(self.commit_mode))
 
     def __enter__(self):
         super(MultiParameterUploader, self).__enter__()

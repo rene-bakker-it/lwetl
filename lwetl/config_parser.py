@@ -9,16 +9,16 @@ and scanned in 3 locations (exist and readable) in the following order:
      Identical definitions are substituted.
 
      Each yaml file may contain 4 sections:
-     env      for replacmement or addition of environment variables
-     drivers  defines the drivers used for the connection.
-     servers  defines the server to connect to. May be omitted for
-              connections defined in tnsnames.ora
-              For each server the following must be specfied:
-              - type: type of server (mysql, sqlserver, oracle)
+     env:      for replacement or addition of environment variables
+     drivers:  defines the drivers used for the connection.
+     servers:  defines the server to connect to. May be omitted for
+               connections defined in tnsnames.ora
+               For each server the following must be specified:
+               - type: type of server (mysql, sqlserver, oracle)
                       THESE NAMES SHOULD BE THE SAME AS THE ONES USED IN
                       THE DRIVERS SECTION
-              - url:  the connection url
-     alias    login aliases (maps to oracle style login string)
+               - url:  the connection url
+     alias     login aliases (maps to oracle style login string)
 
      This module:
       - verifies the configuration content
@@ -68,13 +68,13 @@ def merge(source: dict, destination: dict) -> dict:
     @return: dict destination with source merged into it
     """
     if isinstance(source, dict):
-        for key, value in source.items():
-            if isinstance(value, dict):
+        for k, v in source.items():
+            if isinstance(v, dict):
                 # get node or create one
-                node = destination.setdefault(key, {})
-                merge(value, node)
+                node = destination.setdefault(k, {})
+                merge(v, node)
             else:
-                destination[key] = value
+                destination[k] = v
 
     return destination
 
@@ -96,10 +96,11 @@ def parse_login(login: str):
 
     login_credentials = LOGIN_ALIAS.get(login, login)
     if '@' in login_credentials:
-        username_password, service_name = login_credentials.rsplit('@',1)
+        username_password, service_name = login_credentials.rsplit('@', 1)
         if '/' in username_password:
-            user_name, password = username_password.rsplit('/',1)
+            user_name, password = username_password.rsplit('/', 1)
             if CFG_ENCRYPT:
+                # noinspection PyBroadException
                 try:
                     pw = decrypt(password)
                 except Exception:
@@ -118,12 +119,12 @@ def parse_login(login: str):
     service_name = service_name.strip().lower()
     if service_name not in JDBC_SERVERS:
         known_services = ', '.join(list(JDBC_SERVERS.keys()))
-        raise ServiceNotFoundException('Service (%s) not found in list (%s)' % (service_name, known_services))
+        raise ServiceNotFoundException('Service ({}) not found in list ({})'.format(service_name, known_services))
 
     db_type = JDBC_SERVERS[service_name]['type']
     if db_type not in JDBC_DRIVERS:
         known_types = ', '.join(list(JDBC_DRIVERS.keys()))
-        raise ServiceNotFoundException('Database type (%s) not found in list (%s)' % (db_type, known_types))
+        raise ServiceNotFoundException('Database type ({}) not found in list ({})'.format(db_type, known_types))
 
     url = JDBC_DRIVERS[db_type]['url'] + JDBC_SERVERS[service_name]['url']
     if 'attr' in JDBC_DRIVERS[db_type]:
@@ -135,21 +136,21 @@ def parse_login(login: str):
 
     if (db_type == 'sqlite') and (credentials is not None):
         if os.path.isdir(url):
-            url = os.path.join(url,credentials[0])
+            url = os.path.join(url, credentials[0])
         credentials = None
     return credentials, db_type, schema, url, verified_boolean(JDBC_DRIVERS[db_type].get('escape', False))
 
 
-def parse_dummy_login(login_or_drivertype:str):
+def parse_dummy_login(login_or_driver_type: str):
     """
     Parse the input string against the configuration, to retrieve the database type. Not intended for a real
     connection.
 
-    @param login_or_drivertype: str login credentials in oracle format: username/password@service, or just the
+    @param login_or_driver_type: str login credentials in oracle format: username/password@service, or just the
         driver type as defined in config.yml.
     @return: Tuple (database type, column_escape option)
     """
-    db_type = LOGIN_ALIAS.get(login_or_drivertype, login_or_drivertype)
+    db_type = LOGIN_ALIAS.get(login_or_driver_type, login_or_driver_type)
     if '@' in db_type:
         db_type = db_type.split('@')[-1]
     db_type = db_type.strip().lower()
@@ -158,8 +159,9 @@ def parse_dummy_login(login_or_drivertype:str):
         db_type = JDBC_SERVERS[db_type]['type']
     elif db_type not in JDBC_DRIVERS:
         known_types = ', '.join(list(JDBC_DRIVERS.keys()))
-        raise ServiceNotFoundException('Database type (%s) not found in list (%s)' % (db_type, known_types))
+        raise ServiceNotFoundException('Database type ({}) not found in list ({})'.format(db_type, known_types))
     return db_type, verified_boolean(JDBC_DRIVERS[db_type].get('escape', False))
+
 
 def print_info():
     """
@@ -171,11 +173,11 @@ def print_info():
         url = s['url']
         if ('oracle' == s['type']) and ('DESCRIPTION' in url.strip().upper()):
             url = 'TNS'
-        print("   - %-20s %-15s %s" % (k, s['type'], url))
+        print("   - {:<20} {:<15} {}".format(k, s['type'], url))
     print("Known aliases:")
     rec = regex.compile('/.*@')
     for k, a in LOGIN_ALIAS.items():
-        print("   - %-20s %s" % (k, rec.sub('@', a)))
+        print("   - {:<20} {}".format(k, rec.sub('@', a)))
 
 
 # load the configuration file
@@ -190,7 +192,7 @@ for fn in [f for f in CFG_FILES if os.path.isfile(f)]:
     except PermissionError:
         pass
     except yaml.YAMLError as pe:
-        print('ERROR: cannot parse the configuration file %s' % fn, file=sys.stderr)
+        print('ERROR: cannot parse the configuration file {}'.format(fn), file=sys.stderr)
         print(pe, file=sys.stderr)
         sys.exit(1)
 
@@ -200,10 +202,10 @@ if (len(configuration) == 0) or (count_cfg_files <= 1):
     # Action: create a home cfg directory
     from stat import S_IREAD, S_IWRITE, S_IEXEC
 
-    home_cfg_dir = os.path.join(HOME_DIR,MOD_NAME)
+    home_cfg_dir = os.path.join(HOME_DIR, MOD_NAME)
     if not os.path.isdir(home_cfg_dir):
         try:
-            os.mkdir(home_cfg_dir,S_IREAD | S_IWRITE | S_IEXEC)
+            os.mkdir(home_cfg_dir, S_IREAD | S_IWRITE | S_IEXEC)
         except (PermissionError, FileNotFoundError, FileExistsError):
             home_cfg_dir = None
         if home_cfg_dir is None:
@@ -212,10 +214,10 @@ if (len(configuration) == 0) or (count_cfg_files <= 1):
         else:
             from shutil import copyfile
 
-            src_file = os.path.join(MODULE_DIR,'config-example.yml')
-            for trg_file in [os.path.join(home_cfg_dir,f) for f in ['config-example.yml','config.yml']]:
-                copyfile(src_file,trg_file)
-                os.chmod(trg_file,S_IREAD | S_IWRITE)
+            src_file = os.path.join(MODULE_DIR, 'config-example.yml')
+            for trg_file in [os.path.join(home_cfg_dir, f) for f in ['config-example.yml', 'config.yml']]:
+                copyfile(src_file, trg_file)
+                os.chmod(trg_file, S_IREAD | S_IWRITE)
             print('INFO: Sample configuration files installed in: ' + home_cfg_dir)
 
 # add environment variables
@@ -232,11 +234,11 @@ if not isinstance(CFG_ENCRYPT, bool):
 JDBC_DRIVERS = dict()
 for jdbc_type, cfg in configuration.get('drivers', {}).items():
     if 'jar' not in cfg:
-        print('ERROR in definition of driver type %s: jar file not specified.' % jdbc_type)
+        print('ERROR in definition of driver type {}: jar file not specified.'.format(jdbc_type))
     elif 'class' not in cfg:
-        print('ERROR in definition of driver type %s: driver class not specified.' % jdbc_type)
+        print('ERROR in definition of driver type {}: driver class not specified.'.format(jdbc_type))
     elif 'url' not in cfg:
-        print('ERROR in definition of driver type %s: url not specified.' % jdbc_type)
+        print('ERROR in definition of driver type {}: url not specified.'.format(jdbc_type))
     elif os.path.isfile(cfg['jar']):
         JDBC_DRIVERS[jdbc_type] = cfg
     else:
@@ -251,7 +253,7 @@ for jdbc_type, cfg in configuration.get('drivers', {}).items():
                 JDBC_DRIVERS[jdbc_type] = merge({'jar': fn}, cfg)
                 break
         if (jdbc_type not in JDBC_DRIVERS) and url_source:
-            for lib_dir in [os.path.join(d, 'lib') for d in [MODULE_DIR, os.path.join(HOME_DIR,MOD_NAME)] if
+            for lib_dir in [os.path.join(d, 'lib') for d in [MODULE_DIR, os.path.join(HOME_DIR, MOD_NAME)] if
                             os.path.isdir(d)]:
                 if not os.path.isdir(lib_dir):
                     try:
@@ -262,7 +264,7 @@ for jdbc_type, cfg in configuration.get('drivers', {}).items():
                     dst_file = os.path.join(lib_dir, jar_file)
                     try:
                         urlretrieve(cfg['jar'], dst_file)
-                        print('INFO: %s downloaded to: %s' % (jar_file, lib_dir))
+                        print('INFO: {} downloaded to: {}'.format(jar_file, lib_dir))
                     except (HTTPError, URLError) as http_error:
                         print('ERROR - failed to retrieve: ' + cfg['jar'])
                         print(http_error)
@@ -281,17 +283,17 @@ for cfg in JDBC_DRIVERS.values():
 JDBC_SERVERS = dict()
 for service, cfg in configuration.get('servers', {}).items():
     if 'type' not in cfg:
-        print('ERROR in definition of service %s: database type not specified.' % service)
+        print('ERROR in definition of service {}: database type not specified.'.format(service))
     elif cfg['type'] not in JDBC_DRIVERS:
-        print('ERROR in definition of service %s: unkown driver type %s.' % (service, cfg['type']))
+        print('ERROR in definition of service {}: unknown driver type {}.'.format(service, cfg['type']))
     elif 'url' not in cfg:
-        print('ERROR in definition of service %s: url not specified.' % service)
+        print('ERROR in definition of service {}: url not specified.'.format(service))
     else:
         JDBC_SERVERS[service.lower()] = cfg
 
 # extract servers from ORACLE tnsnames.ora (if exists)
-if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS','').lower() not in ['1','true']):
-    tns = os.environ.get('TNS','')
+if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS', '').lower() not in ['1', 'true']):
+    tns = os.environ.get('TNS', '')
     if (not os.path.isfile(tns)) and ('ORACLE_HOME' in os.environ.keys()):
         tns = os.path.join(os.environ['ORACLE_HOME'], 'network', 'admin', 'tnsnames.ora')
     if os.path.isfile(tns):
@@ -316,7 +318,7 @@ if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS','').lower() not in 
                     lines.append(line)
             tnsnames = "\n".join(lines)
 
-            r = regex.compile('(\(([^())]|(?R))*\))')
+            r = regex.compile(r'(\(([^())]|(?R))*\))')
             while True:
                 m = r.search(tnsnames, regex.MULTILINE)
                 if m:
@@ -330,7 +332,6 @@ if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS','').lower() not in 
                     tnsnames = tnsnames[m.end():]
                 else:
                     break
-
 
 # Store connection aliases
 LOGIN_ALIAS = configuration.get('alias', {})

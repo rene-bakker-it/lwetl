@@ -1,5 +1,5 @@
 """
-    Internal module with small utilility functions
+    Internal module with small utility functions
 """
 
 import re
@@ -7,9 +7,9 @@ from datetime import datetime
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 # regex filters
-RE_IS_NUMBER = re.compile('^\d+(\.\d*)*$')
-RE_IS_DATE_TIME = re.compile('^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}(\.\d+)?$')
-RE_IS_DATE = re.compile('^\d{4}(-\d{2}){2}$')
+RE_IS_NUMBER = re.compile(r'^\d+(\.\d*)*$')
+RE_IS_DATE_TIME = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}(\.\d+)?$')
+RE_IS_DATE = re.compile(r'^\d{4}(-\d{2}){2}$')
 
 
 def is_empty(value) -> bool:
@@ -23,7 +23,7 @@ def is_empty(value) -> bool:
 
 def verified_boolean(value) -> bool:
     """
-    Only returs True if the input variable is a bool with the True value
+    Only returns True if the input variable is a bool with the True value
     @param value: Any
     @return: True if the input value is a bool with True value, False otherwise
     """
@@ -47,7 +47,7 @@ def string2date(str_value: str) -> datetime:
     elif RE_IS_DATE.match(str_value):
         return datetime.strptime(str_value[:10], '%Y-%m-%d')
     else:
-        raise ValueError('Invalid time format. Must be yyyy-mm-dd HH:MMM:SS. Found: (%s)' % str_value)
+        raise ValueError('Invalid time format. Must be yyyy-mm-dd HH:MMM:SS. Found: ({})'.format(str_value))
 
 
 def encode(key, clear):
@@ -68,6 +68,7 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
+
 if __name__ == '__main__':
     from argparse import ArgumentParser, RawTextHelpFormatter
     from hashlib import md5
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(
         formatter_class=RawTextHelpFormatter,
         description='''Command line utility to encode or decode a string.
-    If dedoding works, you get the decoded string.
+    If decoding works, you get the decoded string.
     In all other cases the input is encoded.''')
 
     parser.add_argument('key',
@@ -91,13 +92,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    key = md5_encode(args.key)
+    mkey = md5_encode(args.key)
+    # noinspection PyBroadException
     try:
-        dat = decode(key, args.data)
+        dat = decode(mkey, args.data)
     except Exception:
         dat = ''
-    if dat.startswith(key[:4]):
+    if dat.startswith(mkey[:4]):
         print('Decoding: ' + dat[4:])
     else:
-        print('Encoded: ' + encode(key, key[:4] + args.data))
-
+        print('Encoded: ' + encode(mkey, mkey[:4] + args.data))

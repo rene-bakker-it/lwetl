@@ -9,7 +9,7 @@ Scan the defined sequences in an ORACLE DB:
 import argparse
 import sys
 
-from lwetl import Jdbc, SQLExcecuteException
+from lwetl import Jdbc, SQLExecuteException
 from collections import namedtuple
 
 Sequence = namedtuple('Sequence', 'name value')
@@ -96,6 +96,6 @@ for t, c in jdbc.query(SQL_LIST_TABLES_COLUMNS):
                 jdbc.commit(cursor)
             else:
                 jdbc.rollback(cursor)
-    except SQLExcecuteException as se:
+    except SQLExecuteException as se:
         print('ERROR with {}: {}'.format(sql, str(se)))
         print('IGNORED: {}'.sname)

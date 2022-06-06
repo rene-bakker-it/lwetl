@@ -9,7 +9,7 @@ import os
 import sys
 
 from lwetl.version import __version__
-from lwetl.exceptions import SQLExcecuteException
+from lwetl.exceptions import SQLExecuteException
 
 def count(login, table, filename, max_rows):
     error = None
@@ -24,7 +24,7 @@ def count(login, table, filename, max_rows):
 
     cur = None
     try:
-        cur = jdbc.execute("SELECT * FROM %s WHERE 0=1" % table)
+        cur = jdbc.execute("SELECT * FROM {} WHERE 0=1".format(table))
         columns = jdbc.get_columns()
     except Exception:
         columns = None
@@ -58,7 +58,7 @@ def count(login, table, filename, max_rows):
                             new_table = False
                         xls.write(row)
                 print('Parsed: %-30s d = %6d, t = %6d, s = %6d' % (column_name, cnt, tot, tds))
-            except SQLExcecuteException:
+            except SQLExecuteException:
                 cnt = None
                 tds = None
             sheet1.append([column_name, cnt, tot, tds])

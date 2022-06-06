@@ -206,11 +206,10 @@ SELECT tbl_name AS TABLE_NAME FROM sqlite_master where type='table' order by tbl
 table_count_queries = {
     'oracle':     'SELECT COUNT(1) FROM USER_TABLES',
     'sqlserver':  'SELECT COUNT(1) FROM SYS.tables',
-    'mysql':      "SELECT COUNT(DISTINCT table_name) FROM FROM information_schema.columns WHERE table_schema = '@SCHEMA@'",
-    'sqlite':     "SELECT COUNT(1) FROM sqlite_master where type='table' order by tbl_name",
+    'mysql':      "SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '@SCHEMA@'",
+    'sqlite':     "SELECT COUNT(1) FROM sqlite_master WHERE type='table' ORDER BY tbl_name",
     'postgresql': '''
 SELECT COUNT(DISTINCT table_nme) FROM information_schema.tables 
 WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_catalog = '@SCHEMA@'
 ''',
 }
-

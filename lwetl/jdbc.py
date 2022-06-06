@@ -11,7 +11,7 @@ from jpype import JPackage
 from jaydebeapi import Cursor, Error, DatabaseError, connect
 
 from .config_parser import JDBC_DRIVERS, JAR_FILES, parse_login, parse_dummy_login
-from .exceptions import DriverNotFoundException, SQLExcecuteException, CommitException
+from .exceptions import DriverNotFoundException, SQLExecuteException, CommitException
 from .runtime_statistics import RuntimeStatistics
 from .utils import *
 
@@ -516,7 +516,7 @@ class Jdbc:
                 print(sql, file=sys.stderr)
                 if isinstance(parameters, (list, tuple)):
                     print(parameters, file=sys.stderr)
-                raise SQLExcecuteException(error_message)
+                raise SQLExecuteException(error_message)
 
         if not hasattr(cursor, PARENT_CONNECTION):
             # mark myself for column retrieval, see get_columns_of_cursor()
@@ -581,7 +581,7 @@ class Jdbc:
                 print('Fetch error in batch {} of size {}.'.format(batch_nr, array_size), file=sys.stderr)
                 error_msg = str(fetch_error)
                 print(error_msg, file=sys.stderr)
-                raise SQLExcecuteException('Failed to fetch data in batch {}: {}'.format(batch_nr, error_msg))
+                raise SQLExecuteException('Failed to fetch data in batch {}: {}'.format(batch_nr, error_msg))
 
             if len(results) == 0:
                 self.close(cursor)

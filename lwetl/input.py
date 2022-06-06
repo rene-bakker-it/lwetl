@@ -18,7 +18,7 @@ class InputParser:
     and the and of a CRLF.
     """
 
-    def __init__(self, sql_or_filename_or_stream=None, sql_terminator:str=';'):
+    def __init__(self, sql_or_filename_or_stream=None, sql_terminator: str = ';'):
         """
         Instantiator
         @param sql_or_filename_or_stream: str|streamType|None - the input source to use. Defaults to sys.stdin
@@ -26,7 +26,7 @@ class InputParser:
                                to a semi-colon (;)
         """
         self.sql_or_filename_or_stream = sql_or_filename_or_stream
-        if not isinstance(sql_terminator,str):
+        if not isinstance(sql_terminator, str):
             sql_terminator = ";"
         self.sql_terminator = sql_terminator
         self.sql_terminator_length = len(sql_terminator)
@@ -79,10 +79,10 @@ class InputParser:
             self.fname = None
 
     def parse(self, array_size=1):
-        def add_sql(lines,results):
-            sql = "\n".join(lines).strip()
+        def add_sql(lst, res):
+            sql = "\n".join(lst).strip()
             if len(sql) > 0:
-                results.append(sql)
+                res.append(sql)
 
         if array_size < 1:
             array_size = 1
@@ -96,7 +96,7 @@ class InputParser:
                 if line.rstrip().endswith(self.sql_terminator):
                     line = line.rstrip()[:-self.sql_terminator_length]
                     lines.append(line)
-                    add_sql(lines,results)
+                    add_sql(lines, results)
                     lines = []
                     if len(results) >= array_size:
                         for result in results:
@@ -106,7 +106,7 @@ class InputParser:
                     lines.append(line)
             else:
                 if len(lines) > 0:
-                    add_sql(lines,results)
+                    add_sql(lines, results)
                 for result in results:
                     yield result
                 break

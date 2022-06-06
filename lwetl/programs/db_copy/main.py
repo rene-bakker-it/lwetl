@@ -158,7 +158,7 @@ def main():
         print('Query %s database: %s' % (key.upper(), login))
         try:
             con.execute(sql)
-        except lwetl.SQLExcecuteException as exec_error:
+        except lwetl.SQLExecuteException as exec_error:
             print('ERROR: cannot retrieve database info for: ' + login)
             print(exec_error)
             sys.exit(1)
@@ -273,7 +273,7 @@ def main():
                 pk_order = 'ASC'
             cursor = jdbc[SRC].execute('SELECT * FROM {} ORDER BY {} {}'.format(
                 t, pk_info[SRC][t], pk_order),cursor=None)
-        except lwetl.SQLExcecuteException as exec_error:
+        except lwetl.SQLExecuteException as exec_error:
             print('ERROR: table %s skipped on SQL retrieve error: ' + str(exec_error))
             too_many_errors = True
             cursor = None
@@ -313,7 +313,7 @@ def main():
                                         del d[k]
                                 uploader.insert(d)
                                 new_count += 1
-                        except lwetl.SQLExcecuteException as insert_exception:
+                        except lwetl.SQLExecuteException as insert_exception:
                             counters[CNT_FAIL] += 1
                             print('Insert error (%d) on row %d: %s' % (
                                 counters[CNT_FAIL], row_count, str(insert_exception)))
@@ -370,7 +370,7 @@ def main():
                         sql = 'DELETE FROM {0} WHERE {1} IN ({2})'.format(t, pk_trg, ','.join(par_list))
                         try:
                             jdbc[TRG].execute(sql, delete_list, cursor=None)
-                        except lwetl.SQLExcecuteException as delete_exception:
+                        except lwetl.SQLExecuteException as delete_exception:
                             counters[CNT_FAIL] += len(delete_list)
                             print(delete_exception)
                             print('Delete error (%d) in table %s on rows %s' %

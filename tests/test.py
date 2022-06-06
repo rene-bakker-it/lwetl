@@ -45,14 +45,14 @@ def get_tables(jdbc: lwetl.Jdbc) -> list:
         for r in jdbc.get_data():
             if (len(r) > 0) and (r[0].upper() not in tables):
                 tables.append(r[0].upper())
-    except lwetl.SQLExcecuteException as exec_error:
+    except lwetl.SQLExecuteException as exec_error:
         print('ERROR in get_tables()', sys.stderr)
         error = exec_error
 
     if error is None:
         return tables
     else:
-        raise lwetl.SQLExcecuteException(str(error))
+        raise lwetl.SQLExecuteException(str(error))
 
 
 def get_test_configuration(jdbc: lwetl.Jdbc) -> dict:
@@ -116,7 +116,7 @@ def test_access(jdbc: lwetl.Jdbc):
             error_msg = None
             try:
                 c = self.jdbc.execute(sql, cursor=None)
-            except lwetl.SQLExcecuteException as sql_error:
+            except lwetl.SQLExecuteException as sql_error:
                 self.jdbc.rollback()
                 error_msg = str(sql_error)
             else:
@@ -126,7 +126,7 @@ def test_access(jdbc: lwetl.Jdbc):
                 self.jdbc.commit()
             if error_msg is not None:
                 if raise_error_on_error:
-                    raise lwetl.SQLExcecuteException(error_msg)
+                    raise lwetl.SQLExecuteException(error_msg)
                 else:
                     print('SQL ERROR ignored: ' + error_msg)
 
@@ -263,7 +263,7 @@ def test_binary_io(jdbc: lwetl.Jdbc):
     try:
         uploader.update({column: img}, {'ID': id_pk})
         uploader.commit()
-    except lwetl.SQLExcecuteException as exec_error:
+    except lwetl.SQLExecuteException as exec_error:
         error = exec_error
         print('TEST SKIPPED: unsupported feature.')
         print(exec_error)

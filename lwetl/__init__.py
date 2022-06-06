@@ -12,7 +12,7 @@
 from .version import __version__
 
 # defined exceptions
-from .exceptions import SQLExcecuteException, ServiceNotFoundException, DriverNotFoundException, CommitException
+from .exceptions import SQLExecuteException, ServiceNotFoundException, DriverNotFoundException, CommitException
 
 
 # Main classes
