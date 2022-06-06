@@ -309,6 +309,9 @@ class DataTransformer:
                         transformed_values.append(datetime.strptime(v, rt))
                     else:
                         transformed_values.append(v)
+            if len(values) > 0:
+                transformed_values += values
+
             if len(transformed_values) == 0:
                 return None
             if len(transformed_values) == 1:

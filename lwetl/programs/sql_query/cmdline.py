@@ -8,7 +8,6 @@ import sys
 
 import lwetl
 
-
 FORMATTERS = {
     'text': lwetl.TextFormatter,
     'csv': lwetl.CsvFormatter,
@@ -127,4 +126,8 @@ parser.add_argument('-t', '--target', action='store', nargs='?', type=str,
   A comma-separated list of column names. Only columns in this list will be exported.
   Exports all columns if not specified''')
 
+parser.add_argument('--cast', action='store',
+                    help=("Force casting of the dbase return values. Enter the specifiers as a comma-separated list.\n"
+                          "Valid specifiers are: bool, int, float, str, date, a datetime.strptime format string, or "
+                          "'any' (no casting)."))
 parser.add_argument('--version', action='store_true')

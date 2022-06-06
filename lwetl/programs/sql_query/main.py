@@ -21,7 +21,7 @@ def show_version():
     Display the version info of this module
     @return 0
     """
-    print('%s, version: %s' % (os.path.basename(sys.argv[0]), __version__))
+    print('{}, version: {}'.format(os.path.basename(sys.argv[0]), __version__))
     return 0
 
 
@@ -40,7 +40,7 @@ def show_jdbc_info(login):
 
 def get_table_info_sql(jdbc: lwetl.Jdbc) -> str:
     """
-    Retrieve an SQL to dum pthe database tables and columns
+    Retrieve an SQL to dump the database tables and columns
     @param jdbc: lwetl.Jdbc the database connection
     @return: str the SQL to use
     @raise LookupError if the database type is not supported for this function
@@ -52,7 +52,7 @@ def get_table_info_sql(jdbc: lwetl.Jdbc) -> str:
             sql = sql.replace('@SCHEMA@', jdbc.schema)
         return sql
     else:
-        raise LookupError("Database type '%s' not supported." % jdbc.type)
+        raise LookupError("Database type '{}' not supported.".format(jdbc.type))
 
 
 def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: int,
@@ -67,11 +67,13 @@ def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: i
             elif f_extension in ['csv', 'dat', 'txt']:
                 file_format = 'csv'
         if file_format not in ['xls', 'csv']:
+            def is_binary_string(bts, text_chars):
+                return bool(bts.translate(None, text_chars))
+
             # guess by file type: binary/text
-            textchars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
-            is_binary_string = lambda bts: bool(bts.translate(None, textchars))
             with open(file_name, 'rb') as f:
-                if is_binary_string(f.read(1024)):
+                if is_binary_string(f.read(1024),
+                                    bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})):
                     file_format = 'xlsx'
                 else:
                     file_format = 'csv'
@@ -81,7 +83,7 @@ def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: i
     elif file_format == 'csv':
         importer = lwetl.CsvImport(file_name, delimiter=separator)
     else:
-        print('ERROR: formatter %s is not supported for file upload. Valid choices: csv, xlsx')
+        print('ERROR: formatter {} is not supported for file upload. Valid choices: csv, xlsx'.format(file_format))
         return 1
 
     row_count = 0
@@ -94,7 +96,7 @@ def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: i
             if (max_rows > 0) and (row_count >= max_rows):
                 break
     importer.close()
-    print('Done: %d rows uploaded.' % row_count)
+    print('Done: {} rows uploaded.'.format(row_count))
     return 0
 
 
@@ -147,6 +149,10 @@ def parse_output(cursors: list, args):
                 kwargs['columns'] = columns
             else:
                 kwargs['table'] = table_spec
+    if args.cast is None:
+        return_type = tuple
+    else:
+        return_type = tuple([s.strip() for s in args.cast.split(',')])
 
     sql_count = 0
     f = FORMATTERS[args.format](**kwargs)
@@ -160,7 +166,7 @@ def parse_output(cursors: list, args):
         if sql_count == 1:
             f.open(**kwargs)
         elif args.format in ['xlsx', 'xml', 'xmlp']:
-            f.next_sheet(cursor, 'Sheet%d' % sql_count)
+            f.next_sheet(cursor, 'Sheet{}'.format(sql_count))
         else:
             f.close()
             kwargs['append'] = True
@@ -170,11 +176,14 @@ def parse_output(cursors: list, args):
         rc_max = args.max_rows
         f.header()
         try:
-            for row in jdbc.get_data(cursor):
+            single_cast = isinstance(return_type, tuple) and (len(return_type) == 1)
+            for row in jdbc.get_data(cursor, return_type=return_type):
+                if single_cast and (not isinstance(row, tuple)):
+                    row = tuple([row])
                 f.write(row)
                 rc += 1
                 if (rc_max > 0) and (rc >= rc_max):
-                    print('Output trucated on user request.', file=sys.stdout)
+                    print('Output truncated on user request.', file=sys.stdout)
                     jdbc.close(cursor)
                     break
             f.footer()
@@ -190,7 +199,7 @@ def commit(jdbc: lwetl.Jdbc, cursor, mode, row_count, tot_count):
     else:
         jdbc.rollback(cursor)
         n_rollback = row_count
-    print('%s for %3d rows (%6d total)' % (mode.upper(), row_count, tot_count))
+    print('{} for {:3d} rows ({:6d} total)'.format(mode.upper(), row_count, tot_count))
     return n_rollback
 
 
@@ -231,7 +240,7 @@ def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
         if row_count > 0:
             tot_rollb += commit(jdbc, cursor, args.commit_mode, row_count, tot_count)
         if has_update:
-            print('Finished. %6d rows updated.' % (tot_count - tot_rollb))
+            print('Finished. {:6d} rows updated.'.format(tot_count - tot_rollb))
         if len(cursors) > 0:
             parse_output(cursors, args)
     return has_error
@@ -263,7 +272,7 @@ def main():
     try:
         jdbc = lwetl.Jdbc(args.login)
     except (lwetl.ServiceNotFoundException, lwetl.DriverNotFoundException, ConnectionError) as login_error:
-        print('ERROR - %s - %s' % (type(login_error).__name__, str(login_error)), file=sys.stderr)
+        print('ERROR - {} - {}'.format(type(login_error).__name__, str(login_error)), file=sys.stderr)
         return 1
 
     sql = None
