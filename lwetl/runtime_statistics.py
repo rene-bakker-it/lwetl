@@ -79,7 +79,7 @@ class Statistics:
         return time_to_string(self.query_time)
 
     def get_statistics(self, tag: str = '') -> str:
-        return '+ {:9<}   {:11<},  nq = {:8d}, rc = {:8d}'.format(
+        return '+ {:<9}   {:<11},  nq = {:8d}, rc = {:8d}'.format(
             'db ' + tag + ':', self.get_query_time(), self.exec_count, self.row_count)
 
 
