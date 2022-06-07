@@ -42,6 +42,7 @@ def default_cursor(default_result):
     """
 
     def wrap(func):
+        # noinspection PyShadowingNames
         def func_wrapper(*args, **kwargs):
             if len(args) < 1:
                 raise LookupError('Illegal function for default_cursor decorator')
@@ -126,7 +127,7 @@ class DataTransformer:
         @param cursor: Cursor containing query data.
         @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
             OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
-            that only the first value of each row is returned and casted to the specified type.
+            that only the first value of each row is returned and cast to the specified type.
         @param upper_case: bool - transform column names in upper case (defaults to True)
         @param include_none: bool - include None values in dictionary return types. Defaults to False
         @return DataTransformer
@@ -344,7 +345,7 @@ class DummyJdbc:
         pass
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def execute(self, sql, parametes=None, cursor=None):
+    def execute(self, sql, parameters=None, cursor=None):
         return cursor
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
@@ -451,7 +452,7 @@ class Jdbc:
         @param sql: str query to execute
         @param parameters: list of parameters specified in the sql query. May also be None (no parameters), or
             a list of lists (execute many)
-        @param cursor: to use for exection. Create a new one if None (default)
+        @param cursor: to use for execution of the sql command. Create a new one if None (default)
         @return: Cursor of the execution
 
         @raise SQLExecutionError on an execution exception
@@ -552,7 +553,7 @@ class Jdbc:
         @param cursor: Cursor to query, use current if not specified
         @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
             OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
-            that only the first value of each row is returned and casted to the specified type.
+            that only the first value of each row is returned and cast to the specified type.
         @param include_none: bool return None values in dictionaries, if True. Defaults to False
         @param max_rows: int maximum number of rows to return before closing the cursor. Negative or zero implies
             all rows
@@ -621,7 +622,7 @@ class Jdbc:
         @param parameters: list - list of parameters specified in the SQL (defaults to None)
         @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
             OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
-            that only the first value of each row is returned and casted to the specified type.
+            that only the first value of each row is returned and cast to the specified type.
         @param max_rows: maximum number of rows to return. Zero or negative imply all
         @param array_size: batch size for which results are buffered when retrieving from the database
         @return: iterator of the specified return type, or the return type if max_rows=1
@@ -639,7 +640,7 @@ class Jdbc:
         @param parameters: list - list of parameters specified in the SQL (defaults to None)
         @param return_type: (optional) return type of the transformation. May be list, tuple (default), dict,
             OrderedDict (see collections), or a string ['int', 'float', 'bool', 'any']. The latter implies
-            that only the first value of each row is returned and casted to the specified type.
+            that only the first value of each row is returned and cast to the specified type.
         @return: first row of the specified return type
         """
         result = None
