@@ -226,6 +226,16 @@ class DataTransformer:
             else:
                 return dval
 
+    @staticmethod
+    def parse_date(date):
+        for f in ['%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S']:
+            try:
+                d = datetime.strptime(date, f)
+                return d
+            except ValueError:
+                pass
+        return date
+
     # noinspection PyTypeChecker
     def __call__(self, row):
         """
@@ -247,8 +257,7 @@ class DataTransformer:
             return self.return_type()
 
         values = []
-        for x in range(row_length):
-            value = row[x]
+        for x, value in enumerate(row):
             if value is None:
                 values.append(None)
                 continue
@@ -269,6 +278,8 @@ class DataTransformer:
                     self.transformer[x] = (lambda vv: vv if isinstance(vv, float) else float(vv))
                 elif func == COLUMN_TYPE_NUMBER:
                     self.transformer[x] = self.parse_number
+                elif func == COLUMN_TYPE_DATE:
+                    self.transformer[x] = self.parse_date
                 else:
                     self.transformer[x] = self.default_transformer
                 func = self.transformer[x]
@@ -320,10 +331,9 @@ class DataTransformer:
             return tuple(transformed_values)
         else:
             dd = self.return_type()
-            for x in range(row_length):
-                if self.include_none or (values[x] is not None):
-                    # noinspection PyUnresolvedReferences
-                    dd[self.columns[x]] = values[x]
+            for x, value in enumerate(row):
+                if self.include_none or (value is not None):
+                    dd[self.columns[x]] = value
             return dd
 
 
@@ -333,10 +343,10 @@ class DummyJdbc:
     Only stores configuration parameters of the connection, there is no real connection
     """
 
-    def __init__(self, login_or_drivertype: str, upper_case=True):
+    def __init__(self, login_or_driver_type: str, upper_case=True):
         self.login = 'nobody'
         self.upper_case = upper_case
-        self.type, self.always_escape = parse_dummy_login(login_or_drivertype)
+        self.type, self.always_escape = parse_dummy_login(login_or_driver_type)
 
     def commit(self):
         pass
