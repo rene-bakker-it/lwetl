@@ -102,7 +102,7 @@ def parse_login(login: str):
             if CFG_ENCRYPT:
                 # noinspection PyBroadException
                 try:
-                    pw = decrypt(password)
+                    pw = decrypt(password, raise_error=True)
                 except Exception:
                     pass
                 else:

@@ -14,7 +14,7 @@ types, which are defined in this file, are tested unless the parameter `disabled
 
 #### MySQL
 
-        create database scott character set utfmb4 collate utf8mb4_bin;
+        create database scott character set utf8mb4 collate utf8mb4_bin;
         create user 'scott'@'localhost' identified by 'tiger1234';
         grant select, insert, delete, update, create, drop, alter, references
             on scott.* to 'scott'@'localhost'; 

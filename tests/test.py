@@ -18,6 +18,7 @@ JDBC_CONNECTIONS = dict()
 for k in DRIVER_KEYS:
     JDBC_CONNECTIONS[k] = lwetl.Jdbc('scott_' + k, auto_commit=False, upper_case=True)
 
+
 @pytest.fixture(params=DRIVER_KEYS)
 def jdbc(request):
     alias = 'scott_' + request.param
@@ -145,6 +146,8 @@ def test_access(jdbc: lwetl.Jdbc):
         d1 = jdbc.query_single_value(sql_1)
         if isinstance(d1, float):
             d1 = Decimal(str(d1))
+        elif isinstance(d1, str):
+            d1 = Decimal(d1)
 
         d2 = Decimal('0.0')
         for r in jdbc.query(sql_n):
@@ -219,7 +222,7 @@ def test_encoding(jdbc: lwetl.Jdbc):
 
     # check if the number of rows is currect
     cnt2 = jdbc.get_int("SELECT COUNT(1) FROM {0}".format(table))
-    print('Inserted %d of %d values' % (cnt2,cnt))
+    print('Inserted %d of %d values' % (cnt2, cnt))
     assert cnt == cnt2
 
     # reread the table and verify with origininal
@@ -227,17 +230,17 @@ def test_encoding(jdbc: lwetl.Jdbc):
     cnt_fail = 0
     for lg1, lg2, val in jdbc.query("SELECT LANG1, LANG2, VAL FROM {0} ORDER BY LANG1, LANG2".format(table)):
         if lg2:
-            r = '%s.%s' % (lg1,lg2)
-            s = I_CAN_EAT_GLASS.get(lg1,dict()).get(lg2,'NN')
+            r = '%s.%s' % (lg1, lg2)
+            s = I_CAN_EAT_GLASS.get(lg1, dict()).get(lg2, 'NN')
         else:
             r = lg1
-            s = I_CAN_EAT_GLASS.get(lg1,'NN')
+            s = I_CAN_EAT_GLASS.get(lg1, 'NN')
 
         if val == s:
             cnt_ok += 1
         else:
             cnt_fail += 1
-            print('FAILED %s s=(%s) db=(%s)' % (r,s,val))
+            print('FAILED %s s=(%s) db=(%s)' % (r, s, val))
     assert cnt_fail == 0
 
 
