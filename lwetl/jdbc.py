@@ -142,6 +142,13 @@ class DataTransformer:
         elif cursor.description is None:
             raise ValueError('Cannot create a DataTransformer on a cursor without data.')
 
+        self.standard_transformers = {
+            'oracle.sql.BLOB': self.oracle_lob_to_bytes,
+            'oracle.sql.CLOB': self.oracle_clob,
+            'java.lang.Integer': (lambda v: int(v.toString())),
+            'byte[]': self.byte_array_to_bytes
+        }
+
         expected_types = [list, tuple, dict, OrderedDict]
 
         self.force_transformation = False
@@ -266,14 +273,10 @@ class DataTransformer:
             if isinstance(func, str):
                 # first time use
                 vtype = type(value).__name__
-                if vtype == 'oracle.sql.BLOB':
-                    self.transformer[x] = self.oracle_lob_to_bytes
-                elif vtype == 'oracle.sql.CLOB':
-                    self.transformer[x] = self.oracle_clob
+                if vtype in self.standard_transformers:
+                    self.transformer[x] = self.standard_transformers[vtype]
                 elif vtype.startswith('java') or vtype.startswith('oracle'):
                     self.transformer[x] = (lambda vv: vv.toString())
-                elif vtype == 'byte[]':
-                    self.transformer[x] = self.byte_array_to_bytes
                 elif func == COLUMN_TYPE_FLOAT:
                     self.transformer[x] = (lambda vv: vv if isinstance(vv, float) else float(vv))
                 elif func == COLUMN_TYPE_NUMBER:
