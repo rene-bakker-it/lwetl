@@ -11,6 +11,7 @@ import sys
 from lwetl.version import __version__
 from lwetl.exceptions import SQLExecuteException
 
+
 def count(login, table, filename, max_rows):
     error = None
     try:
@@ -23,7 +24,9 @@ def count(login, table, filename, max_rows):
         return
 
     cur = None
+    # noinspection PyBroadException
     try:
+        # noinspection PyUnboundLocalVariable
         cur = jdbc.execute("SELECT * FROM {} WHERE 0=1".format(table))
         columns = jdbc.get_columns()
     except Exception:
@@ -57,7 +60,7 @@ def count(login, table, filename, max_rows):
                             xls.header()
                             new_table = False
                         xls.write(row)
-                print('Parsed: %-30s d = %6d, t = %6d, s = %6d' % (column_name, cnt, tot, tds))
+                print('Parsed: {:<30} d = {:6}, t = {:6}, s = {:6}'.format(column_name, cnt, tot, tds))
             except SQLExecuteException:
                 cnt = None
                 tds = None
@@ -65,10 +68,11 @@ def count(login, table, filename, max_rows):
     print('Done.')
     return 0
 
+
 def main():
     parser = argparse.ArgumentParser(
         prog='table-cardinality',
-        description='Use aggregate counters to view cardianality of columns in a table.',
+        description='Use aggregate counters to view cardinality of columns in a table.',
         formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('login', help='''login credentials or alias, use 'list' to view possible options.
@@ -89,13 +93,13 @@ def main():
     parser.add_argument('--version', action='store_true')
 
     if (len(sys.argv) > 1) and (sys.argv[1].lower() == '--version'):
-        print('%s, version: %s' % (os.path.basename(sys.argv[0]),__version__))
+        print('{}, version: {}'.format(os.path.basename(sys.argv[0]), __version__))
         sys.exit(0)
 
     args = parser.parse_args()
 
     if args.version:
-        print('%s, version: %s' % (os.path.basename(sys.argv[0]),__version__))
+        print('{}, version: {}'.format(os.path.basename(sys.argv[0]), __version__))
         sys.exit(0)
 
     if args.login.lower() == 'list':
@@ -111,6 +115,7 @@ def main():
         print('INFO - output file: ' + args.filename)
 
     count(args.login, args.table, args.filename, args.max_rows)
+
 
 if __name__ == '__main__':
     main()

@@ -11,10 +11,10 @@ DRIVER_NATIVE = 'native'
 DRIVER_SINGLE = 'single'
 DRIVER_MULTI = 'multi'
 
-UPLOADERS = OrderedDict()
-UPLOADERS[DRIVER_NATIVE] = lwetl.NativeUploader
-UPLOADERS[DRIVER_SINGLE] = lwetl.ParameterUploader
-UPLOADERS[DRIVER_MULTI] = lwetl.MultiParameterUploader
+UPLOAD_TYPES = OrderedDict()
+UPLOAD_TYPES[DRIVER_NATIVE] = lwetl.NativeUploader
+UPLOAD_TYPES[DRIVER_SINGLE] = lwetl.ParameterUploader
+UPLOAD_TYPES[DRIVER_MULTI] = lwetl.MultiParameterUploader
 
 COPY_EMPTY = 'empty'
 COPY_NEW = 'new'
@@ -89,23 +89,23 @@ parser.add_argument(
 
 parser.add_argument(
     '-s', '--statistics', action='store_true',
-    help='Print some timing statisics on exit.')
+    help='Print some timing statistics on exit.')
 
 parser.add_argument(
     '-m', '--mode', action='store',
     default='emtpy',
     choices=list(COPY_MODE.keys()),
-    help='Specity the copy mode:' + ''.join([('\n- %-10s %s' % (k+':', v)) for k, v in COPY_MODE.items()])
+    help='Specify the copy mode:' + ''.join([('\n- {:<10} {}'.format(k+':', v)) for k, v in COPY_MODE.items()])
 )
 
 parser.add_argument(
     '--driver', action='store', type=str,
     dest='driver',
     default='single',
-    choices=list(UPLOADERS.keys()),
+    choices=list(UPLOAD_TYPES.keys()),
     help='''Specify the upload mode:
 - native: use native SQL (does not permit transfer of binary data)
-- single: parse single parameterized sqls to the target server (DEFAULT).
+- single: parse single parameterized SQLs to the target server (DEFAULT).
 - multi:  parse an sql with multiple parameter rows in a single commit 
           (not compatible with update mode 'update' and 'sync').''')
 
@@ -122,6 +122,6 @@ parser.add_argument(
 parser.add_argument(
     '--fast', action='store_true',
     dest='update_fast',
-    help='Huristic fast update with reverse insert')
+    help='Heuristic fast update with reverse insert')
 
 parser.add_argument('--version', action='store_true')

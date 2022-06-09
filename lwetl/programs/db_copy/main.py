@@ -9,7 +9,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 from lwetl.programs.db_copy.cmdline import \
-    DRIVER_SINGLE, DRIVER_MULTI, UPLOADERS, \
+    DRIVER_SINGLE, DRIVER_MULTI, UPLOAD_TYPES, \
     COPY_EMPTY, COPY_AND_UPDATE, COPY_AND_SYNC, parser
 
 from lwetl.version import __version__
@@ -31,7 +31,7 @@ def referring_tables(table_list: list, table_dict: dict, excluded=None):
     """
     Scan for tables, which are both in the input list and referenced by
     other tables in the table_list (FK reference)
-    Exclude tables in the exluded list
+    Exclude tables in the excluded list
 
     @param table_list: list of tables to scan
     @param table_dict: dict with FK reference info of all tables
@@ -62,7 +62,7 @@ def print_list(label, table_list, tc=None):
     nt = len(table_list)
     if nt == 0:
         return
-    print('%s (n=%d):' % (label, nt))
+    print('{} (n={}):'.format(label, nt))
     for x in range(nt):
         table = table_list[x]
         if isinstance(tc, dict) and table in tc:
@@ -70,13 +70,14 @@ def print_list(label, table_list, tc=None):
                 marker = ''
             else:
                 n = tc[table][0] if tc[table][0] > 0 else 1
-                marker = '%15d' % (tc[table][1]-tc[table][0])
-                f = abs(100.0*(tc[table][1]-tc[table][0])/n)
+                marker = '{:15}'.format(tc[table][1] - tc[table][0])
+                f = abs(100.0 * (tc[table][1] - tc[table][0]) / n)
                 if f <= 999.0:
-                    marker += ' %5.1f %%' % f
-            print('%3d. %-35s n(src) = %9d, n(trg) = %9d %s' % (x + 1, table, tc[table][0], tc[table][1], marker))
+                    marker += ' {:5.1f} %'.format(f)
+            print('{:3}. {:<35} n(src) = {:9}, n(trg) = {:9} {}'.format(
+                x + 1, table, tc[table][0], tc[table][1], marker))
         else:
-            print('%3d. %-35s' % (x + 1, table))
+            print('{:3}. {:<35}'.format(x + 1, table))
 
 
 def estimate_remaining(t0, rc, n):
@@ -102,13 +103,13 @@ class TooMayErrorsException(Exception):
 
 def main():
     if (len(sys.argv) > 1) and (sys.argv[1].lower() == '--version'):
-        print('%s, version: %s' % (os.path.basename(sys.argv[0]), __version__))
+        print('{}, version: {}'.format(os.path.basename(sys.argv[0]), __version__))
         sys.exit(0)
 
     args = parser.parse_args()
 
     if args.version:
-        print('%s, version: %s' % (os.path.basename(sys.argv[0]), __version__))
+        print('{}, version: {}'.format(os.path.basename(sys.argv[0]), __version__))
         sys.exit(0)
 
     included_tables = []
@@ -142,20 +143,20 @@ def main():
         try:
             con = lwetl.Jdbc(login)
         except (lwetl.ServiceNotFoundException, lwetl.DriverNotFoundException, ConnectionError) as login_error:
-            print("ERROR for '%s': %s" % (jdbc[key], str(login_error)))
+            print("ERROR for '{}': {}".format(jdbc[key], str(login_error)))
             sys.exit(1)
 
         jdbc[key] = con
         tag_connection(key, con)
         if con.type not in content_queries:
-            print("ERROR: database type '%s' not supported." % con.type)
+            print("ERROR: database type '{}' not supported.".format(con.type))
             sys.exit(1)
 
         sql = content_queries[con.type]
         if '@SCHEMA@' in sql:
             sql = sql.replace('@SCHEMA@', con.schema)
 
-        print('Query %s database: %s' % (key.upper(), login))
+        print('Query {} database: {}'.format(key.upper(), login))
         try:
             con.execute(sql)
         except lwetl.SQLExecuteException as exec_error:
@@ -205,8 +206,8 @@ def main():
     missing_tables = sorted([k for k in table_info[SRC].keys() if k not in table_info[TRG]])
     print_list('Tables not defined on target', missing_tables)
 
-    nosource_tables = sorted([k for k in table_info[TRG].keys() if k not in table_info[SRC]])
-    print_list('Missing source:', nosource_tables)
+    no_source_tables = sorted([k for k in table_info[TRG].keys() if k not in table_info[SRC]])
+    print_list('Missing source:', no_source_tables)
 
     common_tables = table_admin[COMMON]
     if len(common_tables) < 2:
@@ -216,10 +217,10 @@ def main():
         copy_list = []
         while len(copy_list) < len(common_tables):
             not_added = [t for t in common_tables if t not in copy_list]
-            refered_tables = referring_tables(not_added, table_info[TRG], copy_list)
-            while len(refered_tables) > 0:
-                not_added = [t for t in refered_tables]
-                refered_tables = referring_tables(not_added, table_info[TRG], copy_list)
+            referred_tables = referring_tables(not_added, table_info[TRG], copy_list)
+            while len(referred_tables) > 0:
+                not_added = [t for t in referred_tables]
+                referred_tables = referring_tables(not_added, table_info[TRG], copy_list)
             copy_list += not_added
 
     if n_excluded > 0:
@@ -253,7 +254,7 @@ def main():
     for t in copy_list:
         counters[CNT_COPIED_TABLES] += 1
         n, n2 = table_count[t]
-        print("CC %3d. of %d: copy %-30s n = %6d values (PK = %s) ......." % (
+        print("CC {:3}. of {}: copy {:<30} n = {:6} values (PK = {}) .......".format(
             counters[CNT_COPIED_TABLES], len(copy_list), t, n, pk_info[SRC][t]))
 
         existing_records = []
@@ -262,7 +263,7 @@ def main():
         if (n2 > 0) and (args.mode != COPY_EMPTY):
             for r in jdbc[TRG].query("SELECT {0} FROM {1} ORDER BY {0}".format(pk_trg, t)):
                 existing_records.append(r[0])
-            print('Found %d existing records from %s to %s' % (
+            print('Found {} existing records from {} to {}'.format(
                 len(existing_records), min(existing_records), max(existing_records)))
         existing_records = set(existing_records)
 
@@ -272,9 +273,9 @@ def main():
             else:
                 pk_order = 'ASC'
             cursor = jdbc[SRC].execute('SELECT * FROM {} ORDER BY {} {}'.format(
-                t, pk_info[SRC][t], pk_order),cursor=None)
+                t, pk_info[SRC][t], pk_order), cursor=None)
         except lwetl.SQLExecuteException as exec_error:
-            print('ERROR: table %s skipped on SQL retrieve error: ' + str(exec_error))
+            print('ERROR: table {} skipped on SQL retrieve error: {}'.format(t, str(exec_error)))
             too_many_errors = True
             cursor = None
         if too_many_errors:
@@ -287,7 +288,7 @@ def main():
         found_records = []
         t0_table = datetime.now()
         try:
-            with UPLOADERS[args.driver](jdbc[TRG], t.lower(), commit_mode=commit_mode) as uploader:
+            with UPLOAD_TYPES[args.driver](jdbc[TRG], t.lower(), commit_mode=commit_mode) as uploader:
                 for d in jdbc[SRC].get_data(cursor=cursor, return_type=dict, include_none=is_update):
                     row_count += 1
 
@@ -298,7 +299,7 @@ def main():
                     if record_exists and (not is_update):
                         skp_count += 1
                         if args.update_fast:
-                            print('Huristic fast update of %s. Skipping at rowcount %d' % (t, row_count))
+                            print('Heuristic fast update of {}. Skipping at rowcount {}'.format(t, row_count))
                             break
                     else:
                         try:
@@ -315,13 +316,13 @@ def main():
                                 new_count += 1
                         except lwetl.SQLExecuteException as insert_exception:
                             counters[CNT_FAIL] += 1
-                            print('Insert error (%d) on row %d: %s' % (
+                            print('Insert error ({}) on row {}: {}'.format(
                                 counters[CNT_FAIL], row_count, str(insert_exception)))
                             if (args.max_fail >= 0) and (counters[CNT_FAIL] > args.max_fail):
                                 print('Too many errors: terminating.')
                                 too_many_errors = True
                         if too_many_errors:
-                            raise TooMayErrorsException('Insert or Update failed %d times' % counters[CNT_FAIL])
+                            raise TooMayErrorsException('Insert or Update failed {} times'.format(counters[CNT_FAIL]))
 
                     has_commit = False
                     if uploader.row_count >= args.commit_nr:
@@ -329,19 +330,20 @@ def main():
                         has_commit = True
                     if has_commit or ((row_count % args.commit_nr) == 0):
                         print(
-                            '%8d. %5.1f %% of %d records, new: %8d, upd: %8d, ign: %8d. %s. Est. remaining time: %s' %
-                            (row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t,
-                             estimate_remaining(t0_table, row_count, n)))
+                            ('{:8}. {:5.1f} % of {} records, new: {:8}, upd: {:8}, ign: {:8}. {}. ' 
+                             'Est. remaining time: {}').format(
+                                row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t,
+                                estimate_remaining(t0_table, row_count, n)))
                     if (args.max_rows > 0) and ((new_count + upd_count) > args.max_rows):
-                        print('Terminating after %d uploads on user request.' % row_count)
+                        print('Terminating after {} uploads on user request.'.format(row_count))
                         break
                 if uploader.row_count > 0:
                     uploader.commit()
                     print(
-                        '%8d. %5.1f %% of %d records, new: %8d, upd: %8d, ign: %8d. %s. finished' %
-                        (row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t))
+                        '{:8}. {:5.1f} % of {} records, new: {:8}, upd: {:8}, ign: {:8}. {}. finished'.format(
+                            row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t))
                 else:
-                    print('Update of %s finished, No further commits. rc = %d' % (t,row_count))
+                    print('Update of {} finished, No further commits. rc = {}'.format(t, row_count))
 
                 if (new_count + upd_count) > 0:
                     dt = datetime.now() - t0_table
@@ -351,14 +353,15 @@ def main():
                     else:
                         rec_per_sec = 0
                     print(
-                        '%8d. %5.1f %% of %d records, new: %8d, upd: %8d, ign: %8d. %s. Used time: %s (%d rec/s)' %
-                        (row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t,
-                         timedelta_to_string(dt), rec_per_sec))
+                        ('{:8}. {:5.1f} % of {} records, new: {:8}, '
+                         'upd: {:8}, ign: {:8}. {}. Used time: {} ({} rec/s)').format(
+                            row_count, (100.0 * row_count / n), n, new_count, upd_count, skp_count, t,
+                            timedelta_to_string(dt), rec_per_sec))
 
             if args.mode == COPY_AND_SYNC:
                 to_delete = list(existing_records - set(found_records))
                 if len(to_delete) > 0:
-                    print('Sync: removing %d obsolete records in %s (target)' % (len(to_delete), t))
+                    print('Sync: removing {} obsolete records in {} (target)'.format(len(to_delete), t))
                     while len(to_delete) > 0:
                         if len(to_delete) > 500:
                             delete_list = to_delete[0:500]
@@ -373,14 +376,14 @@ def main():
                         except lwetl.SQLExecuteException as delete_exception:
                             counters[CNT_FAIL] += len(delete_list)
                             print(delete_exception)
-                            print('Delete error (%d) in table %s on rows %s' %
-                                  (counters[CNT_FAIL], t, ', '.join([str(pk) for pk in delete_list])))
+                            print('Delete error ({}) in table {} on rows {}'.format(
+                                counters[CNT_FAIL], t, ', '.join([str(pk) for pk in delete_list])))
                             if (args.max_fail >= 0) and (counters[CNT_FAIL] > args.max_fail):
                                 print('Too many errors: terminating.')
                                 too_many_errors = True
                             if too_many_errors:
                                 raise TooMayErrorsException(
-                                    'Insert, Update, and Delete failed %d times' % counters[CNT_FAIL])
+                                    'Insert, Update, and Delete failed {} times'.format(counters[CNT_FAIL]))
                     if commit_mode == lwetl.UPLOAD_MODE_COMMIT:
                         jdbc[TRG].commit()
                     else:
@@ -389,18 +392,18 @@ def main():
         except lwetl.CommitException as ce:
             counters[CNT_FAIL] += 1
             if not (args.ignore_commit_errors and (args.max_fail > 0) and (counters[CNT_FAIL] <= args.max_fail)):
-                print('Upload encountered a commit exception row {}. Further processing ignored: {}'.format(row_count, str(ce)),
-                      file=sys.stderr)
+                print(('Upload encountered a commit exception row {}. '
+                       'Further processing ignored: {}').format(row_count, str(ce)), file=sys.stderr)
                 too_many_errors = True
         except TooMayErrorsException as tee:
-            print('Upload encountered on row {}. Further processing ignored: {}'.format(row_count,str(tee)),
+            print('Upload encountered on row {}. Further processing ignored: {}'.format(row_count, str(tee)),
                   file=sys.stderr)
             too_many_errors = True
         if too_many_errors:
             break
 
     if counters[CNT_FAIL] > 0:
-        print('WARNING: not all data has been transfered. Errors = %d' % counters[CNT_FAIL])
+        print('WARNING: not all data has been transferred. Errors = {}'.format(counters[CNT_FAIL]))
     rc = 1 if too_many_errors else 0
     clean_exit(jdbc, args, rc)
 
