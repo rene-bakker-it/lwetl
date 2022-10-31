@@ -235,7 +235,7 @@ class DataTransformer:
 
     @staticmethod
     def parse_date(date):
-        for f in ['%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S', '%Y-%m-%d %H:%M:%S.%f', ]:
+        for f in ['%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S' ]:
             try:
                 d = datetime.strptime(date, f)
                 return d
