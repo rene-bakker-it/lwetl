@@ -259,7 +259,8 @@ class DataTransformer:
             row = [row]
             row_length = 1
         if row_length != self.nr_of_columns:
-            raise ValueError('Invalid row. Expected {} elements but found {}.'.format(self.nr_of_columns, row_length))
+            msg = 'Invalid row. Expected {} elements but found {}.'.format(self.nr_of_columns, row_length)
+            raise ValueError(msg)
         if row_length == 0:
             return self.return_type()
 

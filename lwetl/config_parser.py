@@ -119,7 +119,8 @@ def parse_login(login: str):
     service_name = service_name.strip().lower()
     if service_name not in JDBC_SERVERS:
         known_services = ', '.join(list(JDBC_SERVERS.keys()))
-        raise ServiceNotFoundException('Service ({}) not found in list ({})'.format(service_name, known_services))
+        msg = 'Service ({}) not found in list ({})'.format(service_name, known_services)
+        raise ServiceNotFoundException(msg)
 
     db_type = JDBC_SERVERS[service_name]['type']
     if db_type not in JDBC_DRIVERS:
@@ -159,7 +160,8 @@ def parse_dummy_login(login_or_driver_type: str):
         db_type = JDBC_SERVERS[db_type]['type']
     elif db_type not in JDBC_DRIVERS:
         known_types = ', '.join(list(JDBC_DRIVERS.keys()))
-        raise ServiceNotFoundException('Database type ({}) not found in list ({})'.format(db_type, known_types))
+        msg = 'Database type ({}) not found in list ({})'.format(db_type, known_types)
+        raise ServiceNotFoundException(msg)
     return db_type, verified_boolean(JDBC_DRIVERS[db_type].get('escape', False))
 
 

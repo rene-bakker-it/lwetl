@@ -322,7 +322,8 @@ def main():
                                 print('Too many errors: terminating.')
                                 too_many_errors = True
                         if too_many_errors:
-                            raise TooMayErrorsException('Insert or Update failed {} times'.format(counters[CNT_FAIL]))
+                            msg = 'Insert or Update failed {} times'.format(counters[CNT_FAIL])
+                            raise TooMayErrorsException(msg)
 
                     has_commit = False
                     if uploader.row_count >= args.commit_nr:

@@ -52,7 +52,8 @@ def get_table_info_sql(jdbc: lwetl.Jdbc) -> str:
             sql = sql.replace('@SCHEMA@', jdbc.schema)
         return sql
     else:
-        raise LookupError("Database type '{}' not supported.".format(jdbc.type))
+        msg = "Database type '{}' not supported.".format(jdbc.type)
+        raise LookupError(msg)
 
 
 def upload_table(jdbc: lwetl.Jdbc, commit_mode: str, commit_nr: int, max_rows: int,

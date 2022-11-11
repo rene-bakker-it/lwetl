@@ -111,7 +111,8 @@ class Uploader:
         if error_message is not None:
             raise SQLExecuteException(error_message)
         if self.columns is None:
-            raise SQLExecuteException('Columns of table {} could not be retrieved.'.format(table))
+            msg = 'Columns of table {} could not be retrieved.'.format(table)
+            raise SQLExecuteException(msg)
 
     def __enter__(self):
         if self.row_count > 0:
@@ -154,7 +155,8 @@ class Uploader:
                 self.pipe_buffer.append((sql, parameters))
         else:
             supported_modes = [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK, UPLOAD_MODE_DRYRUN, UPLOAD_MODE_PIPE]
-            raise ValueError('Illegal mode. Supported: {}. Found: {}'.format(supported_modes, self.commit_mode))
+            msg = 'Illegal mode. Supported: {}. Found: {}'.format(supported_modes, self.commit_mode)
+            raise ValueError(msg)
 
         if n > 0:
             self.row_count += n
@@ -533,7 +535,8 @@ class ParameterUploader(Uploader):
                 elif RE_IS_DATE.match(value):
                     date = datetime.strptime(value[:10], DEFAULT_DATE_FORMAT)
                 else:
-                    raise ValueError('Invalid time format. Must be {}. Found: ({})'.format(DEFAULT_TIME_FORMAT_MS, value))
+                    msg = 'Invalid time format. Must be {}. Found: ({})'.format(DEFAULT_TIME_FORMAT_MS, value)
+                    raise ValueError(msg)
                 return self.sqlDate(int(date.strftime("%s")) * 1000)
             elif self.columns[column_name] == COLUMN_TYPE_NUMBER:
                 return int(value)
@@ -652,7 +655,8 @@ class MultiParameterUploader(ParameterUploader):
         self.data_buffer = []
         self.used_keys = []
         if self.commit_mode == UPLOAD_MODE_PIPE:
-            raise ValueError("Commit mode '{}' not allowed for this class.".format(self.commit_mode))
+            msg = "Commit mode '{}' not allowed for this class.".format(self.commit_mode)
+            raise ValueError(msg)
 
     def __enter__(self):
         super(MultiParameterUploader, self).__enter__()

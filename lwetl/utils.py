@@ -50,7 +50,8 @@ def string2date(str_value: str) -> datetime:
     elif RE_IS_DATE.match(str_value):
         return datetime.strptime(str_value[:10], '%Y-%m-%d')
     else:
-        raise ValueError('Invalid time format. Must be yyyy-mm-dd HH:MMM:SS. Found: ({})'.format(str_value))
+        msg = 'Invalid time format. Must be yyyy-mm-dd HH:MMM:SS. Found: ({})'.format(str_value)
+        raise ValueError(msg)
 
 
 def encode(key, clear):

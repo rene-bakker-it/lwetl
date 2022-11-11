@@ -169,7 +169,8 @@ class CsvImport(BaseTextImport):
                 input_spec = 'input stream'
             else:
                 input_spec = self.fname
-            raise EmptyFileError("No data found for: '{}'".format(input_spec))
+            msg = "No data found for: '{}'".format(input_spec)
+            raise EmptyFileError(msg)
         else:
             self.n_columns = len(self.columns)
             self.row_count += 1
@@ -409,7 +410,8 @@ class XlsxImport:
 
         sheet_names = self.work_book.sheetnames
         if len(sheet_names) == 0:
-            raise EmptyFileError("Workbook '{}' has no data.".format(file_name))
+            msg = "Workbook '{}' has no data.".format(file_name)
+            raise EmptyFileError(msg)
 
         self.work_sheet = None
         if sheet_name is None:
@@ -437,7 +439,8 @@ class XlsxImport:
             self.row_count += 1
             break
         if self.columns is None:
-            raise EmptyFileError("Worksheet '{}' has no data.".format(sheet_name))
+            msg = "Worksheet '{}' has no data.".format(sheet_name)
+            raise EmptyFileError(msg)
         return self
 
     def close(self):
