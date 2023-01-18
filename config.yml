@@ -1,30 +1,38 @@
 # Minimum installation
 # see config-example.yml for documentation
 drivers:
+    sqlserver:
+        # binary upload for jtds driver not supported
+        jar:   'https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/11.2.3.jre8/mssql-jdbc-11.2.3.jre8.jar'
+        class: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        url:   'jdbc:sqlserver://'
+
     mysql:
-        jar:   'https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.21/mysql-connector-java-8.0.21.jar'
-        class: 'com.mysql.cj.jdbc.Driver'
+        jar:   'https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.31/mysql-connector-j-8.0.31.jar'
+        class: 'com.mysql.jdbc.Driver'
         url:   'jdbc:mysql://'
-        attr:  '?autoReconnect=true&useSSL=false&useUnicode=false&serverTimezone=GMT%2B1'
+        # last attribute assumes a database with charset utf-8 and collate utf8_general_ci
+        # [mysqld]
+        # character-set-client-handshake = FALSE
+        # character-set-server = utf8mb4
+        # collation-server = utf8mb4_unicode_ci
+        #
+        # use sql-query <mysql login> jdbc_info for a full list of the options
+        attr:  '?autoReconnect=true&useSSL=false&useUnicode=false'
         escape: true
 
     oracle:
-        jar:   'https://download.oracle.com/otn-pub/otn_software/jdbc/197/ojdbc8.jar'
+        jar:   'https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc8/21.8.0.0/ojdbc8-21.8.0.0.jar'
         class: 'oracle.jdbc.OracleDriver'
         url:   'jdbc:oracle:thin:@'
 
     postgresql:
-        jar:   'https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.14/postgresql-42.2.14.jar'
+        jar:   'https://repo1.maven.org/maven2/org/postgresql/postgresql/42.5.1/postgresql-42.5.1.jar'
         class: 'org.postgresql.Driver'
         url:   'jdbc:postgresql://'
 
-    sqlserver:
-        jar:   'https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.21/mysql-connector-java-8.0.21.jar'
-        class: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
-        url:   'jdbc:sqlserver://'
-
     sqlite:
-        jar:    'https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.32.3/sqlite-jdbc-3.32.3.jar'
+        jar:    'https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.40.0.0/sqlite-jdbc-3.40.0.0.jar'
         class:  'org.sqlite.JDBC'
         url:    'jdbc:sqlite:'
 encryption: false
