@@ -14,13 +14,13 @@ class InputParser:
     Assumes that all SQLs are terminated with a sql_terminator character
     (defaults to a semicolon) at the end of a line.
 
-    WARNING: may fail on multi-line string inputs that use the same character
-    and the and of a CRLF.
+    WARNING: may fail on multi-line string inputs, which use the same character
+    at the end of a CRLF.
     """
 
     def __init__(self, sql_or_filename_or_stream=None, sql_terminator: str = ';'):
         """
-        Instantiator
+        Instantiate
         @param sql_or_filename_or_stream: str|streamType|None - the input source to use. Defaults to sys.stdin
         @param sql_terminator: str the terminator for an SQL command (must be at the end of a line). Defaults
                                to a semi-colon (;)
@@ -65,7 +65,7 @@ class InputParser:
             else:
                 self.fstream = io.StringIO(sql_fn_stream)
                 self.fname = None
-        elif type(sql_fn_stream).__name__ == 'TextIOWrapper':
+        elif type(sql_fn_stream).__name__ in ['TextIOWrapper', 'DebugConsoleStdIn']:
             self.fstream = sql_fn_stream
             self.fname = None
         else:
