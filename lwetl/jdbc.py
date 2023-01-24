@@ -349,7 +349,7 @@ class DataTransformer:
             return tuple(transformed_values)
         else:
             dd = self.return_type()
-            for x, value in enumerate(row):
+            for x, value in enumerate(values):
                 if self.include_none or (value is not None):
                     dd[self.columns[x]] = value
             return dd
