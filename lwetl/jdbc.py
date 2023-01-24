@@ -5,7 +5,7 @@
 import sys
 
 from collections import OrderedDict
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from jpype import JPackage
 from jaydebeapi import Cursor, Error, DatabaseError, connect
@@ -120,7 +120,8 @@ class DataTransformer:
     """
 
     # noinspection PyProtectedMember
-    def __init__(self, cursor: Cursor, return_type=tuple, upper_case: bool = True, include_none: bool = False):
+    def __init__(self, cursor: Cursor, return_type=tuple, upper_case: bool = True, include_none: bool = False,
+                 database_type = None):
         """
         Instantiate a DataTransformer
 
@@ -130,6 +131,8 @@ class DataTransformer:
             that only the first value of each row is returned and cast to the specified type.
         @param upper_case: bool - transform column names in upper case (defaults to True)
         @param include_none: bool - include None values in dictionary return types. Defaults to False
+        @param database_type: str - indicating the database type (oracle, mysql, sqlite). Used to bypass
+            non-default behaviour of jdbc drivers.
         @return DataTransformer
 
         @raise ValueError if the cursor has no data
@@ -170,6 +173,7 @@ class DataTransformer:
                     ', '.join(str_types), type(return_type).__name__))
         self.return_type = return_type
         self.include_none = verified_boolean(include_none)
+        self.database_type = database_type
 
         upper_case = verified_boolean(upper_case)
 
@@ -222,16 +226,24 @@ class DataTransformer:
     def oracle_clob(self, clob):
         return clob.stringValue()
 
-    @staticmethod
-    def parse_number(number):
+    def parse_number(self, number):
         if isinstance(number, int):
             return number
         else:
-            dval = Decimal(str(number))
-            if (dval % 1) == DEC_ZERO:
-                return int(number)
+            try:
+                d_val = Decimal(str(number))
+            except InvalidOperation as e:
+                if self.database_type == 'sqlite':
+                    # For sqlite the default type is NUMERIC, see https://www.sqlite.org/datatype3.html#affname
+                    # Consequently other-type columns with an allowed NULL value may be interpreted as numeric
+                    return self.default_transformer(number)
+                else:
+                    raise e
             else:
-                return dval
+                if (d_val % 1) == DEC_ZERO:
+                    return int(number)
+                else:
+                    return d_val
 
     @staticmethod
     def parse_date(date):
@@ -276,6 +288,8 @@ class DataTransformer:
                 vtype = type(value).__name__
                 if vtype in self.standard_transformers:
                     self.transformer[x] = self.standard_transformers[vtype]
+                elif vtype in ['java.lang.Double', 'java.lang.Float']:
+                    self.transformer[x] = self.parse_number
                 elif vtype.startswith('java') or vtype.startswith('oracle'):
                     self.transformer[x] = (lambda vv: vv.toString())
                 elif func == COLUMN_TYPE_FLOAT:
@@ -581,8 +595,9 @@ class Jdbc:
 
         batch_nr = 0
         row_count = 0
-        transformer = DataTransformer(cursor,
-                                      return_type=return_type, upper_case=self.upper_case, include_none=include_none)
+        transformer = DataTransformer(
+            cursor, return_type=return_type, upper_case=self.upper_case, include_none=include_none,
+                database_type=self.type)
         while True:
             batch_nr += 1
             fetch_error = None

@@ -1,1 +1,1 @@
-__version__ = '0.6.14.master-bc4cae5f3d9f99d4925c7397093a9c3aaffb46b7'
+__version__ = '0.7.0.master-f31a88894eb8c0f2e457541b74b03c01b33d896b'
