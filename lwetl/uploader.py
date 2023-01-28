@@ -470,7 +470,7 @@ class ParameterUploader(Uploader):
                  fstream=None, commit_mode=UPLOAD_MODE_DRYRUN, exit_on_fail=True, **kwargs):
         super(ParameterUploader, self).__init__(jdbc, table, fstream=fstream, commit_mode=commit_mode,
                                                 exit_on_fail=exit_on_fail, **kwargs)
-        self.sqlDate = JPackage('java').sql.Date
+        self.sqlDate = JPackage('java').sql.Timestamp
 
     def __enter__(self):
         return super(ParameterUploader, self).__enter__()
@@ -512,7 +512,7 @@ class ParameterUploader(Uploader):
         @return: converted value
         """
         if isinstance(value, datetime):
-            return self.sqlDate(int(value.strftime("%s")) * 1000)
+            return self.sqlDate(int(value.strftime("%s")) * 1000 + (value.microsecond // 1000))
         elif type(value).__name__ in ['bytes', 'bytearray']:
             error_msg = None
             try:
