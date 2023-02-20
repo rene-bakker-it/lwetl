@@ -99,7 +99,7 @@ def main():
         print('ERROR: no input files found.')
         sys.exit(1)
     if args.output_file == '-':
-        args.output_file = sorted(input_files, key = lambda fn: os.path.getsize(fn), reverse=True).pop(0)
+        args.output_file = sorted(input_files, key = lambda _fn: os.path.getsize(_fn), reverse=True).pop(0)
 
     pw_encrypted = configuration.get('encrypt', True)
     if not isinstance(pw_encrypted, bool):

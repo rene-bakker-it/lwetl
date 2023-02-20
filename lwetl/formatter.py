@@ -7,6 +7,7 @@ import sys
 
 from collections import OrderedDict
 from decimal import Decimal
+from typing import Iterable, Union
 
 # noinspection PyUnresolvedReferences
 from xml.dom import minidom
@@ -40,7 +41,62 @@ def parse_output_selector(filename_or_stream):
         raise ValueError('Illegal type for the output specifier: ' + type(filename_or_stream).__name__)
 
 
+def prettify_excel(filename: str, with_header_line: Union[bool, Iterable, None] = True):
+    """
+    Readjust column widths and the first line of each sheet in a non-formatted xlsx file
+    Assumes a closed file. Overwrites the specified filename.
+
+    @param filename: the Excel file
+    @param with_header_line: None or False - all header formatting suppressed, True - all sheets have header,
+        Iterable - only the sheets whose title is in the list will hava a formatted header line.
+    """
+
+    b = load_workbook(filename)
+    header_style = NamedStyle(name='table_header')
+    header_style.font = Font(bold=True)
+    header_style.fill = PatternFill(fill_type='solid', start_color='00CCCCCC', end_color='00CCCCCC')
+    header_style.alignment = Alignment(horizontal='center')
+    thin = Side(border_style='thin', color='000000')
+    double = Side(border_style="double", color="ff0000")
+    header_style.border = Border(top=double, left=thin, right=thin, bottom=double)
+
+    b.add_named_style(header_style)
+
+    sheets_with_headers = []
+    if isinstance(with_header_line, bool) and with_header_line:
+        sheets_with_headers = [ws.title for ws in b.worksheets]
+    else:
+        try:
+            sheets_with_headers = list(with_header_line)
+        except TypeError:
+            pass
+
+    for ws in b.worksheets:
+        if ws.title in sheets_with_headers:
+            with_header = True
+            for cell in ws[1]:
+                cell.style = header_style
+        else:
+            with_header = False
+
+        for x, c in enumerate(ws.columns, start=1):
+            column_width = 5
+            for y, cell in enumerate(c, start=1):
+                if cell.value is not None:
+                    w = len(str(cell.value))
+                    if with_header and (y == 1):
+                        w = int(1.25 * w)
+                    if w > column_width:
+                        column_width = w
+            if column_width > 50:
+                column_width = 50
+            ws.column_dimensions[get_column_letter(x)].width = column_width + 2
+    b.save(filename)
+
+
+# noinspection PyShadowingNames
 class Formatter:
+
     def __init__(self, *args, **kwargs):
         self.cursor = kwargs.get('cursor', None)
         self.filename_or_stream = kwargs.get('filename_or_stream', sys.stdout)
@@ -90,8 +146,8 @@ class Formatter:
 
         filename_or_stream = kwargs.get('filename_or_stream', self.filename_or_stream)
         if filename_or_stream is None:
-            outp = self.fstream if self.fname is None else self.fname
-            self.fstream, self.fname = parse_output_selector(outp)
+            _output = self.fstream if self.fname is None else self.fname
+            self.fstream, self.fname = parse_output_selector(_output)
         else:
             self.fstream, self.fname = parse_output_selector(filename_or_stream)
 
@@ -138,6 +194,7 @@ class Formatter:
         pass
 
 
+# noinspection PyShadowingNames
 class TextFormatter(Formatter):
     def __init__(self, *args, **kwargs):
         super(TextFormatter, self).__init__(*args, **kwargs)
@@ -166,6 +223,7 @@ class TextFormatter(Formatter):
             column_width = 5
         return column_width, '{{:<{}}}'.format(column_width), '{{:>{}}}'.format(column_width)
 
+    # noinspection PyUnusedLocal
     def _limit_str(self, value, ctype):
         if (value is None) or (isinstance(value, str) and (len(value.strip()) == 0)):
             return self.format_left.format('')
@@ -195,6 +253,7 @@ class TextFormatter(Formatter):
         return ' | '.join(r)
 
 
+# noinspection PyShadowingNames
 class CsvFormatter(Formatter):
     def __init__(self, *args, **kwargs):
         super(CsvFormatter, self).__init__(*args, **kwargs)
@@ -231,6 +290,7 @@ class CsvFormatter(Formatter):
         self.writer.writerow(self.format(row))
 
 
+# noinspection PyShadowingNames
 class XmlFormatter(Formatter):
     # supported formats
     PLAIN = 'plain'
@@ -293,8 +353,8 @@ class XmlFormatter(Formatter):
             Return a pretty-printed XML string for the Element.
             """
             rough_string = tostring(book, 'utf-8')
-            reparsed = minidom.parseString(rough_string)
-            return reparsed.toprettyxml(indent="  ")
+            re_parsed = minidom.parseString(rough_string)
+            return re_parsed.toprettyxml(indent="  ")
 
         if self.book is None:
             raise ValueError('Cannot close a closed XmlFormatter.')
@@ -378,6 +438,7 @@ class XmlFormatter(Formatter):
             raise KeyError('Illegal XLM dialect: ' + str(self.dialect))
 
 
+# noinspection PyShadowingNames
 class XlsxFormatter(Formatter):
     def __init__(self, *args, **kwargs):
         super(XlsxFormatter, self).__init__(*args, **kwargs)
@@ -461,39 +522,10 @@ class XlsxFormatter(Formatter):
         self.sheet.append(r)
 
     def prettify(self):
-        b = load_workbook(self.fname)
-        header_style = NamedStyle(name='table_header')
-        header_style.font = Font(bold=True)
-        header_style.fill = PatternFill(fill_type='solid', start_color='00CCCCCC', end_color='00CCCCCC')
-        header_style.alignment = Alignment(horizontal='center')
-        thin = Side(border_style='thin', color='000000')
-        double = Side(border_style="double", color="ff0000")
-        header_style.border = Border(top=double, left=thin, right=thin, bottom=double)
-
-        b.add_named_style(header_style)
-
-        for ws in b.worksheets:
-            if ws.title in self.sheets_with_header:
-                has_header = True
-                for cell in ws[1]:
-                    cell.style = header_style
-            else:
-                has_header = False
-            for x, c in enumerate(ws.columns, start=1):
-                column_width = 5
-                for y, cell in enumerate(c, start=1):
-                    if cell.value is not None:
-                        w = len(str(cell.value))
-                        if has_header and (y == 1):
-                            w = int(1.25 * w)
-                        if w > column_width:
-                            column_width = w
-                if column_width > 50:
-                    column_width = 50
-                ws.column_dimensions[get_column_letter(x)].width = column_width + 2
-        b.save(self.fname)
+        prettify_excel(self.fname, self.sheets_with_header)
 
 
+# noinspection PyShadowingNames
 class SqlFormatter(Formatter):
     UNDEFINED_TABLE = '@UNDEFINED_TABLE@'
 
@@ -510,7 +542,6 @@ class SqlFormatter(Formatter):
         self._call(*args, **kwargs)
 
     def __enter__(self):
-        # outp = self.fstream if self.fname is None else self.fname
         return self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

@@ -3,6 +3,8 @@
 
 """
 import copy
+import logging
+import os
 import sys
 
 from collections import OrderedDict
@@ -14,6 +16,9 @@ from jpype import JPackage
 from .exceptions import SQLExecuteException, CommitException
 from .jdbc import Jdbc, DummyJdbc, COLUMN_TYPE_DATE, COLUMN_TYPE_FLOAT, COLUMN_TYPE_NUMBER
 from .utils import *
+
+# define a logger
+LOGGER = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
 UPLOAD_MODE_DRYRUN = 'dryrun'
 UPLOAD_MODE_PIPE = 'pipe'
@@ -102,7 +107,8 @@ class Uploader:
             self.columns = copy.deepcopy(kwargs['columns'])
         else:
             try:
-                c = self.cursor = jdbc.execute('SELECT * FROM {} WHERE 0=1'.format(table))
+                c = jdbc.execute('SELECT * FROM {} WHERE 0=1'.format(table), None, cursor=None,
+                                 use_current_cursor=False)
                 self.columns = jdbc.get_columns(c)
                 jdbc.close(c)
             except DatabaseError as db_error:
@@ -116,7 +122,7 @@ class Uploader:
 
     def __enter__(self):
         if self.row_count > 0:
-            print('WARNING: {} commands erased from {}.'.format(self.row_count, type(self).__name__), file=sys.stderr)
+            LOGGER.warning('WARNING: {} commands erased from {}.'.format(self.row_count, type(self).__name__))
             if self.commit_mode in [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK]:
                 self.jdbc.rollback()
 
@@ -137,11 +143,11 @@ class Uploader:
         if self.commit_mode in [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK]:
             exec_error = None
             try:
-                self.cursor = self.jdbc.execute(sql, parameters, self.cursor)
+                self.cursor = self.jdbc.execute(sql, parameters, self.cursor, use_current_cursor=False)
                 n = self.cursor.rowcount
                 # except DatabaseError as db_error:
             except Exception as db_error:
-                print(db_error, file=sys.stderr)
+                LOGGER.error(db_error)
                 exec_error = db_error
                 n = 0
             if self.exit_on_fail and (exec_error is not None):
@@ -256,9 +262,9 @@ class Uploader:
         if self.commit_mode in [UPLOAD_MODE_COMMIT, UPLOAD_MODE_ROLLBACK]:
             try:
                 if (self.commit_mode == UPLOAD_MODE_COMMIT) and (not self.has_sql_errors):
-                    self.jdbc.commit(self.cursor)
+                    self.jdbc.commit()
                 else:
-                    self.jdbc.rollback(self.cursor)
+                    self.jdbc.rollback()
             except (SQLExecuteException, LookupError, CommitException) as commit_exception:
                 error = commit_exception
         elif (self.commit_mode == UPLOAD_MODE_DRYRUN) and (self.fstream is not None):
@@ -267,7 +273,8 @@ class Uploader:
         self.cursor = None
         self.row_count = 0
         if error is not None:
-            raise CommitException(str(error))
+            msg = '{}: {}'.format(type(error).__name__, error)
+            raise CommitException(msg)
         if self.commit_mode == UPLOAD_MODE_PIPE:
             buffer = [e for e in self.pipe_buffer]
             self.pipe_buffer = []
@@ -512,7 +519,7 @@ class ParameterUploader(Uploader):
         @return: converted value
         """
         if isinstance(value, datetime):
-            return self.sqlDate(int(value.strftime("%s")) * 1000 + (value.microsecond // 1000))
+            return self.sqlDate((int(value.strftime("%s"))*1000) + (value.microsecond // 1000))
         elif type(value).__name__ in ['bytes', 'bytearray']:
             error_msg = None
             try:
@@ -530,14 +537,14 @@ class ParameterUploader(Uploader):
             if self.columns[column_name] == COLUMN_TYPE_DATE:
                 if RE_IS_DATE_TIME_MS.match(value):
                     date = datetime.strptime(value[:23], DEFAULT_TIME_FORMAT_MS)
-                if RE_IS_DATE_TIME.match(value):
+                elif RE_IS_DATE_TIME.match(value):
                     date = datetime.strptime(value[:19], DEFAULT_TIME_FORMAT)
                 elif RE_IS_DATE.match(value):
                     date = datetime.strptime(value[:10], DEFAULT_DATE_FORMAT)
                 else:
                     msg = 'Invalid time format. Must be {}. Found: ({})'.format(DEFAULT_TIME_FORMAT_MS, value)
                     raise ValueError(msg)
-                return self.sqlDate(int(date.strftime("%s")) * 1000)
+                return self.sqlDate((int(date.strftime("%s"))*1000) + (date.microsecond // 1000))
             elif self.columns[column_name] == COLUMN_TYPE_NUMBER:
                 return int(value)
             elif self.columns[column_name] == COLUMN_TYPE_FLOAT:

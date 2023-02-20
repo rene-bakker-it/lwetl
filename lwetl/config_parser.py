@@ -29,6 +29,7 @@ and scanned in 3 locations (exist and readable) in the following order:
         + LOGIN_ALIAS
 """
 
+import logging
 import os
 import sys
 import yaml
@@ -39,6 +40,9 @@ from urllib.error import HTTPError, URLError
 from .exceptions import ServiceNotFoundException
 from .utils import verified_boolean
 from .security import decrypt
+
+# define a logger
+LOGGER = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
 MODULE_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir))
 HOME_DIR = os.path.expanduser('~')
@@ -194,8 +198,7 @@ for fn in [f for f in CFG_FILES if os.path.isfile(f)]:
     except PermissionError:
         pass
     except yaml.YAMLError as pe:
-        print('ERROR: cannot parse the configuration file {}'.format(fn), file=sys.stderr)
-        print(pe, file=sys.stderr)
+        LOGGER.error('Cannot parse the configuration file {}: {}'.format(fn, pe))
         sys.exit(1)
 
 if (len(configuration) == 0) or (count_cfg_files <= 1):
@@ -211,7 +214,7 @@ if (len(configuration) == 0) or (count_cfg_files <= 1):
         except (PermissionError, FileNotFoundError, FileExistsError):
             home_cfg_dir = None
         if home_cfg_dir is None:
-            print('FATAL ERROR: no configuration found. Looked for:\n- ' + '\n- '.join(CFG_FILES))
+            LOGGER.critical('FATAL: no configuration found. Looked for:\n- ' + '\n- '.join(CFG_FILES))
             sys.exit(1)
         else:
             from shutil import copyfile
@@ -220,7 +223,7 @@ if (len(configuration) == 0) or (count_cfg_files <= 1):
             for trg_file in [os.path.join(home_cfg_dir, f) for f in ['config-example.yml', 'config.yml']]:
                 copyfile(src_file, trg_file)
                 os.chmod(trg_file, S_IREAD | S_IWRITE)
-            print('INFO: Sample configuration files installed in: ' + home_cfg_dir)
+            LOGGER.info('Sample configuration files installed in: ' + home_cfg_dir)
 
 # add environment variables
 for var_name, value in configuration.get('env', {}).items():
@@ -236,11 +239,11 @@ if not isinstance(CFG_ENCRYPT, bool):
 JDBC_DRIVERS = dict()
 for jdbc_type, cfg in configuration.get('drivers', {}).items():
     if 'jar' not in cfg:
-        print('ERROR in definition of driver type {}: jar file not specified.'.format(jdbc_type))
+        LOGGER.error('Error in definition of driver type {}: jar file not specified.'.format(jdbc_type))
     elif 'class' not in cfg:
-        print('ERROR in definition of driver type {}: driver class not specified.'.format(jdbc_type))
+        LOGGER.error('Error in definition of driver type {}: driver class not specified.'.format(jdbc_type))
     elif 'url' not in cfg:
-        print('ERROR in definition of driver type {}: url not specified.'.format(jdbc_type))
+        LOGGER.error('Error in definition of driver type {}: url not specified.'.format(jdbc_type))
     elif os.path.isfile(cfg['jar']):
         JDBC_DRIVERS[jdbc_type] = cfg
     else:
@@ -266,15 +269,14 @@ for jdbc_type, cfg in configuration.get('drivers', {}).items():
                     dst_file = os.path.join(lib_dir, jar_file)
                     try:
                         urlretrieve(cfg['jar'], dst_file)
-                        print('INFO: {} downloaded to: {}'.format(jar_file, lib_dir))
+                        LOGGER.info('{} downloaded to: {}'.format(jar_file, lib_dir))
                     except (HTTPError, URLError) as http_error:
-                        print('ERROR - failed to retrieve: ' + cfg['jar'])
-                        print(http_error)
+                        LOGGER.error('Failed to retrieve {}: {}'.format(cfg['jar'], http_error))
                     if os.path.isfile(dst_file):
                         JDBC_DRIVERS[jdbc_type] = merge({'jar': dst_file}, cfg)
                         break
         if jdbc_type not in JDBC_DRIVERS:
-            print('WARNING - no driver found for: ' + jdbc_type)
+            LOGGER.warning('No driver found for: ' + jdbc_type)
 
 JAR_FILES = []
 for cfg in JDBC_DRIVERS.values():
@@ -285,11 +287,11 @@ for cfg in JDBC_DRIVERS.values():
 JDBC_SERVERS = dict()
 for service, cfg in configuration.get('servers', {}).items():
     if 'type' not in cfg:
-        print('ERROR in definition of service {}: database type not specified.'.format(service))
+        LOGGER.error('Error in definition of service {}: database type not specified.'.format(service))
     elif cfg['type'] not in JDBC_DRIVERS:
-        print('ERROR in definition of service {}: unknown driver type {}.'.format(service, cfg['type']))
+        LOGGER.error('Error in definition of service {}: unknown driver type {}.'.format(service, cfg['type']))
     elif 'url' not in cfg:
-        print('ERROR in definition of service {}: url not specified.'.format(service))
+        LOGGER.error('Error in definition of service {}: url not specified.'.format(service))
     else:
         JDBC_SERVERS[service.lower()] = cfg
 
@@ -303,11 +305,10 @@ if 'oracle' in JDBC_DRIVERS and (os.environ.get('IGNORE_TNS', '').lower() not in
             import regex
         except ImportError:
             regex = None
-            print('''
-    WARNING: tnsnames.ora can only be parsed if the regex module is installed.
-             - use 'pip install regex' to install
-    This message may be removed by setting the environment variable IGNORE_TNS to true 
-    (either in the system, or in the env section of the configuration file).''')
+            LOGGER.warning('''tnsnames.ora can only be parsed if the regex module is installed.
+Use 'pip install regex' to install.
+This message may be removed by setting the environment variable IGNORE_TNS to true 
+(either in the system, or in the env section of the configuration file).''')
 
         if regex:
             with open(tns, 'r') as fh:

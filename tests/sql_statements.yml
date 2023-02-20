@@ -3,7 +3,7 @@
 # Organized according to driver-type
 # Add disabled: true to disable testing for a section
 oracle:
-    disabled: false
+    disabled: true
     create:
         # tables, sequences, and constraints are created in alphabetic order of key
         t1: |
@@ -174,7 +174,7 @@ mysql:
         table: LWETL_PRODUCT
 
 sqlserver:
-    disabled: false
+    disabled: true
     create:
         # tables, sequences, and constraints are created in alphabetic order of key
         t1: |

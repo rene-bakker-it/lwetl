@@ -22,7 +22,7 @@ from .input import InputParser
 from .config_parser import print_info
 
 # output formatters
-from .formatter import TextFormatter, CsvFormatter, XmlFormatter, XlsxFormatter, SqlFormatter
+from .formatter import TextFormatter, CsvFormatter, XmlFormatter, XlsxFormatter, SqlFormatter, prettify_excel
 
 # uploading data
 from .uploader import UPLOAD_MODE_DRYRUN, UPLOAD_MODE_ROLLBACK, UPLOAD_MODE_COMMIT, UPLOAD_MODE_PIPE, \

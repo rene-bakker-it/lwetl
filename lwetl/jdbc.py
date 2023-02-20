@@ -2,7 +2,8 @@
     Main jdbc connection
 """
 
-import sys
+import logging
+import os
 
 from collections import OrderedDict
 from decimal import Decimal, InvalidOperation
@@ -10,10 +11,15 @@ from decimal import Decimal, InvalidOperation
 from jpype import JPackage
 from jaydebeapi import Cursor, Error, DatabaseError, connect
 
+from typing import List, Union
+
 from .config_parser import JDBC_DRIVERS, JAR_FILES, parse_login, parse_dummy_login
 from .exceptions import DriverNotFoundException, SQLExecuteException, CommitException
 from .runtime_statistics import RuntimeStatistics
 from .utils import *
+
+# define a logger
+LOGGER = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
 # marker (attribute) to trace chained connections
 PARENT_CONNECTION = '_lwetl_jdbc'
@@ -53,13 +59,14 @@ def default_cursor(default_result):
                 del kwargs['cursor']
             else:
                 if (len(argl) < 2) or (argl[1] is None):
-                    cursor = self.current
+                    cursor = self.current_cursor
                 elif isinstance(argl[1], Cursor):
                     cursor = argl[1]
 
             if isinstance(cursor, Cursor):
-                if cursor not in self.cursors:
-                    raise LookupError('Specified cursor not found in this instance.')
+                if not self.has_cursor(cursor):
+                    LOGGER.debug('The specified cursor not found in this instance. Possible commit?')
+                    cursor = None
             elif cursor is not None:
                 raise ValueError('Illegal cursor specifier.')
 
@@ -80,7 +87,7 @@ def default_cursor(default_result):
 # noinspection PyProtectedMember
 def get_columns_of_cursor(cursor: Cursor) -> OrderedDict:
     """
-    Retrieve the column information of the specified cursor
+    Retrieve the column information of the specified cursor.
     @param cursor: Cursor
     @return: OrderedDict of columns - key: name of the column, value: type of the column
     """
@@ -99,14 +106,14 @@ def get_columns_of_cursor(cursor: Cursor) -> OrderedDict:
             if upper_case:
                 name = name.upper()
 
-            ctype = cursor.description[x][1]
-            if ctype is None:
+            cursor_type = cursor.description[x][1]
+            if cursor_type is None:
                 columns[name] = COLUMN_TYPE_STRING
-            elif len({'INTEGER', 'DECIMAL', 'NUMERIC'}.intersection(ctype.values)) > 0:
+            elif len({'INTEGER', 'DECIMAL', 'NUMERIC'}.intersection(cursor_type.values)) > 0:
                 columns[name] = COLUMN_TYPE_NUMBER
-            elif len({'FLOAT', 'REAL', 'DOUBLE'}.intersection(ctype.values)) > 0:
+            elif len({'FLOAT', 'REAL', 'DOUBLE'}.intersection(cursor_type.values)) > 0:
                 columns[name] = COLUMN_TYPE_FLOAT
-            elif 'TIMESTAMP' in ctype.values:
+            elif 'TIMESTAMP' in cursor_type.values:
                 columns[name] = COLUMN_TYPE_DATE
             else:
                 columns[name] = COLUMN_TYPE_STRING
@@ -121,7 +128,7 @@ class DataTransformer:
 
     # noinspection PyProtectedMember
     def __init__(self, cursor: Cursor, return_type=tuple, upper_case: bool = True, include_none: bool = False,
-                 database_type = None):
+                 database_type: Union[str, None] = None):
         """
         Instantiate a DataTransformer
 
@@ -219,7 +226,7 @@ class DataTransformer:
             return v
 
     def oracle_lob_to_bytes(self, lob):
-        # print(type(lob).__name__)
+        # LOGGER.debug(type(lob).__name__)
         return self.byte_array_to_bytes(lob.getBytes(1, int(lob.length())))
 
     # noinspection PyMethodMayBeStatic
@@ -247,7 +254,7 @@ class DataTransformer:
 
     @staticmethod
     def parse_date(date):
-        for f in ['%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S' ]:
+        for f in ['%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S']:
             try:
                 d = datetime.strptime(date, f)
                 return d
@@ -311,7 +318,7 @@ class DataTransformer:
                     # noinspection PyCallingNonCallable
                     values.append(func(value))
                 except Exception as e:
-                    print('ERROR - cannot parse {}: {}'.format(value, str(e)))
+                    LOGGER.error('Cannot parse {}: {}'.format(value, str(e)))
                     parse_exception = e
                 if parse_exception is not None:
                     raise parse_exception
@@ -353,6 +360,13 @@ class DataTransformer:
                 if self.include_none or (value is not None):
                     dd[self.columns[x]] = value
             return dd
+
+
+class CursorStorage:
+
+    def __init__(self, cursor: Cursor, keep: bool = False):
+        self.cursor = cursor
+        self.keep = keep
 
 
 class DummyJdbc:
@@ -420,7 +434,7 @@ class Jdbc:
                 connection_error = ConnectionError(error_msg)
             if ':' in error_msg:
                 error_msg = error_msg.split(':', 1)[-1]
-            print('ERROR - jdbc connection failed: ' + error_msg, file=sys.stderr)
+            LOGGER.error('Jdbc connection failed: ' + error_msg)
 
         if connection_error is not None:
             raise connection_error
@@ -430,15 +444,16 @@ class Jdbc:
 
         # cursor handling
         self.counter = 0
-        self.cursors = []
-        self.current = None
+        self.cursors = []  # type: List[CursorStorage]
+        self.current_cursor = None
+        self.keep_current_cursor = False
 
     # noinspection PyBroadException
     def __del__(self):
         if self.connection:
-            for cursor in self.cursors:
+            for cs in self.cursors:
                 try:
-                    cursor.close()
+                    cs.cursor.close()
                 except Exception:
                     pass
             try:
@@ -446,26 +461,43 @@ class Jdbc:
             except Exception:
                 pass
 
+    def has_cursor(self, cursor: Cursor):
+        return cursor in [cs.cursor for cs in self.cursors]
+
+    def close_all_cursors(self):
+        cursor_list = []
+        for cs in self.cursors:
+            if cs.keep:
+                cursor_list.append(cs)
+            else:
+                self.close(cs.cursor)
+        self.cursors = cursor_list
+
+    def remove_cursor(self, cursor: Cursor):
+        cursor_list = [cs for cs in self.cursors if cs.cursor != cursor]
+        self.cursors = cursor_list
+
     @default_cursor(False)
-    def close(self, cursor=None):
+    def close(self, cursor: Union[Cursor, str, None] = None):
         """
-        Closes the specified cursor. Use the current if not specified.
-        @param cursor: Cursor|str - cursor or id of the cursor
-        @return bool: true on success
+        Deletes a cursor from the current transaction.
+        @param cursor: Cursor - cursor to delete
+        @return bool: true on success. May return False after a commit or rollback,
+            if multiple cursors are used in a single transaction.
         """
 
+        if not isinstance(cursor, Cursor):
+            return False
         try:
             cursor.close()
             close_ok = True
         except Error:
             close_ok = False
         else:
-            self.cursors.remove(cursor)
-            if cursor == self.current:
-                if len(self.cursors) > 0:
-                    self.current = self.cursors[-1]
-                else:
-                    self.current = None
+            if cursor == self.current_cursor:
+                self.current_cursor = None
+                self.keep_current_cursor = False
+            self.remove_cursor(cursor)
             # noinspection PyBroadException
             try:
                 # for garbage collection
@@ -474,13 +506,18 @@ class Jdbc:
                 pass
         return close_ok
 
-    def execute(self, sql: str, parameters: (list, tuple) = None, cursor: object = None) -> Cursor:
+    def execute(self, sql: str, parameters: Union[list, tuple] = None,
+                cursor: Union[Cursor, None] = None,
+                use_current_cursor: bool = True, keep_cursor: bool = False) -> Cursor:
         """
         Execute a query
         @param sql: str query to execute
         @param parameters: list of parameters specified in the sql query. May also be None (no parameters), or
             a list of lists (execute many)
         @param cursor: to use for execution of the sql command. Create a new one if None (default)
+        @param use_current_cursor: if set to False, a None cursor will trigger the creation of a new cursor.
+            Otherwise, the default cursor will be used, if present.
+        @param keep_cursor: if set to true, the cursor will not be closed upon a commit or rollback.
         @return: Cursor of the execution
 
         @raise SQLExecutionError on an execution exception
@@ -496,29 +533,39 @@ class Jdbc:
 
             if sql_or_list is None:
                 return None
-            elif isinstance(sql_or_list, str):
+            if isinstance(sql_or_list, str):
                 return JAVA_STRING(sql_or_list.encode(), 'UTF8')
-            elif isinstance(sql_or_list, (list, tuple)):
-                parms = []
+            if isinstance(sql_or_list, (list, tuple)):
+                parameter_list = []
                 for p in sql_or_list:
                     if isinstance(p, str):
-                        parms.append(JAVA_STRING(p.encode(), 'UTF8'))
+                        parameter_list.append(JAVA_STRING(p.encode(), 'UTF8'))
                     else:
-                        parms.append(p)
-                return parms
+                        parameter_list.append(p)
+                return parameter_list
 
         if is_empty(sql):
             raise ValueError('Query string (sql) may not be empty.')
         elif not isinstance(sql, str):
             raise TypeError('Query (sql) must be a string.')
 
-        if (cursor is not None) and (cursor not in self.cursors):
+        if self.current_cursor is None:
+            available_cursors = [cs.cursor for cs in self.cursors if not cs.keep]
+            if len(available_cursors) > 0:
+                self.current_cursor = available_cursors[-1].cursor
+                self.keep_current_cursor = False
+
+        if cursor is None:
+            if use_current_cursor and (not keep_cursor) and (not self.keep_current_cursor):
+                cursor = self.current_cursor
+        elif not self.has_cursor(cursor):
             cursor = None
         if cursor is None:
             self.counter += 1
             cursor = self.connection.cursor()
-            self.cursors.append(cursor)
-        self.current = cursor
+            self.cursors.append(CursorStorage(cursor, keep_cursor))
+            self.current_cursor = cursor
+            self.keep_current_cursor = keep_cursor
 
         while sql.strip().endswith(';'):
             sql = sql.strip()[:-1]
@@ -542,9 +589,9 @@ class Jdbc:
                     if error_message.startswith(prefix):
                         error_message = error_message[len(prefix):]
             if error_message is not None:
-                print(sql, file=sys.stderr)
+                LOGGER.error(sql)
                 if isinstance(parameters, (list, tuple)):
-                    print(parameters, file=sys.stderr)
+                    LOGGER.error(str(parameters))
                 raise SQLExecuteException(error_message)
 
         if not hasattr(cursor, PARENT_CONNECTION):
@@ -565,7 +612,7 @@ class Jdbc:
     @default_cursor([])
     def get_columns(self, cursor=None) -> OrderedDict:
         """
-        Get the column associated to the cursor
+        Get the column associated to the cursor.
         @param cursor: cursor to query. Current if not specified
         @return: OrderedDict of the defined columns:
          - key name of the column (in uppercase if self.upper_case=True)
@@ -597,7 +644,7 @@ class Jdbc:
         row_count = 0
         transformer = DataTransformer(
             cursor, return_type=return_type, upper_case=self.upper_case, include_none=include_none,
-                database_type=self.type)
+            database_type=self.type)
         while True:
             batch_nr += 1
             fetch_error = None
@@ -608,10 +655,11 @@ class Jdbc:
                 fetch_error = error
 
             if fetch_error is not None:
-                print('Fetch error in batch {} of size {}.'.format(batch_nr, array_size), file=sys.stderr)
+                LOGGER.error('Fetch error in batch {} of size {}.'.format(batch_nr, array_size))
                 error_msg = str(fetch_error)
-                print(error_msg, file=sys.stderr)
-                raise SQLExecuteException('Failed to fetch data in batch {}: {}'.format(batch_nr, error_msg))
+                LOGGER.error(error_msg)
+                error_msg = 'Failed to fetch data in batch {}: {}'.format(batch_nr, error_msg)
+                raise SQLExecuteException(error_msg)
 
             if len(results) == 0:
                 self.close(cursor)
@@ -623,26 +671,34 @@ class Jdbc:
                     self.close(cursor)
                     break
 
-    @default_cursor([])
-    def commit(self, cursor=None):
+    def commit(self):
+        """
+        Commit the current transaction. This will commit all open cursors.
+        All open cursors are closed (also in auto-commit mode)
+        """
+
         commit_error = None
         with self.statistics as stt:
-            for c in [cc for cc in self.cursors if cc.rowcount > 0]:
+            for c in [cc.cursor for cc in self.cursors if cc.cursor.rowcount > 0]:
                 stt.add_row_count(c.rowcount)
             if not self.auto_commit:
                 try:
                     self.connection.commit()
                 except DatabaseError as dbe:
                     commit_error = dbe
-            self.close(cursor)
+            self.close_all_cursors()
         if commit_error is not None:
             raise CommitException(str(commit_error))
 
-    @default_cursor([])
-    def rollback(self, cursor=None):
+    def rollback(self):
+        """
+        Roll-back the current transaction. This will affect all open cursors.
+        All open cursors are closed (also in auto-commit mode)
+        """
+
         if not self.auto_commit:
             self.connection.rollback()
-        self.close(cursor)
+        self.close_all_cursors()
 
     def query(self, sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000):
         """
@@ -656,7 +712,7 @@ class Jdbc:
         @param array_size: batch size for which results are buffered when retrieving from the database
         @return: iterator of the specified return type, or the return type if max_rows=1
         """
-        cur = self.execute(sql, parameters, cursor=None)
+        cur = self.execute(sql, parameters, cursor=None, use_current_cursor=False, keep_cursor=True)
         if cur.rowcount >= 0:
             raise ValueError('The provided SQL is for updates, not to query. Use Execute method instead.')
         return self.get_data(cur, return_type=return_type, include_none=False, max_rows=max_rows, array_size=array_size)

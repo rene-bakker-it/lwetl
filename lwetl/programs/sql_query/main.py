@@ -193,12 +193,12 @@ def parse_output(cursors: list, args):
     f.close()
 
 
-def commit(jdbc: lwetl.Jdbc, cursor, mode, row_count, tot_count):
+def commit(jdbc: lwetl.Jdbc, mode, row_count, tot_count):
     if mode == lwetl.UPLOAD_MODE_COMMIT:
-        jdbc.commit(cursor)
+        jdbc.commit()
         n_rollback = 0
     else:
-        jdbc.rollback(cursor)
+        jdbc.rollback()
         n_rollback = row_count
     print('{} for {:3d} rows ({:6d} total)'.format(mode.upper(), row_count, tot_count))
     return n_rollback
@@ -235,11 +235,11 @@ def parse_sql_commands(jdbc: lwetl.Jdbc, sql_input, args) -> int:
                     row_count += rc
                     tot_count += rc
                     if row_count >= args.commit_nr:
-                        tot_rollb += commit(jdbc, cursor, args.commit_mode, row_count, tot_count)
+                        tot_rollb += commit(jdbc, args.commit_mode, row_count, tot_count)
                         row_count = 0
                         cursor = None
         if row_count > 0:
-            tot_rollb += commit(jdbc, cursor, args.commit_mode, row_count, tot_count)
+            tot_rollb += commit(jdbc, args.commit_mode, row_count, tot_count)
         if has_update:
             print('Finished. {:6d} rows updated.'.format(tot_count - tot_rollb))
         if len(cursors) > 0:

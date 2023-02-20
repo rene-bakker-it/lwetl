@@ -4,12 +4,16 @@
 
 import base64
 import getpass
+import logging
 import os
 import random
 import sys
 
 from cryptography.fernet import Fernet
 from .exceptions import DecryptionError
+
+# define a logger
+LOGGER = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
 KEY = None
 
@@ -86,7 +90,7 @@ def decrypt(s: str, key=None, raise_error=False):
         if raise_error:
             raise DecryptionError('Cannot decrypt.')
         else:
-            print('Password decryption error. Wrong password? {}'.format(e), file=sys.stderr)
+            LOGGER.critical('Password decryption error. Wrong password? {}'.format(e))
             sys.exit(1)
     return s2[2:2 + int(s2[0:2], 16) - 128]
 
