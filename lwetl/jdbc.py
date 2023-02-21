@@ -550,13 +550,13 @@ class Jdbc:
             raise TypeError('Query (sql) must be a string.')
 
         if self.current_cursor is None:
-            available_cursors = [cs.cursor for cs in self.cursors if not cs.keep]
+            available_cursors = [cs.cursor for cs in self.cursors if cs.keep == keep_cursor]
             if len(available_cursors) > 0:
-                self.current_cursor = available_cursors[-1].cursor
+                self.current_cursor = available_cursors[-1]
                 self.keep_current_cursor = False
 
         if cursor is None:
-            if use_current_cursor and (not keep_cursor) and (not self.keep_current_cursor):
+            if use_current_cursor and (keep_cursor == self.keep_current_cursor):
                 cursor = self.current_cursor
         elif not self.has_cursor(cursor):
             cursor = None
