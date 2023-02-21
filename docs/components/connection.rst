@@ -45,7 +45,7 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
         The connection to the database as returned by ``jaydebeapi.connect``. See PEP249_  for further details.
 
 
-    .. function:: execute(sql: str, parameters: (list, tuple) = None, cursor: object = None) -> Cursor
+    .. function:: execute(sql: str, parameters: (list, tuple) = None, cursor: Union[Cursor, None] = None, use_current_cursor: bool = True, keep_cursor: bool = False) -> Cursor:
 
         Execute a query, optionally with list of parameters, or a list of a list of parameters. :exc:`Raises` an
         `SQLExecutionException` if the query fails, see the example below.
@@ -57,8 +57,17 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
             parameters specified in the sql query. May also be None (no parameters), or a list of lists
 
         :arg Cursor,None cursor:
-            the cursor to use for exection. Create a new one if None (default), or if the cursor is not an open cursor
-            associated to the current connection
+            the cursor to use for execution. Auto-generate, if not specified. For details see the next
+            function arguments.
+
+        :arg bool use_current_cursor:
+            if the cursor is not specified, it will try to use the last-used cursor of the same life-cycle type.
+            See the next argument for details. Defaults to True.
+
+        :arg bool keep_cursor:
+            life-span of the cursor: keep it on a commit or rollback. Defaults to False. It is intended to permit
+            long-lived cursors, when a large number of rows are read from the database, which triggers write-
+            operations on a different cursor, possibly with multiple commits.
 
         :returns:
             a  :class:`jaydebeapi.connect.Cursor` for further processing.
@@ -92,26 +101,18 @@ The class ``Jdbc`` creates a connection to a database, which remains open until 
             the column associated to the cursor as an OrderedDict, or an empty dictionary if no columns were found.
 
 
-    .. function:: commit(cursor=None):
+    .. function:: commit():
 
-        Commits pending modifications of the specified cursor to the database. If not specified, the current corsor
-        is assumed.
+        Commits pending modifications of the specified cursor to the database. Commits and invalidates all cursors
+        with pending commits.
 
-        :arg Cursor cursor:
-            the cursor to query. Uses the last used (current) cursor, if not specified.
+        Use appropriate arguments in the :func:`execute()` command, if you intend to generate read-only queries,
+        which must extend over multiple commits to the database. It is recommended to use the :func:`query()`
+        command for this purpose.
 
-        .. warning:: This may also commit pending modifications of other cursors associated to the connection.
+    .. function:: rollback():
 
-
-    .. function:: rollback(cursor=None):
-
-        Rolls back pending modifications of the specified cursor to the database. If not specified, the current
-        corsor is assumed.
-
-        :arg Cursor cursor:
-            the cursor to query. Uses the last used (current) cursor, if not specified.
-
-        .. warning:: This may also commit pending modifications of other cursors associated to the connection.
+        Rolls back pending modifications to the database. Cancels and invalidates all cursors with pending commits.
 
 
     .. function:: get_data(cursor: Cursor = None, return_type=tuple, include_none=False, max_rows: int = 0, array_size: int = 1000)-> iterator:
