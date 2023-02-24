@@ -254,12 +254,11 @@ class DataTransformer:
 
     @staticmethod
     def parse_date(date):
-        for f in ['%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%H:%M:%S']:
-            try:
-                d = datetime.strptime(date, f)
-                return d
-            except ValueError:
-                pass
+        try:
+            d = dt_parse(date)
+            return d
+        except ValueError:
+            pass
         return date
 
     # noinspection PyTypeChecker

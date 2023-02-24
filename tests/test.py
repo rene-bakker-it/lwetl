@@ -34,7 +34,8 @@ def get_tables(jdbc: lwetl.Jdbc) -> list:
     """
 
     if jdbc.type not in content_queries:
-        raise LookupError('Database type %s not supported.' % jdbc.type)
+        msg = 'Database type {} not supported.'.format(jdbc.type)
+        raise LookupError(msg)
     sql = content_queries[jdbc.type]
     if '@SCHEMA@' in sql:
         sql = sql.replace('@SCHEMA@', jdbc.schema)
@@ -166,7 +167,7 @@ def test_table_import(jdbc: lwetl.Jdbc):
         'csv': (lwetl.CsvImport, lwetl.NativeUploader),
         'ldif': (lwetl.LdifImport, lwetl.ParameterUploader)
     }
-    print('\nRunning table import test: (%s,%s)' % (jdbc.login, jdbc.type))
+    print('\nRunning table import test: ({},{})'.format(jdbc.login, jdbc.type))
 
     cfg = get_test_configuration(jdbc)
     for key in ['xls', 'csv', 'ldif']:
@@ -200,7 +201,7 @@ def test_table_import(jdbc: lwetl.Jdbc):
 
 # Encoding test skipped: first needs update of JPype to 0.7
 def test_encoding(jdbc: lwetl.Jdbc):
-    print('\nRunning ldif insert encoding test: (%s,%s)' % (jdbc.login, jdbc.type))
+    print('\nRunning ldif insert encoding test: ({},{})'.format(jdbc.login, jdbc.type))
     table = 'LWETL_ENC'
 
     # read ldif and dump in table
@@ -230,7 +231,7 @@ def test_encoding(jdbc: lwetl.Jdbc):
     cnt_fail = 0
     for lg1, lg2, val in jdbc.query("SELECT LANG1, LANG2, VAL FROM {0} ORDER BY LANG1, LANG2".format(table)):
         if lg2:
-            r = '%s.%s' % (lg1, lg2)
+            r = '{}.{}'.format(lg1, lg2)
             s = I_CAN_EAT_GLASS.get(lg1, dict()).get(lg2, 'NN')
         else:
             r = lg1
@@ -240,13 +241,13 @@ def test_encoding(jdbc: lwetl.Jdbc):
             cnt_ok += 1
         else:
             cnt_fail += 1
-            print('FAILED %s s=(%s) db=(%s)' % (r, s, val))
+            print('FAILED {} s=({}) db=({})'.format(r, s, val))
     assert cnt_fail == 0
 
 
 # depricated? @pytest.mark.slow
 def test_binary_io(jdbc: lwetl.Jdbc):
-    print('\nRunning binary insert test: (%s,%s)' % (jdbc.login, jdbc.type))
+    print('\nRunning binary insert test: ({},{})'.format(jdbc.login, jdbc.type))
     cfg = get_test_configuration(jdbc).get('binary', None)
     if cfg is None:
         print('No binary io test defined. Skipping test.')
@@ -262,24 +263,21 @@ def test_binary_io(jdbc: lwetl.Jdbc):
     id_pk = cfg['id']
 
     uploader = lwetl.ParameterUploader(jdbc, table, fstream=sys.stdout, commit_mode=lwetl.UPLOAD_MODE_COMMIT)
-    error = None
     try:
         uploader.update({column: img}, {'ID': id_pk})
         uploader.commit()
     except lwetl.SQLExecuteException as exec_error:
-        error = exec_error
         print('TEST SKIPPED: unsupported feature.')
         print(exec_error)
     else:
-        fname = os.path.join(OUTPUT_DIR, '%s.%s.jpg' % (jdbc.type, table.lower()))
+        fname = os.path.join(OUTPUT_DIR, '{}.{}.jpg'.format(jdbc.type, table.lower()))
         print('Testing download to: ' + fname)
         with open(fname, 'wb') as g:
             g.write(jdbc.query_single_value('SELECT {0} FROM {1} WHERE ID = {2}'.format(column, table, id_pk)))
-    # assert error is None
 
 
 def test_jdbc_query(jdbc: lwetl.Jdbc):
-    print('\nRunning Schema query test: (%s,%s)' % (jdbc.login, jdbc.type))
+    print('\nRunning Schema query test: ({},{})'.format(jdbc.login, jdbc.type))
     try:
         tables = get_tables(jdbc)
     except LookupError as lookup_error:
@@ -290,11 +288,11 @@ def test_jdbc_query(jdbc: lwetl.Jdbc):
         else:
             if len(tables) > 1:
                 tables = sorted(tables)
-            print('%d tables found: %s' % (len(tables), ', '.join(tables)))
+            print('{} tables found: {}'.format(len(tables), ', '.join(tables)))
 
 
 def test_formatters(jdbc: lwetl.Jdbc):
-    print('\nRunning formatter test: (%s,%s)' % (jdbc.login, jdbc.type))
+    print('\nRunning formatter test: ({},{})'.format(jdbc.login, jdbc.type))
 
     formatters = {
         'txt': lwetl.TextFormatter,
@@ -317,9 +315,10 @@ def test_formatters(jdbc: lwetl.Jdbc):
         for ext in extensions:
             formatter = formatters[ext]
             print("\n\nTesting (1): " + formatter.__name__)
+            cursor = jdbc.execute(sql, use_current_cursor=False, keep_cursor=True)
             kwargs = {
-                'cursor': jdbc.execute(sql),
-                'filename_or_stream': os.path.join(output_dir, '%s-1.%s' % (table, ext))
+                'cursor': cursor,
+                'filename_or_stream': os.path.join(output_dir, '{}-1.{}'.format(table, ext))
             }
             if ext == 'sql':
                 kwargs['connection'] = jdbc
@@ -329,14 +328,14 @@ def test_formatters(jdbc: lwetl.Jdbc):
 
             with formatter(**kwargs) as f:
                 f.header()
-                for r in jdbc.get_data():
+                for r in jdbc.get_data(cursor):
                     f.write(r)
                 f.footer()
         for ext in extensions:
             kwargs = {
                 'jdbc': jdbc,
                 'sql': sql,
-                'filename_or_stream': os.path.join(output_dir, '%s-2.%s' % (table, ext))
+                'filename_or_stream': os.path.join(output_dir, '{}-2.{}'.format(table, ext))
             }
             if ext == 'sql':
                 kwargs['connection'] = jdbc

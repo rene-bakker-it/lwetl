@@ -4,12 +4,12 @@
 
 import re
 from datetime import datetime
+from dateutil.parser import parse as dt_parse
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 # regex filters
 RE_IS_NUMBER = re.compile(r'^\d+(\.\d*)*$')
-RE_IS_DATE_TIME_MS = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}(\.\d{3})$')
-RE_IS_DATE_TIME = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}(\.\d+)?$')
+RE_IS_DATE_TIME = re.compile(r'^\d{4}(-\d{2}){2}[T ]\d{2}(:\d{2}){2}(\.\d+)?(Z|[+\- ]\d{2}(:)?\d{2})?$')
 RE_IS_DATE = re.compile(r'^\d{4}(-\d{2}){2}$')
 
 
@@ -43,10 +43,8 @@ def string2date(str_value: str) -> datetime:
     """
     if not isinstance(str_value, str):
         raise ValueError('Invalid argument type in string2date(). Must be a string.')
-    if RE_IS_DATE_TIME_MS.match(str_value):
-        return datetime.strptime(str_value[:19], '%Y-%m-%d %H:%M:%S.%f')
-    elif RE_IS_DATE_TIME.match(str_value):
-        return datetime.strptime(str_value[:19], '%Y-%m-%d %H:%M:%S')
+    if RE_IS_DATE_TIME.match(str_value):
+        return dt_parse(str_value)
     elif RE_IS_DATE.match(str_value):
         return datetime.strptime(str_value[:10], '%Y-%m-%d')
     else:

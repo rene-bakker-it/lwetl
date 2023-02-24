@@ -5,7 +5,6 @@
 import copy
 import logging
 import os
-import sys
 
 from collections import OrderedDict
 from decimal import Decimal
@@ -382,16 +381,12 @@ class NativeUploader(Uploader):
 
         if RE_IS_DATE.match(value):
             value = value + ' 00:00:00'
-        if RE_IS_DATE_TIME_MS.match(value):
-            if self.database_type == 'oracle':
-                return "TO_TIMESTAMP('{}','YYYY-MM-DD HH24:MI:SS.FF3')".format(value[:23])
-            else:
-                return "'{}'".format(value[:23] + '000')
         if RE_IS_DATE_TIME.match(value):
+            t = dt_parse(value)
             if self.database_type == 'oracle':
-                return "TO_DATE('{}','yyyy-mm-dd hh24:mi:ss')".format(value[:19])
+                return "TO_TIMESTAMP('{}','YYYY-MM-DD HH24:MI:SS.FF3')".format(t.strftime(DEFAULT_TIME_FORMAT_MS))
             else:
-                return "'{}'".format(value[:19])
+                return "'{}'".format(t.strftime(DEFAULT_TIME_FORMAT_MS) + '000')
         else:
             raise ValueError(
                 'Value ({}) cannot be converted to a time object.'.format(value))
@@ -535,14 +530,12 @@ class ParameterUploader(Uploader):
             return value
         elif isinstance(value, str):
             if self.columns[column_name] == COLUMN_TYPE_DATE:
-                if RE_IS_DATE_TIME_MS.match(value):
-                    date = datetime.strptime(value[:23], DEFAULT_TIME_FORMAT_MS)
-                elif RE_IS_DATE_TIME.match(value):
-                    date = datetime.strptime(value[:19], DEFAULT_TIME_FORMAT)
+                if RE_IS_DATE_TIME.match(value):
+                    date = dt_parse(value)
                 elif RE_IS_DATE.match(value):
                     date = datetime.strptime(value[:10], DEFAULT_DATE_FORMAT)
                 else:
-                    msg = 'Invalid time format. Must be {}. Found: ({})'.format(DEFAULT_TIME_FORMAT_MS, value)
+                    msg = 'Invalid time format: {}'.format(value)
                     raise ValueError(msg)
                 return self.sqlDate((int(date.strftime("%s"))*1000) + (date.microsecond // 1000))
             elif self.columns[column_name] == COLUMN_TYPE_NUMBER:
