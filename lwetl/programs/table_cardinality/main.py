@@ -41,7 +41,7 @@ def count(login, table, filename, max_rows):
                'COUNT(*) DESC,{0} '
     sql_count = 'SELECT COUNT(*) AS N FROM {1} WHERE {0} IS NOT NULL'
 
-    with lwetl.XlsxFormatter(cursor=cur, filename_or_stream=filename) as xls:
+    with lwetl.XlsxFormatter(cursor=cur, filename_or_stream=filename, pretty=True) as xls:
         sheet1 = xls.sheet
         sheet1.append(['COLUMN NAME', 'DISTINCT', 'TOTAL', 'TOTAL NON DISTINCT'])
         for column_name in columns.keys():
