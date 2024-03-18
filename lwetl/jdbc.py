@@ -699,7 +699,7 @@ class Jdbc:
             self.connection.rollback()
         self.close_all_cursors()
 
-    def query(self, sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000):
+    def query(self, sql: str, parameters=None, return_type=tuple, max_rows=0, array_size=1000, include_none=False):
         """
         Send an SQL to the database and return rows of results
         @param sql: str - single sql statement
@@ -709,12 +709,13 @@ class Jdbc:
             that only the first value of each row is returned and cast to the specified type.
         @param max_rows: maximum number of rows to return. Zero or negative imply all
         @param array_size: batch size for which results are buffered when retrieving from the database
+        @param include_none: dictionary output only: include columns with a None output into the dictionary.
         @return: iterator of the specified return type, or the return type if max_rows=1
         """
         cur = self.execute(sql, parameters, cursor=None, use_current_cursor=False, keep_cursor=True)
         if cur.rowcount >= 0:
             raise ValueError('The provided SQL is for updates, not to query. Use Execute method instead.')
-        return self.get_data(cur, return_type=return_type, include_none=False, max_rows=max_rows, array_size=array_size)
+        return self.get_data(cur, return_type=return_type, include_none=include_none, max_rows=max_rows, array_size=array_size)
 
     def query_single(self, sql: str, parameters=None, return_type=tuple) -> (tuple, list, dict, OrderedDict):
         """
