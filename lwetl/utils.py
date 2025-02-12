@@ -8,7 +8,8 @@ from dateutil.parser import parse as dt_parse
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 # regex filters
-RE_IS_NUMBER = re.compile(r'^\d+(\.\d*)*$')
+# set to max of 23 numbers not to conflict with a mongo id
+RE_IS_NUMBER = re.compile(r'^\d{1,23}(\.\d*)*$')
 RE_IS_DATE_TIME = re.compile(r'^\d{4}(-\d{2}){2}[T ]\d{2}(:\d{2}){2}(\.\d+)?(Z|[+\- ]\d{2}(:)?\d{2})?$')
 RE_IS_DATE = re.compile(r'^\d{4}(-\d{2}){2}$')
 
