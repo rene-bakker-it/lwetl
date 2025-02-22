@@ -507,7 +507,8 @@ class Jdbc:
 
     def execute(self, sql: str, parameters: Union[list, tuple] = None,
                 cursor: Union[Cursor, None] = None,
-                use_current_cursor: bool = True, keep_cursor: bool = False) -> Cursor:
+                use_current_cursor: bool = True, keep_cursor: bool = False,
+                strip_semi_colon: bool = True) -> Cursor:
         """
         Execute a query
         @param sql: str query to execute
@@ -519,7 +520,7 @@ class Jdbc:
         @param keep_cursor: if set to true, the cursor will not be closed upon a commit or rollback.
         @return: Cursor of the execution
 
-        @raise SQLExecutionError on an execution exception
+        @raise SQLExecutionException on an execution exception
         """
 
         def string2java_string(sql_or_list):
@@ -566,8 +567,9 @@ class Jdbc:
             self.current_cursor = cursor
             self.keep_current_cursor = keep_cursor
 
-        while sql.strip().endswith(';'):
-            sql = sql.strip()[:-1]
+        if strip_semi_colon:
+            while sql.strip().endswith(';'):
+                sql = sql.strip()[:-1]
         error_message = None
         with self.statistics as stt:
             try:
