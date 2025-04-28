@@ -4,6 +4,7 @@
 
 import base64
 import getpass
+import keyring
 import logging
 import os
 import random
@@ -44,15 +45,24 @@ def get_key(k):
     """
     global KEY
 
+    has_keyring = True
     if isinstance(k, str) and (len(k.strip()) > 0):
         key = k
     elif KEY is None:
-        key = os.environ.get('LWETL')
+        if (key := os.environ.get('LWETL')) is None:
+            try:
+                key = keyring.get_password(__name__, getpass.getuser())
+                LOGGER.debug(f'Master password retrieved from keyring, service={__name__}, user={getpass.getuser()}')
+            except Exception as e:
+                has_keyring = False
+                LOGGER.warning(f'Error getting password from keyring {type(e).__name__}: {e}')
     else:
         key = KEY
     if key is None:
-        print('Enter lwetl master password: ')
+        print('Enter lwetl master password: ', end='')
         key = getpass.getpass()
+        if has_keyring:
+            keyring.set_password(__name__, getpass.getuser(), key)
     return init_key(key)
 
 

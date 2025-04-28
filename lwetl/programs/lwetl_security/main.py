@@ -5,6 +5,9 @@
 
 import argparse
 import getpass
+
+import keyring
+
 import lwetl
 import os
 import sys
@@ -13,7 +16,7 @@ import yaml
 from collections import namedtuple
 
 from lwetl.version import __version__
-from lwetl.config_parser import CFG_FILES, merge
+from lwetl.config_parser import CFG_FILES, merge, LOGGER
 from lwetl.security import encrypt, decrypt, init_key
 from lwetl.queries import table_count_queries
 from lwetl.exceptions import DecryptionError
@@ -29,7 +32,8 @@ parser = argparse.ArgumentParser(
 commands = {
     'set': 'impose a new password',
     'remove': 'remove the password encryption.',
-    'test': 'test the connections (alias) in the configuration file.'
+    'test': 'test the connections (alias) in the configuration file.',
+    'delete-keyring': 'delete the password entry in keyring'
 }
 
 parser.add_argument('command', default=None, choices=list(commands.keys()),
@@ -133,6 +137,16 @@ def main():
         configuration['encrypt'] = True
     elif args.command == 'remove':
         configuration['encrypt'] = False
+    elif args.command == 'delete-keyring':
+        try:
+            if keyring.get_password(__name__, getpass.getuser()) is not None:
+                keyring.delete_password(__name__, getpass.getuser())
+                LOGGER.info(f'Deleted password for service={__name__}, user={getpass.getuser()}')
+            else:
+                LOGGER.warning(f'No password found for service={__name__}, user={getpass.getuser()}')
+        except Exception as e:
+            LOGGER.error(f'Failed to use keyring {type(e).__name__}: {e}')
+        sys.exit(0)
     else:
         print('ERROR: unsupported command: {}'.format(args.command))
         sys.exit(1)
