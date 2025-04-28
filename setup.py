@@ -31,7 +31,7 @@ setup(
     packages=find_packages(exclude=["tests", "examples"]),
     package_data={'': ['../config.yml', '../config-example.yml']},
     install_requires=[
-        'jaydebeapi', 'psutil', 'pyyaml', 'openpyxl', 'cryptography',  'regex', 'requests', 'python-dateutil' ],
+        'jaydebeapi', 'psutil', 'pyyaml', 'openpyxl', 'cryptography', 'keyring', 'regex', 'requests', 'python-dateutil' ],
     entry_points={
         'console_scripts': [
             'sql-query=lwetl.programs.sql_query.main:main',
